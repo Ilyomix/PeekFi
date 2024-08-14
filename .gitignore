@@ -1,36 +1,39 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-.cache/*
-.yarn/*
-node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-!.vscode/launch.json
-.idea
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.cache/*
+.yarn/*
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-/test-results/
-/playwright-report/
-/playwright/.cache/
+*.pem
 
-# storybook
-storybook-static
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# tests
-/coverage/
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel
