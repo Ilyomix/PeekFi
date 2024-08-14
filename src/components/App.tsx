@@ -1,11 +1,12 @@
-import Avatar from 'components/Avatar'
-import logo from 'assets/logo.svg'
+import Avatar from 'components/Avatar';
+import logo from 'assets/logo.svg';
+import 'assets/app/index.css';
 
 const randoms = [
   [1, 2],
   [3, 4, 5],
   [6, 7]
-]
+];
 
 function App() {
   return (
@@ -17,12 +18,9 @@ function App() {
               <Avatar size="large" src={logo} />
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-              Welcome!
+             PeekFi - Built in React 18 - 0123456789
             </h1>
-            <p className="mt-4 text-xl text-gray-500">
-              This is a boilerplate build with Vite, React 18, TypeScript,
-              Vitest, Testing Library, TailwindCSS 3, Eslint and Prettier.
-            </p>
+            <p className="mt-4 text-xl text-gray-500">PeekFi finance 1</p>
           </div>
           <div className="my-10">
             <a
@@ -63,7 +61,7 @@ function App() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
