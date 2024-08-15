@@ -15,7 +15,8 @@
 
 .inner {
   height: rem(56px);
-  background-color: light-dark(rgba(255, 255, 255, 0.7), rgba(0, 0, 0, 0.7));
+  border: 1px solid light-dark(rgba(128, 128, 128, 0.15), rgba(76, 76, 76, 0.4));
+  background-color: light-dark(rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.2));
   border-radius: 28px;
   padding: 0.5rem 0.75rem;
   backdrop-filter: blur(10px);
@@ -37,10 +38,12 @@
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-white));
   font-size: var(--mantine-font-size-sm);
   font-weight: 500;
-  transition: background-color 0.125s ease-in-out;
+  transition: all 0.125s ease-in-out;
 
   @mixin hover {
-    background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+    box-shadow: 0 4px 6px -1px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.1)), 0 2px 4px -2px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.3));
+    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-white));
+    color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-dark-9))
   }
 }
 
@@ -50,13 +53,15 @@
     padding: rem(8px) rem(12px);
     border-radius: var(--mantine-radius-xl);
     text-decoration: none;
-    color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-white));
+    color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-9));
     font-size: var(--mantine-font-size-sm);
     font-weight: 500;
-    background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
-    transition: background-color 0.125s ease-in-out;
+    background-color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white));
+    transition: all 0.125s ease-in-out;
 
     @mixin hover {
-      background-color: light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-6));
+      box-shadow: 0 4px 6px -1px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.1)), 0 2px 4px -2px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.3));
+      background-color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white));
+      color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-9))
     }
 }

@@ -1,3 +1,11 @@
+.button {
+  @mixin hover {
+    box-shadow: 0 4px 6px -1px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.1)), 0 2px 4px -2px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.3));
+  }
+
+  transition: box-shadow ease-in-out 0.25s;
+}
+
 .icon {
   width: rem(22px);
   height: rem(22px);

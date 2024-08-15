@@ -27,6 +27,7 @@ export function ThemeToggle() {
         radius="xl"
         size="lg"
         aria-label="Toggle color scheme"
+        className={classes.button}
       >
         <IconSun className={cx(classes.icon, classes.light)} stroke={1.5} />
         <IconMoon className={cx(classes.icon, classes.dark)} stroke={1.5} />

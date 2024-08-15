@@ -18,7 +18,7 @@ import logo from 'assets/logo.png';
 
 const links = [
   { link: '/', label: 'Screener' },
-  { link: '/pair/d', label: 'Pair' },
+  { link: '/portfolio', label: 'Portfolio' },
   { link: '/settings', label: 'Settings' },
   { link: '/about', label: 'About' }
 ];
