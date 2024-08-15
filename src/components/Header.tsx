@@ -31,6 +31,7 @@ export function Header() {
   });
 
   const { pathname } = useLocation();
+
   const theme = useMantineTheme();
 
   const isDarkTheme = computedColorScheme === 'dark';
