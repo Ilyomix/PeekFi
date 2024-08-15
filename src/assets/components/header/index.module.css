@@ -1,28 +1,21 @@
 .header {
   height: rem(56px);
   position: fixed;
+  display: flex;
   width: 100vw;
+  max-width: calc(82.5rem + 2rem);
+  transform: translate(-2rem);
+  flex-direction: column;
+  justify-content: center;
   top: 0.5rem;
-  left: 0;
   padding-left: var(--mantine-spacing-md);
   padding-right: var(--mantine-spacing-md);
   z-index: 10000;
 }
 
-.inner-light {
+.inner {
   height: rem(56px);
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 28px;
-  padding: 0.5rem 0.75rem;
-  backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.inner-dark {
-  height: rem(56px);
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: light-dark(rgba(255, 255, 255, 0.7), rgba(0, 0, 0, 0.7));
   border-radius: 28px;
   padding: 0.5rem 0.75rem;
   backdrop-filter: blur(10px);
@@ -39,13 +32,31 @@
   display: block;
   line-height: 1;
   padding: rem(8px) rem(12px);
-  border-radius: var(--mantine-radius-sm);
+  border-radius: var(--mantine-radius-xl);
   text-decoration: none;
-  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-white));
   font-size: var(--mantine-font-size-sm);
   font-weight: 500;
+  transition: background-color 0.125s ease-in-out;
 
   @mixin hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+    background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
   }
+}
+
+.link-active {
+    display: block;
+    line-height: 1;
+    padding: rem(8px) rem(12px);
+    border-radius: var(--mantine-radius-xl);
+    text-decoration: none;
+    color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-white));
+    font-size: var(--mantine-font-size-sm);
+    font-weight: 500;
+    background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+    transition: background-color 0.125s ease-in-out;
+
+    @mixin hover {
+      background-color: light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-6));
+    }
 }

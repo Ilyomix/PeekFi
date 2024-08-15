@@ -1,7 +1,12 @@
 import { Button } from '@mantine/core';
+import PageTransition from 'components/PageTransition';
 
 const Screener: React.FC = () => {
-  return <div><Button>Button with custom default gradient</Button></div>;
+  return (
+    <PageTransition>
+      <Button>Button with custom default gradient</Button>
+    </PageTransition>
+  );
 };
 
 export default Screener;

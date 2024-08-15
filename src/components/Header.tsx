@@ -5,18 +5,22 @@ import {
   Burger,
   Kbd,
   rem,
-  useComputedColorScheme
+  useComputedColorScheme,
+  getThemeColor,
+  useMantineTheme
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import classes from 'assets/components/header/index.module.css';
 import { ThemeToggle } from './ThemeToggle';
+import logo from 'assets/logo.png';
 
 const links = [
   { link: '/', label: 'Screener' },
   { link: '/pair/d', label: 'Pair' },
-  { link: '/settings', label: 'Settings' }
+  { link: '/settings', label: 'Settings' },
+  { link: '/about', label: 'About' }
 ];
 
 export function Header() {
@@ -26,37 +30,44 @@ export function Header() {
     getInitialValueInEffect: true
   });
 
+  const { pathname } = useLocation();
+  const theme = useMantineTheme();
+
   const isDarkTheme = computedColorScheme === 'dark';
 
-  const items = links.map((link, index) => (
-    <Link key={index + 1} to={link.link} className={classes.link}>
-      {link.label}
-    </Link>
-  ));
+  const items = links.map((link, index) => {
+    return (
+      <Link
+        key={index + 1}
+        to={link.link}
+        className={
+          pathname === link.link ? classes['link-active'] : classes.link
+        }
+      >
+        {link.label}
+      </Link>
+    );
+  });
 
   return (
     <>
       <header className={classes.header}>
-        <div
-          className={
-            isDarkTheme ? classes['inner-dark'] : classes['inner-light']
-          }
-        >
+        <div className={classes.inner}>
           <Group>
-            <Image
-              className={classes.logo}
-              radius="md"
-              w="100"
-              src="./src/assets/logo.png"
-              style={{
-                filter: isDarkTheme ? 'invert()' : ''
-              }}
-            />
             <Burger
               opened={opened}
               onClick={toggle}
               size="sm"
               hiddenFrom="sm"
+            />
+            <Image
+              className={classes.logo}
+              radius="md"
+              w="100"
+              src={logo}
+              style={{
+                filter: isDarkTheme ? 'invert()' : ''
+              }}
             />
           </Group>
 
@@ -81,8 +92,12 @@ export function Header() {
                   Search
                 </>
               }
-              color="gray"
-              fw="400"
+              fw="500"
+              color={
+                isDarkTheme
+                  ? getThemeColor('white', theme)
+                  : getThemeColor('gray.7', theme)
+              }
               radius="xl"
               rightSection={
                 <div>

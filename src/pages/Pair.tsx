@@ -1,8 +1,9 @@
 import { Image } from '@mantine/core';
+import PageTransition from 'components/PageTransition';
 
 const Pair: React.FC = () => {
   return (
-    <div>
+    <PageTransition>
       {' '}
       <Image
         radius="md"
@@ -20,7 +21,7 @@ const Pair: React.FC = () => {
         radius="md"
         src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
       />
-    </div>
+    </PageTransition>
   );
 };
 
