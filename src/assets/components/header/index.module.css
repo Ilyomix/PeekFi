@@ -3,8 +3,8 @@
   position: fixed;
   display: flex;
   width: 100vw;
-  max-width: calc(82.5rem + 2rem);
-  transform: translate(-2rem);
+  max-width: calc(82.5rem);
+  transform: translate(-1rem);
   flex-direction: column;
   justify-content: center;
   top: 0.5rem;

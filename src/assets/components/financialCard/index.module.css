@@ -1,0 +1,43 @@
+.card {
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-8)) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.value {
+  font-size: rem(24px);
+  font-weight: 900 !important;
+  line-height: 1;
+}
+
+.diff {
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  color: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-3));
+}
+
+.title {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-white));
+}
+
+.volume {
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark)) !important;
+
+  .ticker-view {
+    gap: 0px !important;
+
+    .ticker-digit, span {
+      filter: brightness(2) !important;
+    }
+  }
+}
+
+.update {
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark)) !important;
+}
