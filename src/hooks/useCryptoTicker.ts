@@ -37,6 +37,7 @@ const useMultipleCryptoTickers = (
             priceChangePercent,
             highPrice,
             lowPrice,
+            quoteVolume,
             volume
           } = ticker;
 
@@ -49,6 +50,7 @@ const useMultipleCryptoTickers = (
             lowPrice,
             lastPrice,
             symbol,
+            quoteVolume,
             volume,
             cryptoId: symbol,
             currencyPair:

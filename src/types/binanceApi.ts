@@ -44,6 +44,7 @@ export interface TickerData {
   error: string | null;
   loading: boolean;
   volume: string | null;
+  quoteVolume: string | null;
   currencyPair: string | null;
   cryptoId: string | null;
 }

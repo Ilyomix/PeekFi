@@ -9,12 +9,14 @@ import { AnimatedCounter } from 'react-animated-counter';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
 import classes from 'assets/components/financialCard/index.module.css';
 import 'assets/components/financialCard/index.css';
+
+import 'assets/components/financialCard/index.css';
 import BackgroundChart from './BackgroundChart';
 
 type FinancialCardProps = {
   name: string | null;
   price: string | null;
-  volume: string | null;
+  quoteVolume: string | null;
   priceChange: string | null;
   priceChangePercent: string | null;
   error: string | null;
@@ -33,7 +35,7 @@ const getColorClass = (value: string | null) => {
   const parsedValue = parseFloat(value as string);
   if (parsedValue === 0 || !value) return 'var(--mantine-color-gray-text)';
   return parsedValue > 0
-    ? 'var(--mantine-color-green-text)'
+    ? 'var(--mantine-color-teal-text)'
     : 'var(--mantine-color-red-text)';
 };
 
@@ -57,7 +59,7 @@ const renderCounter = (
       !valueMovementColor ? color : 'var(--mantine-color-red-text)'
     }
     decrementColor={
-      !valueMovementColor ? color : 'var(--mantine-color-green-text)'
+      !valueMovementColor ? color : 'var(--mantine-color-teal-text)'
     }
     value={Number(value)}
     decimalPrecision={decimalPrecision ?? getNumberPrecision(value, 2)}
@@ -68,7 +70,7 @@ const renderCounter = (
 const FinancialCard: React.FC<FinancialCardProps> = ({
   name = '---',
   price = '0.00',
-  volume = '0.00',
+  quoteVolume = '0.00',
   priceChange = '(0.00)',
   priceChangePercent = '0.00',
   error,
@@ -112,11 +114,11 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
 
           <Group justify="flex-start">
             <Text component="div" fz="xs" className={classes.volume}>
-              {volume ? (
+              {quoteVolume ? (
                 <Group justify="start" align="center" gap={rem(3)}>
                   Volume: {currencyPair}
                   {renderCounter(
-                    volume,
+                    quoteVolume,
                     '12px',
                     2,
                     'var(--mantine-color-dark)',
@@ -143,7 +145,7 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
                     price,
                     '40px',
                     undefined,
-                    'light-dark(var(--mantine-color-gray-7), var(--mantine-color-white))'
+                    'light-dark(var(--mantine-color-dark-8), var(--mantine-color-white))'
                   )}
                   <Text size="xs" mt={1}>
                     {currencyPair}
