@@ -97,7 +97,7 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  if (loading) return null;
+  if (loading) return <p>Loading ...</p>;
 
   const Icon = icons[error ? 'bug' : 'coin'];
   const DiffIcon = getDiffIcon(priceChangePercent);

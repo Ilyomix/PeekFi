@@ -5,7 +5,10 @@ import assetSymbols from 'utils/assetsSymbols';
 import FinancialCard from './FinancialCard';
 
 export function FinancialMap() {
-  const { tickersData } = useMultipleCryptoTickers(assetSymbols);
+  const { tickersData, error, hasFetched } = useMultipleCryptoTickers(assetSymbols);
+
+  if (!hasFetched) return <p>Loading ...</p>;
+  if (error) return <p>Error ...</p>;
 
   const stats = Object.keys(tickersData).map((symbol, index) => {
     const ticker = tickersData[symbol] || {};

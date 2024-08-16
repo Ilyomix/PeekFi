@@ -11,9 +11,9 @@ const useMultipleCryptoTickers = (
   );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasFetched, setHasFetched] = useState<boolean>(false);
 
   useEffect(() => {
-    // Declare intervalId with let if it needs to be reassigned
     const fetchCryptoData = async () => {
       setLoading(true);
       setError(null);
@@ -44,7 +44,7 @@ const useMultipleCryptoTickers = (
           } = ticker;
 
           newTickersData[symbol.toLowerCase()] = {
-            name: symbol.replaceAll(/USDT|USD|EUR|GBP|AUD|JPY|TRY/g, ''),
+            name: symbol.replace(/USDT|USD|EUR|GBP|AUD|JPY|TRY/g, ''),
             price: lastPrice,
             priceChange,
             priceChangePercent,
@@ -66,9 +66,12 @@ const useMultipleCryptoTickers = (
         });
 
         setTickersData(newTickersData);
+        setHasFetched(true); // Mark as fetched once the data is loaded
       } catch (err) {
         console.error('Error fetching crypto data:', err);
         setError('Error fetching crypto data');
+        setTickersData({});
+        setHasFetched(true); // Mark as fetched even if there is an error
       } finally {
         setLoading(false);
       }
@@ -84,7 +87,7 @@ const useMultipleCryptoTickers = (
     };
   }, [symbols, interval]);
 
-  return { tickersData, loading, error };
+  return { tickersData, loading, error, hasFetched };
 };
 
 export default useMultipleCryptoTickers;
