@@ -5,13 +5,14 @@ const useCryptoData = (symbol: string) => {
   const [data, setData] = useState<[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const UPDATE_RATE = 1800000;
 
   useEffect(() => {
     if (!symbol) return;
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1m&limit=60`
+          `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=30m&limit=48`
         );
         setData(
           response.data.map(
@@ -35,7 +36,7 @@ const useCryptoData = (symbol: string) => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 60000); // Update every minute
+    const intervalId = setInterval(fetchData, UPDATE_RATE); // Update every 15 mn
     return () => clearInterval(intervalId);
   }, [symbol]);
 

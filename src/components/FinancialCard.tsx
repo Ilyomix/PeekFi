@@ -1,9 +1,16 @@
-import { Flex, Group, Paper, Text, rem } from '@mantine/core';
+import { Avatar, Flex, Group, Paper, Text, rem } from '@mantine/core';
 import {
   IconCoin,
   IconArrowUpRight,
   IconArrowDownRight,
-  IconBug
+  IconBug,
+  IconArrowUp,
+  IconArrowDown,
+  IconMoonFilled,
+  IconSunFilled,
+  IconMoon,
+  IconMoon2,
+  IconMoonStars
 } from '@tabler/icons-react';
 import { AnimatedCounter } from 'react-animated-counter';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
@@ -12,6 +19,7 @@ import 'assets/components/financialCard/index.css';
 
 import 'assets/components/financialCard/index.css';
 import BackgroundChart from './BackgroundChart';
+import { getAssetsImageUrl } from 'utils/assetsIcons';
 
 type FinancialCardProps = {
   name: string | null;
@@ -23,7 +31,12 @@ type FinancialCardProps = {
   currencyPair: string | null;
   timestamp: Date | null;
   loading: boolean;
+  symbol: string | null;
   index: number;
+  lowPrice: string | null;
+  openPrice: string | null;
+  prevClosePrice: string | null;
+  highPrice: string | null;
 };
 
 const icons = {
@@ -74,9 +87,13 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
   priceChange = '(0.00)',
   priceChangePercent = '0.00',
   error,
+  symbol,
   currencyPair = '',
-  timestamp,
   loading,
+  lowPrice,
+  openPrice,
+  prevClosePrice,
+  highPrice,
   index
 }) => {
   if (loading) return null;
@@ -102,14 +119,20 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
       ) : (
         <>
           <BackgroundChart
-            cryptoId={name as string}
+            cryptoId={symbol as string}
             delta={priceChangePercent}
           />
           <Group justify="space-between" align="center">
             <Text size="s" fw={500} className={classes.title}>
               {name || `Asset #${index + 1}`}
             </Text>
-            <Icon className={classes.icon} size="1.4rem" stroke={1.5} />
+            {name && (
+              <Avatar
+                src={getAssetsImageUrl(name)}
+                alt={name || ''}
+                size="sm"
+              />
+            )}
           </Group>
 
           <Group justify="flex-start">
@@ -209,12 +232,59 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
               </Flex>
             )}
           </Group>
-
-          <Text fz="xs" c="dimmed" mt={18} className={classes.update}>
-            {timestamp
-              ? `Last update: ${timestamp.toLocaleString('fr')}`
-              : 'No data'}
-          </Text>
+          <Flex
+            mt={18}
+            justify="space-between"
+            align="center"
+            className={classes.details}
+          >
+            <Flex>
+              <IconSunFilled
+                size={18}
+                style={{ paddingRight: '2px', marginLeft: '-2px' }}
+              />
+              <Text component="div" mr={5} display="flex" fz="xs">
+                Open:
+              </Text>
+              <Text mr={2} display="flex" fz="xs">
+                {`${Number(openPrice).toFixed(
+                  getNumberPrecision(openPrice as string, 2)
+                )}`}
+              </Text>
+            </Flex>
+            <Flex>
+              <Text display="flex" fz="xs">
+                {`High: ${Number(highPrice).toFixed(
+                  getNumberPrecision(highPrice as string, 2)
+                )}`}
+              </Text>
+              <IconArrowUp size={16} style={{ paddingRight: '2px' }} />
+            </Flex>
+          </Flex>
+          <Flex
+            mt={2}
+            justify="space-between"
+            align="center"
+            className={classes.details}
+          >
+            <Flex>
+              <Text display="flex" fz="xs">
+                <IconMoonFilled size={16} style={{ paddingRight: '2px' }} />
+                {`Close: ${(
+                  parseFloat(prevClosePrice as string) +
+                  parseFloat(priceChange as string)
+                ).toFixed(getNumberPrecision(price as string, 2))}`}
+              </Text>
+            </Flex>
+            <Flex>
+              <Text display="flex" fz="xs">
+                {`Low: ${Number(lowPrice).toFixed(
+                  getNumberPrecision(lowPrice as string, 2)
+                )}`}
+              </Text>
+              <IconArrowDown size={16} style={{ paddingRight: '2px' }} />{' '}
+            </Flex>
+          </Flex>
         </>
       )}
     </Paper>

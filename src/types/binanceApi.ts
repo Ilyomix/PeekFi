@@ -40,6 +40,8 @@ export interface TickerData {
   priceChangePercent: string | null;
   highPrice: string | null;
   lowPrice: string | null;
+  openPrice: string | null;
+  prevClosePrice: string | null;
   timestamp: Date | null;
   error: string | null;
   loading: boolean;
@@ -48,3 +50,9 @@ export interface TickerData {
   currencyPair: string | null;
   cryptoId: string | null;
 }
+
+export type SymbolInfo = {
+  symbol: string;
+  baseAsset: string;
+  quoteAsset: string;
+};

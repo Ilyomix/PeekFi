@@ -59,17 +59,17 @@ const BackgroundChart: React.FC<BackgroundChartProps> = ({
           enableGridY={false}
           useMesh={true}
           colors={[getColorClass(delta)]}
-          // tooltip={({ point }) => (
-          //   <div
-          //     style={{
-          //       background: '#fff',
-          //       padding: '5px',
-          //       borderRadius: '3px'
-          //     }}
-          //   >
-          //     <strong>{point.data.xFormatted}</strong>: {point.data.yFormatted}
-          //   </div>
-          // )}
+          tooltip={({ point }) => (
+            <div
+              style={{
+                background: '#fff',
+                padding: '5px',
+                borderRadius: '3px'
+              }}
+            >
+              <strong>{point.data.xFormatted}</strong>: {point.data.yFormatted}
+            </div>
+          )}
         />
       </div>
     </PageTransition>

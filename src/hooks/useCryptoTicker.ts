@@ -38,23 +38,27 @@ const useMultipleCryptoTickers = (
             highPrice,
             lowPrice,
             quoteVolume,
-            volume
+            volume,
+            openPrice,
+            prevClosePrice
           } = ticker;
 
           newTickersData[symbol.toLowerCase()] = {
-            name: symbol,
+            name: symbol.replaceAll(/USDT|USD|EUR|GBP|AUD|JPY|TRY/g, ''),
             price: lastPrice,
             priceChange,
             priceChangePercent,
             highPrice,
             lowPrice,
+            openPrice,
+            prevClosePrice,
             lastPrice,
             symbol,
             quoteVolume,
             volume,
             cryptoId: symbol,
             currencyPair:
-              symbol.match(/USDT|BUSD|USD|EUR|GBP|AUD|JPY/)?.[0] || 'UNKNOWN',
+              symbol.match(/USDT|USD|EUR|GBP|AUD|JPY|TRY/)?.[0] || 'UNKNOWN',
             timestamp: new Date(),
             loading: false,
             error: null
