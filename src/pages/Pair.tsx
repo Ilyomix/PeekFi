@@ -17,10 +17,10 @@ const renderCounter = (
     fontSize={fontSize}
     includeCommas
     incrementColor={
-      !valueMovementColor ? color : 'var(--mantine-color-red-text)'
+      !valueMovementColor ? color : 'var(--mantine-color-teal-text)'
     }
     decrementColor={
-      !valueMovementColor ? color : 'var(--mantine-color-teal-text)'
+      !valueMovementColor ? color : 'var(--mantine-color-red-text)'
     }
     value={Number(value)}
     decimalPrecision={decimalPrecision ?? getNumberPrecision(value, 2)}
@@ -58,7 +58,12 @@ const Pair: React.FC = () => {
       <h1>{tickerSymbol}</h1>
       <Flex align="flex-end">
         <Text component="div" mt={-14}>
-          {renderCounter(price, '140px', 2, 'var(--mantine-color-dark)')}
+          {renderCounter(
+            price,
+            '140px',
+            undefined,
+            'var(--mantine-color-dark)'
+          )}
         </Text>
       </Flex>
       <p>
