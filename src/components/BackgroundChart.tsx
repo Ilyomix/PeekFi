@@ -33,7 +33,7 @@ const BackgroundChart: React.FC<BackgroundChartProps> = ({
   ];
 
   return (
-    <PageTransition>
+    <PageTransition duration={0.75}>
       <div
         style={{
           position: 'absolute',
@@ -54,6 +54,7 @@ const BackgroundChart: React.FC<BackgroundChartProps> = ({
           isInteractive={false}
           curve="natural"
           enableArea
+          animate
           enablePoints={false}
           enableGridX={false}
           enableGridY={false}

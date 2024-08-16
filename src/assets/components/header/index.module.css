@@ -27,6 +27,7 @@
 
 .logo {
   filter: hue-rotate(10deg);
+  cursor: pointer;
 }
 
 .link {

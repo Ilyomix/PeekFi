@@ -1,7 +1,14 @@
 .card {
   background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-8)) !important;
   position: relative;
+  cursor: pointer;
   overflow: hidden;
+  user-select: none;
+  transition: box-shadow 0.25s ease, transform 0.25s ease-in-out;
+  &:hover {
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    transform: translateY(-0.2rem);
+  }
 }
 
 .value {

@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import classes from 'assets/components/header/index.module.css';
 import { ThemeToggle } from './ThemeToggle';
 import logo from 'assets/logo.png';
@@ -20,7 +20,8 @@ const links = [
   { link: '/', label: 'Screener' },
   { link: '/portfolio', label: 'Portfolio' },
   { link: '/settings', label: 'Settings' },
-  { link: '/about', label: 'About' }
+  { link: '/about', label: 'About' },
+  { link: '/pair/', label: 'Pair' }
 ];
 
 export function Header() {
@@ -33,6 +34,7 @@ export function Header() {
   const { pathname } = useLocation();
 
   const theme = useMantineTheme();
+  const navigate = useNavigate();
 
   const isDarkTheme = computedColorScheme === 'dark';
 
@@ -69,6 +71,7 @@ export function Header() {
               style={{
                 filter: isDarkTheme ? 'invert()' : ''
               }}
+              onClick={() => navigate('/')}
             />
           </Group>
 
