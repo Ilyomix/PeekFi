@@ -304,9 +304,9 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
                 {'Low: '}
                 <Text component="div" mt={0} ml={4} display="flex" fz="xs">
                   {renderCounter(
-                    highPrice as string,
+                    lowPrice as string,
                     '12px',
-                    getNumberPrecision(highPrice as string, 2),
+                    getNumberPrecision(lowPrice as string, 2),
                     'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
                     false
                   )}
