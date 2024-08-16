@@ -1,3 +1,4 @@
+import React, { memo, useCallback, useMemo } from 'react';
 import { Avatar, Flex, Group, Paper, Text, rem } from '@mantine/core';
 import {
   IconCoin,
@@ -12,9 +13,6 @@ import {
 import { AnimatedCounter } from 'react-animated-counter';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
 import classes from 'assets/components/financialCard/index.module.css';
-import 'assets/components/financialCard/index.css';
-
-import 'assets/components/financialCard/index.css';
 import BackgroundChart from './BackgroundChart';
 import { getAssetsImageUrl } from 'utils/assetsIcons';
 import PageTransition from './PageTransition';
@@ -79,260 +77,271 @@ const renderCounter = (
   />
 );
 
-const FinancialCard: React.FC<FinancialCardProps> = ({
-  name = '---',
-  price = '0.00',
-  quoteVolume = '0.00',
-  priceChange = '(0.00)',
-  priceChangePercent = '0.00',
-  error,
-  symbol,
-  currencyPair = '',
-  loading,
-  lowPrice,
-  openPrice,
-  prevClosePrice,
-  highPrice,
-  index
-}) => {
-  const navigate = useNavigate();
+const FinancialCard: React.FC<FinancialCardProps> = memo(
+  ({
+    name = '---',
+    price = '0.00',
+    quoteVolume = '0.00',
+    priceChange = '(0.00)',
+    priceChangePercent = '0.00',
+    error,
+    symbol,
+    currencyPair = '',
+    loading,
+    lowPrice,
+    openPrice,
+    prevClosePrice,
+    highPrice,
+    index
+  }) => {
+    const navigate = useNavigate();
 
-  if (loading) return <p>Loading ...</p>;
+    // Memoize the icon and color classes
+    const Icon = useMemo(() => icons[error ? 'bug' : 'coin'], [error]);
+    const DiffIcon = useMemo(
+      () => getDiffIcon(priceChangePercent),
+      [priceChangePercent]
+    );
+    const colorClass = useMemo(() => getColorClass(priceChange), [priceChange]);
 
-  const Icon = icons[error ? 'bug' : 'coin'];
-  const DiffIcon = getDiffIcon(priceChangePercent);
-  const colorClass = getColorClass(priceChange);
+    // Callback for navigation
+    const handleClick = useCallback(() => {
+      if (symbol) navigate(`/pair/${symbol}`);
+    }, [symbol, navigate]);
 
-  return (
-    <PageTransition duration={0.75 + 0.01 * index}>
+    if (loading) return <p>Loading ...</p>;
+
+    return (
       <Paper
         shadow="md"
         p="md"
         radius="lg"
         className={classes.card}
-        onClick={() => {
-          if (symbol) navigate(`/pair/${symbol}`);
-        }}
+        onClick={handleClick}
       >
-        {error ? (
-          <Group justify="space-between">
-            <Icon
-              color="#ff8787"
-              className={classes.icon}
-              size="1.4rem"
-              stroke={1.5}
-            />
-            <Text size="md" c="red" className={classes.title}>
-              Cannot fetch data for the moment
-            </Text>
-          </Group>
-        ) : (
-          <>
-            <BackgroundChart
-              cryptoId={symbol as string}
-              delta={priceChangePercent}
-            />
-            <Group justify="space-between" align="center">
-              <Text size="s" fw={500} className={classes.title}>
-                {name || `Asset #${index + 1}`}
+        <PageTransition duration={1}>
+          {error ? (
+            <Group justify="space-between">
+              <Icon
+                color="#ff8787"
+                className={classes.icon}
+                size="1.4rem"
+                stroke={1.5}
+              />
+              <Text size="md" c="red" className={classes.title}>
+                Cannot fetch data for the moment
               </Text>
-              {name && (
-                <Avatar
-                  src={getAssetsImageUrl(name)}
-                  alt={name || ''}
-                  size="sm"
-                />
-              )}
             </Group>
-
-            <Group justify="flex-start">
-              <Text component="div" fz="xs" className={classes.volume}>
-                {quoteVolume ? (
-                  <Group justify="start" align="center" gap={rem(3)}>
-                    Volume: {currencyPair}
-                    {renderCounter(
-                      quoteVolume,
-                      '12px',
-                      2,
-                      'var(--mantine-color-dark)',
-                      false
-                    )}
-                  </Group>
-                ) : (
-                  'No data'
+          ) : (
+            <>
+              <BackgroundChart
+                cryptoId={symbol as string}
+                delta={priceChangePercent}
+              />
+              <Group justify="space-between" align="center">
+                <Text size="s" fw={500} className={classes.title}>
+                  {name || `Asset #${index + 1}`}
+                </Text>
+                {name && (
+                  <Avatar
+                    src={getAssetsImageUrl(name)}
+                    alt={name || ''}
+                    size="sm"
+                  />
                 )}
-              </Text>
-            </Group>
+              </Group>
 
-            <Group align="flex-end" gap="xs" mt={20}>
-              <Text
-                component="div"
-                fw={600}
-                size="40px"
-                lh={1}
-                className={classes.price}
-              >
-                {price ? (
-                  <Group gap={4} align="flex-start">
-                    {renderCounter(
-                      price,
-                      '40px',
-                      undefined,
-                      'light-dark(var(--mantine-color-dark-8), var(--mantine-color-white))'
-                    )}
-                    <Text size="xs" mt={1}>
-                      {currencyPair}
+              <Group justify="flex-start">
+                <Text component="div" fz="xs" className={classes.volume}>
+                  {quoteVolume ? (
+                    <Group justify="start" align="center" gap={rem(3)}>
+                      Volume: {currencyPair}
+                      {renderCounter(
+                        quoteVolume,
+                        '12px',
+                        2,
+                        'var(--mantine-color-dark)',
+                        false
+                      )}
+                    </Group>
+                  ) : (
+                    'No data'
+                  )}
+                </Text>
+              </Group>
+
+              <Group align="flex-end" gap="xs" mt={20}>
+                <Text
+                  component="div"
+                  fw={600}
+                  size="40px"
+                  lh={1}
+                  className={classes.price}
+                >
+                  {price ? (
+                    <Group gap={4} align="flex-start">
+                      {renderCounter(
+                        price,
+                        '40px',
+                        undefined,
+                        'light-dark(var(--mantine-color-dark-8), var(--mantine-color-white))'
+                      )}
+                      <Text size="xs" mt={1}>
+                        {currencyPair}
+                      </Text>
+                    </Group>
+                  ) : (
+                    <Group gap={4}>0.00</Group>
+                  )}
+                </Text>
+              </Group>
+
+              <Group align="flex-start" gap={4}>
+                <Text
+                  component="div"
+                  c={getColorClass(priceChange)}
+                  fz="md"
+                  mt={1}
+                  fw={500}
+                  className={classes.diff}
+                >
+                  {priceChangePercent ? (
+                    <Flex>
+                      {renderCounter(
+                        priceChangePercent,
+                        '16px',
+                        2,
+                        getColorClass(priceChangePercent)
+                      )}
+                      <Text size="md" c={colorClass} mt={1}>
+                        {'%'}
+                      </Text>
+                    </Flex>
+                  ) : (
+                    '0.00%'
+                  )}
+                  {Number(priceChangePercent) !== 0 && (
+                    <DiffIcon size="1rem" stroke={1.5} />
+                  )}
+                </Text>
+
+                {priceChange && (
+                  <Flex
+                    ml={4}
+                    mt={4}
+                    fw={500}
+                    align="flex-start"
+                    justify="flex-start"
+                  >
+                    <Text fw={500} size="sm" c={colorClass}>
+                      {'('}
                     </Text>
-                  </Group>
-                ) : (
-                  <Group gap={4}>0.00</Group>
-                )}
-              </Text>
-            </Group>
-
-            <Group align="flex-start" gap={4}>
-              <Text
-                component="div"
-                c={getColorClass(priceChange)}
-                fz="md"
-                mt={1}
-                fw={500}
-                className={classes.diff}
-              >
-                {priceChangePercent ? (
-                  <Flex>
                     {renderCounter(
-                      priceChangePercent,
-                      '16px',
-                      2,
-                      getColorClass(priceChangePercent)
+                      priceChange,
+                      '14px',
+                      getNumberPrecision(priceChange),
+                      getColorClass(priceChange)
                     )}
-                    <Text size="md" c={colorClass} mt={1}>
-                      {'%'}
+                    <Text fw={500} size="sm" c={colorClass}>
+                      {')'}
                     </Text>
                   </Flex>
-                ) : (
-                  '0.00%'
                 )}
-                {Number(priceChangePercent) !== 0 && (
-                  <DiffIcon size="1rem" stroke={1.5} />
-                )}
-              </Text>
-
-              {priceChange && (
-                <Flex
-                  ml={4}
-                  mt={4}
-                  fw={500}
-                  align="flex-start"
-                  justify="flex-start"
-                >
-                  <Text fw={500} size="sm" c={colorClass}>
-                    {'('}
+              </Group>
+              <Flex
+                mt={18}
+                justify="space-between"
+                align="center"
+                className={classes.details}
+              >
+                <Flex>
+                  <IconSunFilled
+                    size={18}
+                    style={{ paddingRight: '2px', marginLeft: '-2px' }}
+                  />
+                  <Text component="div" mr={5} display="flex" fz="xs">
+                    Open:
                   </Text>
-                  {renderCounter(
-                    priceChange,
-                    '14px',
-                    getNumberPrecision(priceChange),
-                    getColorClass(priceChange)
-                  )}
-                  <Text fw={500} size="sm" c={colorClass}>
-                    {')'}
-                  </Text>
-                </Flex>
-              )}
-            </Group>
-            <Flex
-              mt={18}
-              justify="space-between"
-              align="center"
-              className={classes.details}
-            >
-              <Flex>
-                <IconSunFilled
-                  size={18}
-                  style={{ paddingRight: '2px', marginLeft: '-2px' }}
-                />
-                <Text component="div" mr={5} display="flex" fz="xs">
-                  Open:
-                </Text>
-                <Text component="div" mt={0} display="flex" fz="xs">
-                  {renderCounter(
-                    openPrice as string,
-                    '12px',
-                    getNumberPrecision(openPrice as string, 2),
-                    'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
-                    false
-                  )}
-                </Text>
-              </Flex>
-              <Flex>
-                <Text component="div" display="flex" fz="xs">
-                  {'High:'}
-                  <Text component="div" mt={0} ml={4} display="flex" fz="xs">
+                  <Text component="div" mt={0} display="flex" fz="xs">
                     {renderCounter(
-                      highPrice as string,
+                      openPrice as string,
                       '12px',
-                      getNumberPrecision(highPrice as string, 2),
+                      getNumberPrecision(openPrice as string, 2),
                       'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
                       false
                     )}
                   </Text>
-                </Text>
-                <IconArrowUp size={16} style={{ paddingRight: '2px' }} />
+                </Flex>
+                <Flex>
+                  <Text component="div" display="flex" fz="xs">
+                    {'High:'}
+                    <Text component="div" mt={0} ml={4} display="flex" fz="xs">
+                      {renderCounter(
+                        highPrice as string,
+                        '12px',
+                        getNumberPrecision(highPrice as string, 2),
+                        'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
+                        false
+                      )}
+                    </Text>
+                  </Text>
+                  <IconArrowUp size={16} style={{ paddingRight: '2px' }} />
+                </Flex>
               </Flex>
-            </Flex>
-            <Flex
-              mt={2}
-              justify="space-between"
-              align="center"
-              className={classes.details}
-            >
-              <Flex>
-                <Text component="div" display="flex" fz="xs">
-                  <IconMoonFilled size={16} style={{ paddingRight: '2px' }} />
-                  {'Close: '}
-                  <Text component="div" mt={0} ml={4} display="flex" fz="xs">
-                    {renderCounter(
-                      (
-                        parseFloat(prevClosePrice as string) -
-                        parseFloat(priceChange as string)
-                      ).toPrecision(12),
-                      '12px',
-                      getNumberPrecision(
+              <Flex
+                mt={2}
+                justify="space-between"
+                align="center"
+                className={classes.details}
+              >
+                <Flex>
+                  <Text component="div" display="flex" fz="xs">
+                    <IconMoonFilled size={16} style={{ paddingRight: '2px' }} />
+                    {'Close: '}
+                    <Text component="div" mt={0} ml={4} display="flex" fz="xs">
+                      {renderCounter(
                         (
                           parseFloat(prevClosePrice as string) -
                           parseFloat(priceChange as string)
                         ).toPrecision(12),
-                        2
-                      ),
-                      'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
-                      false
-                    )}
+                        '12px',
+                        getNumberPrecision(
+                          (
+                            parseFloat(prevClosePrice as string) -
+                            parseFloat(priceChange as string)
+                          ).toPrecision(12),
+                          2
+                        ),
+                        'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
+                        false
+                      )}
+                    </Text>
                   </Text>
-                </Text>
-              </Flex>
-              <Flex>
-                <Text component="div" display="flex" fz="xs">
-                  {'Low: '}
-                  <Text component="div" mt={0} ml={4} display="flex" fz="xs">
-                    {renderCounter(
-                      lowPrice as string,
-                      '12px',
-                      getNumberPrecision(lowPrice as string, 2),
-                      'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
-                      false
-                    )}
+                </Flex>
+                <Flex>
+                  <Text component="div" display="flex" fz="xs">
+                    {'Low: '}
+                    <Text component="div" mt={0} ml={4} display="flex" fz="xs">
+                      {renderCounter(
+                        lowPrice as string,
+                        '12px',
+                        getNumberPrecision(lowPrice as string, 2),
+                        'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
+                        false
+                      )}
+                    </Text>
                   </Text>
-                </Text>
-                <IconArrowDown size={16} style={{ paddingRight: '2px' }} />{' '}
+                  <IconArrowDown size={16} style={{ paddingRight: '2px' }} />{' '}
+                </Flex>
               </Flex>
-            </Flex>
-          </>
-        )}
+            </>
+          )}
+        </PageTransition>
       </Paper>
-    </PageTransition>
-  );
-};
+    );
+  }
+);
+
+FinancialCard.displayName = 'FinancialCard';
 
 export default FinancialCard;

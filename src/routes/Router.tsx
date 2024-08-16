@@ -1,16 +1,19 @@
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Pair from 'pages/Pair';
-import Screener from 'pages/Screener';
-import PageTransition from 'components/PageTransition';
 
-export const AppRoutes = () => {
+const Screener = lazy(() => import('pages/Screener'));
+const Pair = lazy(() => import('pages/Pair'));
+
+export function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/" element={<Screener />}></Route>
-      <Route path="/pair/:pair" element={<Pair />}></Route>
-      <Route path="*" element={<PageTransition>404</PageTransition>}></Route>
-    </Routes>
+    <Suspense>
+      <Routes>
+        <Route path="/" element={<Screener />} />
+        <Route path="/pair/:pair" element={<Pair />} />
+        {/* other routes */}
+      </Routes>
+    </Suspense>
   );
-};
+}
 
 export default AppRoutes;
