@@ -31,15 +31,11 @@
 
   .ticker-view {
     gap: 0px !important;
-
-    .ticker-digit, span {
-      filter: brightness(2) !important;
-    }
   }
 }
 
 .details {
-  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark));
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-text));
 }
 
 .update {

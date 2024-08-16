@@ -7,10 +7,7 @@ import {
   IconArrowUp,
   IconArrowDown,
   IconMoonFilled,
-  IconSunFilled,
-  IconMoon,
-  IconMoon2,
-  IconMoonStars
+  IconSunFilled
 } from '@tabler/icons-react';
 import { AnimatedCounter } from 'react-animated-counter';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
@@ -246,17 +243,28 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
               <Text component="div" mr={5} display="flex" fz="xs">
                 Open:
               </Text>
-              <Text mr={2} display="flex" fz="xs">
-                {`${Number(openPrice).toFixed(
-                  getNumberPrecision(openPrice as string, 2)
-                )}`}
+              <Text component="div" mt={0} display="flex" fz="xs">
+                {renderCounter(
+                  openPrice as string,
+                  '12px',
+                  getNumberPrecision(openPrice as string, 2),
+                  'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
+                  false
+                )}
               </Text>
             </Flex>
             <Flex>
               <Text display="flex" fz="xs">
-                {`High: ${Number(highPrice).toFixed(
-                  getNumberPrecision(highPrice as string, 2)
-                )}`}
+                {'High:'}
+                <Text component="div" mt={0} ml={4} display="flex" fz="xs">
+                  {renderCounter(
+                    highPrice as string,
+                    '12px',
+                    getNumberPrecision(highPrice as string, 2),
+                    'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
+                    false
+                  )}
+                </Text>
               </Text>
               <IconArrowUp size={16} style={{ paddingRight: '2px' }} />
             </Flex>
@@ -270,17 +278,39 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
             <Flex>
               <Text display="flex" fz="xs">
                 <IconMoonFilled size={16} style={{ paddingRight: '2px' }} />
-                {`Close: ${(
-                  parseFloat(prevClosePrice as string) +
-                  parseFloat(priceChange as string)
-                ).toFixed(getNumberPrecision(price as string, 2))}`}
+                {'Close: '}
+                <Text component="div" mt={0} ml={4} display="flex" fz="xs">
+                  {renderCounter(
+                    (
+                      parseFloat(prevClosePrice as string) -
+                      parseFloat(priceChange as string)
+                    ).toPrecision(12),
+                    '12px',
+                    getNumberPrecision(
+                      (
+                        parseFloat(prevClosePrice as string) -
+                        parseFloat(priceChange as string)
+                      ).toPrecision(12),
+                      2
+                    ),
+                    'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
+                    false
+                  )}
+                </Text>
               </Text>
             </Flex>
             <Flex>
               <Text display="flex" fz="xs">
-                {`Low: ${Number(lowPrice).toFixed(
-                  getNumberPrecision(lowPrice as string, 2)
-                )}`}
+                {'Low: '}
+                <Text component="div" mt={0} ml={4} display="flex" fz="xs">
+                  {renderCounter(
+                    highPrice as string,
+                    '12px',
+                    getNumberPrecision(highPrice as string, 2),
+                    'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
+                    false
+                  )}
+                </Text>
               </Text>
               <IconArrowDown size={16} style={{ paddingRight: '2px' }} />{' '}
             </Flex>

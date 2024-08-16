@@ -6,7 +6,7 @@ const assetSymbols: AssetSymbol[] = [
   'BTCUSDT', // Bitcoin / Tether
   'ETHUSDT', // Ethereum / Tether
   'EGLDUSDT', // Egold / Tether
-  'FTMTRY',
+  'FTMUSDT',
   'BNBUSDT', // Binance Coin / Tether
   'XRPUSDT', // Ripple / Tether
   'ADAUSDT', // Cardano / Tether
