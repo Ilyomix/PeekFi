@@ -100,7 +100,7 @@ export function Header() {
               color={
                 isDarkTheme
                   ? getThemeColor('white', theme)
-                  : getThemeColor('gray.7', theme)
+                  : getThemeColor('gray.9', theme)
               }
               radius="xl"
               rightSection={

@@ -129,7 +129,7 @@ export function FinancialMap() {
           }}
           total={totalPages}
           autoContrast
-          color="light-dark(var(--mantine-color-dark-8), var(--mantine-color-yellow-8))"
+          color="light-dark(var(--mantine-color-dark-8), var(--mantine-color-teal-8))"
           variant="light"
           siblings={1}
           boundaries={1}

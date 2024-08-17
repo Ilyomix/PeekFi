@@ -10,7 +10,7 @@
   top: 0.5rem;
   padding-left: var(--mantine-spacing-md);
   padding-right: var(--mantine-spacing-md);
-  z-index: 10000;
+  z-index: 100;
 }
 
 .inner {

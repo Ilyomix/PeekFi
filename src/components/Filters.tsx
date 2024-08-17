@@ -1,7 +1,23 @@
 import React, { useState } from 'react';
-import { Button, Group, rem, Text } from '@mantine/core';
+import {
+  Button,
+  Container,
+  Group,
+  Text,
+  Drawer,
+  ActionIcon,
+  ScrollArea,
+  Divider,
+  Flex,
+  Title
+} from '@mantine/core';
 import { useFavoritesStore } from 'stores/useFavoritesStore';
-import { IconFilterFilled } from '@tabler/icons-react';
+import {
+  IconFilterFilled,
+  IconListDetails,
+  IconTableRow,
+  IconX
+} from '@tabler/icons-react';
 import 'assets/components/filter/filter.css';
 
 interface FiltersProps {
@@ -12,6 +28,21 @@ interface FiltersProps {
   cardsPerRow: number;
 }
 
+type FilterButton = {
+  value: string;
+  label: string;
+};
+
+type ItemsPerPageButton = {
+  value: number;
+  label: string;
+};
+
+type CardsPerRowButton = {
+  value: number;
+  label: string;
+};
+
 const Filters: React.FC<FiltersProps> = ({
   setFilter,
   setItemsPerPage,
@@ -20,6 +51,7 @@ const Filters: React.FC<FiltersProps> = ({
   cardsPerRow
 }) => {
   const [filter, setLocalFilter] = useState<string>('all');
+  const [drawerOpened, setDrawerOpened] = useState<boolean>(false); // State for managing drawer
   const favorites = useFavoritesStore((state) => state.favorites);
 
   const handleFilterChange = (value: string) => {
@@ -27,7 +59,7 @@ const Filters: React.FC<FiltersProps> = ({
     setFilter(value);
   };
 
-  const filterButtons = [
+  const filterButtons: FilterButton[] = [
     { value: 'all', label: 'All' },
     { value: 'favorites', label: `Favorites (${favorites.length})` },
     { value: 'gainers', label: 'Top Gainers' },
@@ -35,78 +67,177 @@ const Filters: React.FC<FiltersProps> = ({
     { value: 'volume', label: 'High Volume' }
   ];
 
-  const itemsPerPageButtons = [25, 50, 100];
-  const cardsPerRowButtons = [1, 2, 3, 4, 5];
+  const itemsPerPageButtons: ItemsPerPageButton[] = [
+    { value: 25, label: '25' },
+    { value: 50, label: '50' },
+    { value: 100, label: '100' }
+  ];
+
+  const cardsPerRowButtons: CardsPerRowButton[] = [
+    { value: 1, label: '1' },
+    { value: 2, label: '2' },
+    { value: 3, label: '3' },
+    { value: 4, label: '4' },
+    { value: 5, label: '5' }
+  ];
+
+  const renderButtons = <T extends string | number>(
+    buttons: { value: T; label: string }[],
+    activeValue: T,
+    onClick: (value: T) => void
+  ) => (
+    <>
+      {buttons.map(({ value, label }) => (
+        <Button
+          key={value.toString()}
+          className="filter-active"
+          onClick={() => onClick(value)}
+          variant={activeValue === value ? 'filled' : 'default'}
+          radius="xl"
+          size="xs"
+          w="100%"
+          m={2}
+          c={activeValue === value ? 'var(--mantine-color-white)' : 'inherit'}
+          color={`light-dark(var(--mantine-color-dark-8), ${
+            activeValue === value
+              ? 'var(--mantine-color-teal-8)'
+              : 'var(--mantine-color-dark-4)'
+          })`}
+        >
+          {label}
+        </Button>
+      ))}
+    </>
+  );
+
+  const Section = <T extends string | number>({
+    icon: Icon,
+    label,
+    buttons,
+    activeValue,
+    onClick
+  }: {
+    icon: React.ElementType;
+    label: string;
+    buttons: { value: T; label: string }[];
+    activeValue: T;
+    onClick: (value: T) => void;
+  }) => (
+    <Container p={0}>
+      <Group gap={3} mr={0}>
+        <Text
+          component="div"
+          display="flex"
+          mr={2}
+          size="md"
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '0.5rem'
+          }}
+          fw={500}
+        >
+          <Icon component="div" size="14" style={{ marginRight: '7px' }} />{' '}
+          {label}
+        </Text>
+      </Group>
+      <div
+        style={{
+          marginBottom: '2rem',
+          display: 'flex',
+          gap: 'px',
+          justifyContent: 'space-between'
+        }}
+      >
+        {renderButtons(buttons, activeValue, onClick)}
+      </div>
+    </Container>
+  );
 
   return (
-    <div className="filters" style={{ paddingBottom: rem(28) }}>
-      <Group gap="xs" pt={rem(14)} display="flex" justify="start">
-        <Group gap={3} mr={14}>
-          <IconFilterFilled size="18" />
-          <Text fw={500}>Filter</Text>
-        </Group>
-        {filterButtons.map(({ value, label }) => (
-          <Button
-            key={value}
-            className={filter === value ? 'filter-active' : ''}
-            onClick={() => handleFilterChange(value)}
-            variant={filter === value ? 'filled' : 'default'}
-            radius="xl"
-            size="sm"
-            c={filter === value ? 'var(--mantine-color-white)' : 'inherit'}
-            color={`light-dark(var(--mantine-color-dark-8), ${
-              filter === value
-                ? 'var(--mantine-color-yellow-8)'
-                : 'var(--mantine-color-dark-4)'
-            })`}
-          >
-            {label}
-          </Button>
-        ))}
-      </Group>
-      <Group gap="xs" pt={rem(14)} display="flex" justify="start">
-        <Text fw={500}>Items per Page</Text>
-        {itemsPerPageButtons.map((value) => (
-          <Button
-            key={value}
-            onClick={() => setItemsPerPage(value)}
-            variant={itemsPerPage === value ? 'filled' : 'default'}
-            radius="xl"
-            size="sm"
-            c={
-              itemsPerPage === value ? 'var(--mantine-color-white)' : 'inherit'
+    <>
+      <Flex justify="end">
+        <Button
+          className="filter-active-neutral"
+          component="div"
+          leftSection={<IconFilterFilled size="14" />}
+          variant="filled"
+          onClick={() => setDrawerOpened(true)}
+          radius="xl"
+          size="xs"
+          c="light-dark(var(--mantine-color-white), var(--mantine-color-black))"
+          color="light-dark(var(--mantine-color-black), var(--mantine-color-white))"
+          styles={(theme) => ({
+            root: {
+              '&:hover': {
+                backgroundColor: theme.colors.gray[6]
+              },
+              color: theme.white
             }
-            color={`light-dark(var(--mantine-color-dark-8), ${
-              itemsPerPage === value
-                ? 'var(--mantine-color-yellow-8)'
-                : 'var(--mantine-color-dark-4)'
-            })`}
+          })}
+        >
+          Show Filters
+        </Button>
+      </Flex>
+      <Divider my="md" />
+
+      <Drawer
+        opened={drawerOpened}
+        onClose={() => setDrawerOpened(false)}
+        padding="xl"
+        position="right"
+        size="xl"
+        withCloseButton={false}
+        styles={{
+          header: {
+            display: 'flex',
+            justifyContent: 'space-between'
+          }
+        }}
+      >
+        <Flex p="apart" justify="space-between" align="center">
+          <Title order={2} fw={700}>
+            Filters preferences
+          </Title>
+          <ActionIcon
+            size="md"
+            variant="transparent"
+            c="light-dark(var(--mantine-color-gray-9), var(--mantine-color-gray))"
+            onClick={() => setDrawerOpened(false)}
           >
-            {value}
-          </Button>
-        ))}
-      </Group>
-      <Group gap="xs" pt={rem(14)} display="flex" justify="start">
-        <Text fw={500}>Cards per Row</Text>
-        {cardsPerRowButtons.map((value) => (
-          <Button
-            key={value}
-            onClick={() => setCardsPerRow(value)}
-            variant={cardsPerRow === value ? 'filled' : 'default'}
-            radius="xl"
-            size="sm"
-            c={cardsPerRow === value ? 'var(--mantine-color-white)' : 'inherit'}
-            color={`light-dark(var(--mantine-color-dark-8), ${
-              cardsPerRow === value
-                ? 'var(--mantine-color-yellow-8)'
-                : 'var(--mantine-color-dark-4)'
-            })`}
-          >
-            {value}
-          </Button>
-        ))}
-      </Group>
-    </div>
+            <IconX size="32" />
+          </ActionIcon>
+        </Flex>
+        <Divider my="md" />
+
+        <ScrollArea
+          style={{ height: '70vh', paddingTop: '1rem' }}
+          type="scroll"
+        >
+          <Section
+            icon={IconFilterFilled}
+            label="Display"
+            buttons={filterButtons}
+            activeValue={filter}
+            onClick={handleFilterChange}
+          />
+          <Section
+            icon={IconListDetails}
+            label="Items per Page"
+            buttons={itemsPerPageButtons}
+            activeValue={itemsPerPage}
+            onClick={setItemsPerPage}
+          />
+          <Section
+            icon={IconTableRow}
+            label="Items per Row"
+            buttons={cardsPerRowButtons}
+            activeValue={cardsPerRow}
+            onClick={setCardsPerRow}
+          />
+        </ScrollArea>
+      </Drawer>
+    </>
   );
 };
 
