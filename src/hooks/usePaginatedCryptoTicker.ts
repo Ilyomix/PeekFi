@@ -1,42 +1,18 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TickerData } from 'types/binanceApi';
-import assetSymbols from 'utils/assetsSymbols';
+import { CoinGeckoTickerData } from 'types/coinGeckoApi';
+
 const usePaginatedCryptoTickers = (
-  start: number = 0,
+  page: number = 1,
   limit: number = 10,
-  interval: number = 5000
+  interval: number = 60000,
+  vs_currency: string = 'usd'
 ) => {
-  const [tickersData, setTickersData] = useState<TickerData[]>([]);
+  const [tickersData, setTickersData] = useState<CoinGeckoTickerData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [hasFetched, setHasFetched] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
-
-  useEffect(() => {
-    const fetchTotalSymbols = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        // Récupération de tous les symboles disponibles via l'API exchangeInfo
-        // const response = await axios.get(
-        //   `https://api.binance.com/api/v3/ticker/24hr?symbols=[${assetSymbols}]`
-        // );
-        // const symbols = response.data.symbols;
-
-        setTotalPages(Math.ceil(assetSymbols.length / limit));
-      } catch (err) {
-        console.error('Error fetching total symbols:', err);
-        setError('Error fetching total symbols');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTotalSymbols();
-  }, [limit]);
 
   useEffect(() => {
     const fetchCryptoData = async () => {
@@ -44,52 +20,19 @@ const usePaginatedCryptoTickers = (
       setError(null);
 
       try {
-        // URL de l'API Binance avec pagination via limit et start
-        const symbolParams = assetSymbols
-          .map((symbol) => `"${symbol.toUpperCase()}"`)
-          .join(',');
-        const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=[${symbolParams}]`;
-
-        const response = await axios.get(url);
-        const data = response.data;
-
-        const formattedData: TickerData[] = data.map((ticker: TickerData) => {
-          const {
-            symbol,
-            lastPrice,
-            priceChange,
-            priceChangePercent,
-            highPrice,
-            lowPrice,
-            quoteVolume,
-            volume,
-            openPrice,
-            prevClosePrice
-          } = ticker;
-
-          return {
-            name: symbol.replace(/USDT|USD|EUR|GBP|AUD|JPY|TRY/g, ''),
-            price: lastPrice,
-            priceChange,
-            priceChangePercent,
-            highPrice,
-            lowPrice,
-            openPrice,
-            prevClosePrice,
-            lastPrice,
-            symbol,
-            quoteVolume,
-            volume,
-            cryptoId: symbol,
-            currencyPair:
-              symbol.match(/USDT|USD|EUR|GBP|AUD|JPY|TRY/)?.[0] || 'UNKNOWN',
-            timestamp: new Date(),
-            loading: false,
-            error: null
-          };
+        const url = `https://api.coingecko.com/api/v3/coins/markets`;
+        const response = await axios.get(url, {
+          params: {
+            vs_currency: 'usd',
+            order: 'market_cap_desc',
+            per_page: limit,
+            page: page
+          }
         });
 
-        setTickersData(formattedData.slice(start, start + limit));
+        const data = response.data as CoinGeckoTickerData[];
+        setTickersData(data);
+        setTotalPages(Math.ceil(1000 / limit)); // Estimation, CoinGecko ne donne pas le nombre total d'élémentssetHasFetched(true);
         setHasFetched(true);
       } catch (err) {
         console.error('Error fetching crypto data:', err);
@@ -108,11 +51,12 @@ const usePaginatedCryptoTickers = (
     return () => {
       clearInterval(intervalId);
     };
-  }, [start, limit, interval]);
+  }, [page, limit, interval]);
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      setHasFetched(false);
+      setTickersData([]); // Clear current data before fetching new page
     }
   };
 
@@ -121,9 +65,10 @@ const usePaginatedCryptoTickers = (
     loading,
     error,
     hasFetched,
-    currentPage,
+    currentPage: page,
     totalPages,
-    goToPage
+    goToPage,
+    vs_currency
   };
 };
 

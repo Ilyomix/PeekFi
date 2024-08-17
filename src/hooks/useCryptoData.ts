@@ -12,7 +12,7 @@ const useCryptoData = (symbol: string) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=30m&limit=48`
+          `https://api.binance.com/api/v3/klines?symbol=${symbol.toUpperCase()}USDT&interval=30m&limit=48`
         );
         setData(
           response.data.map(

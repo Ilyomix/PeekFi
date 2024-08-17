@@ -9,61 +9,38 @@ import {
   rem
 } from '@mantine/core';
 import {
-  IconCoin,
   IconArrowUpRight,
   IconArrowDownRight,
-  IconBug,
   IconArrowUp,
   IconArrowDown,
-  IconMoonFilled,
-  IconSunFilled,
   IconStarFilled,
-  IconStar
+  IconStar,
+  IconQuestionMark
 } from '@tabler/icons-react';
 import { AnimatedCounter } from 'react-animated-counter';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
 import classes from 'assets/components/financialCard/index.module.css';
-import BackgroundChart from './BackgroundChart';
-import { getAssetsImageUrl } from 'utils/assetsIcons';
-import PageTransition from './PageTransition';
+import BackgroundChart from 'components/BackgroundChart';
+import PageTransition from 'components/PageTransition';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritesStore } from 'stores/useFavoritesStore';
+import { CoinGeckoTickerData } from 'types/coinGeckoApi';
+import { getAssetsImageUrl } from 'utils/assetsIcons';
 
-type FinancialCardProps = {
-  name: string | null;
-  price: string | null;
-  quoteVolume: string | null;
-  priceChange: string | null;
-  priceChangePercent: string | null;
-  error: string | null;
-  currencyPair: string | null;
-  timestamp: Date | null;
-  loading: boolean;
-  symbol: string | null;
+type FinancialCardProps = CoinGeckoTickerData & {
   index: number;
-  lowPrice: string | null;
-  openPrice: string | null;
-  prevClosePrice: string | null;
-  highPrice: string | null;
+  vsCurrency: string;
 };
 
-const icons = {
-  coin: IconCoin,
-  bug: IconBug
-};
-
-const getColorClass = (value: string | null) => {
-  const parsedValue = parseFloat(value as string);
-  if (parsedValue === 0 || !value) return 'var(--mantine-color-gray-text)';
-  return parsedValue > 0
+const getColorClass = (value: number) => {
+  if (value === 0) return 'var(--mantine-color-gray-text)';
+  return value > 0
     ? 'var(--mantine-color-teal-text)'
     : 'var(--mantine-color-red-text)';
 };
 
-const getDiffIcon = (value: string | null) => {
-  return parseFloat(value as string) > 0
-    ? IconArrowUpRight
-    : IconArrowDownRight;
+const getDiffIcon = (value: number) => {
+  return value > 0 ? IconArrowUpRight : IconArrowDownRight;
 };
 
 const renderCounter = (
@@ -90,38 +67,36 @@ const renderCounter = (
 
 const FinancialCard: React.FC<FinancialCardProps> = memo(
   ({
-    name = '---',
-    price = '0.00',
-    quoteVolume = '0.00',
-    priceChange = '(0.00)',
-    priceChangePercent = '0.00',
-    error,
+    name,
+    current_price,
+    total_volume,
+    price_change_24h,
+    price_change_percentage_24h,
     symbol,
-    currencyPair = '',
-    loading,
-    lowPrice,
-    openPrice,
-    prevClosePrice,
-    highPrice,
+    high_24h,
+    low_24h,
+    vsCurrency,
     index
   }) => {
     const navigate = useNavigate();
 
     // Memoize the icon and color classes
-    const Icon = useMemo(() => icons[error ? 'bug' : 'coin'], [error]);
     const DiffIcon = useMemo(
-      () => getDiffIcon(priceChangePercent),
-      [priceChangePercent]
+      () => getDiffIcon(price_change_percentage_24h),
+      [price_change_percentage_24h]
     );
-    const colorClass = useMemo(() => getColorClass(priceChange), [priceChange]);
+    const colorClass = useMemo(
+      () => getColorClass(price_change_percentage_24h),
+      [price_change_percentage_24h]
+    );
 
     // Callback for navigation
     const handleClick = useCallback(() => {
-      if (symbol) navigate(`/pair/${symbol}`);
+      if (symbol) navigate(`/pair/${symbol.toUpperCase()}USDT`);
     }, [symbol, navigate]);
 
     const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
-    const isFav = isFavorite(symbol || '');
+    const isFav = isFavorite(symbol);
 
     const handleFavoriteClick = useCallback(() => {
       if (symbol) {
@@ -133,8 +108,6 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
       }
     }, [symbol, isFav, addFavorite, removeFavorite]);
 
-    if (loading) return <p>Loading ...</p>;
-
     return (
       <Paper
         shadow="md"
@@ -144,239 +117,196 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
         onClick={handleClick}
       >
         <PageTransition duration={1}>
-          {error ? (
-            <Group justify="space-between">
-              <Icon
-                color="#ff8787"
-                className={classes.icon}
-                size="1.4rem"
-                stroke={1.5}
-              />
-              <Text size="md" c="red" className={classes.title}>
-                Cannot fetch data for the moment
+          <>
+            <BackgroundChart
+              cryptoId={`${symbol as string}`}
+              delta={price_change_percentage_24h.toString()}
+            />
+            <Flex justify="start" align="center" title={name}>
+              {name && (
+                <Avatar
+                  src={getAssetsImageUrl(symbol.toUpperCase())}
+                  alt={name || ''}
+                  size="sm"
+                  mr={14}
+                >
+                  <IconQuestionMark />
+                </Avatar>
+              )}
+              <Flex
+                gap={1}
+                direction="column"
+                className={classes.titleContainer}
+                align="flex-start"
+              >
+                <Text
+                  component="div"
+                  size="s"
+                  fw={500}
+                  className={classes.title}
+                  inline
+                  lineClamp={1}
+                >
+                  {name || `Asset #${index + 1}`}
+                </Text>
+                <Group justify="flex-start">
+                  <Text component="div" fz="xs" className={classes.volume}>
+                    {total_volume ? (
+                      <Group justify="start" align="center" gap={rem(3)}>
+                        Volume: USD
+                        {renderCounter(
+                          total_volume,
+                          '12px',
+                          2,
+                          'var(--mantine-color-dark)',
+                          false
+                        )}
+                      </Group>
+                    ) : (
+                      'No data'
+                    )}
+                  </Text>
+                </Group>
+              </Flex>
+
+              <ActionIcon
+                variant="transparent"
+                color="gray"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card click from triggering navigation
+                  handleFavoriteClick();
+                }}
+                size="md"
+                pos="absolute"
+                p={0}
+                right={10}
+                top={10}
+              >
+                {isFav ? (
+                  <IconStarFilled size={20} color="gold" />
+                ) : (
+                  <IconStar size={20} />
+                )}
+              </ActionIcon>
+            </Flex>
+            <Group align="flex-end" gap="xs" mt={20}>
+              <Text
+                component="div"
+                fw={600}
+                size="40px"
+                lh={1}
+                className={classes.price}
+              >
+                {current_price ? (
+                  <Group gap={4} align="flex-start">
+                    {renderCounter(
+                      current_price,
+                      '40px',
+                      undefined,
+                      'light-dark(var(--mantine-color-dark-8), var(--mantine-color-white))'
+                    )}
+                    <Text size="xs" mt={1}>
+                      {vsCurrency.toUpperCase()}
+                    </Text>
+                  </Group>
+                ) : (
+                  <Group gap={4}>0.00</Group>
+                )}
               </Text>
             </Group>
-          ) : (
-            <>
-              <BackgroundChart
-                cryptoId={symbol as string}
-                delta={priceChangePercent}
-              />
-              <Group justify="space-between" align="center">
-                <Group gap={1}>
-                  <Text size="s" fw={500} className={classes.title}>
-                    {name || `Asset #${index + 1}`}
-                  </Text>
-                  <ActionIcon
-                    variant="transparent"
-                    color="gray"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent card click from triggering navigation
-                      handleFavoriteClick();
-                    }}
-                    size="lg"
-                  >
-                    {isFav ? (
-                      <IconStarFilled size={20} color="gold" />
-                    ) : (
-                      <IconStar size={20} />
-                    )}
-                  </ActionIcon>
-                </Group>
-                {name && (
-                  <Avatar
-                    src={getAssetsImageUrl(name)}
-                    alt={name || ''}
-                    size="sm"
-                  />
-                )}
-              </Group>
-
-              <Group justify="flex-start">
-                <Text component="div" fz="xs" className={classes.volume}>
-                  {quoteVolume ? (
-                    <Group justify="start" align="center" gap={rem(3)}>
-                      Volume: {currencyPair}
-                      {renderCounter(
-                        quoteVolume,
-                        '12px',
-                        2,
-                        'var(--mantine-color-dark)',
-                        false
-                      )}
-                    </Group>
-                  ) : (
-                    'No data'
-                  )}
-                </Text>
-              </Group>
-
-              <Group align="flex-end" gap="xs" mt={20}>
-                <Text
-                  component="div"
-                  fw={600}
-                  size="40px"
-                  lh={1}
-                  className={classes.price}
-                >
-                  {price ? (
-                    <Group gap={4} align="flex-start">
-                      {renderCounter(
-                        price,
-                        '40px',
-                        undefined,
-                        'light-dark(var(--mantine-color-dark-8), var(--mantine-color-white))'
-                      )}
-                      <Text size="xs" mt={1}>
-                        {currencyPair}
-                      </Text>
-                    </Group>
-                  ) : (
-                    <Group gap={4}>0.00</Group>
-                  )}
-                </Text>
-              </Group>
-
-              <Group align="flex-start" gap={4}>
-                <Text
-                  component="div"
-                  c={getColorClass(priceChange)}
-                  fz="md"
-                  mt={1}
-                  fw={500}
-                  className={classes.diff}
-                >
-                  {priceChangePercent ? (
-                    <Flex>
-                      {renderCounter(
-                        priceChangePercent,
-                        '16px',
-                        2,
-                        getColorClass(priceChangePercent)
-                      )}
-                      <Text size="md" c={colorClass} mt={1}>
-                        {'%'}
-                      </Text>
-                    </Flex>
-                  ) : (
-                    '0.00%'
-                  )}
-                  {Number(priceChangePercent) !== 0 && (
-                    <DiffIcon size="1rem" stroke={1.5} />
-                  )}
-                </Text>
-
-                {priceChange && (
-                  <Flex
-                    ml={4}
-                    mt={4}
-                    fw={500}
-                    align="flex-start"
-                    justify="flex-start"
-                  >
-                    <Text fw={500} size="sm" c={colorClass}>
-                      {'('}
-                    </Text>
+            <Group align="flex-start" gap={4}>
+              <Text
+                component="div"
+                c={getColorClass(price_change_24h)}
+                fz="md"
+                mt={1}
+                fw={500}
+                className={classes.diff}
+              >
+                {price_change_percentage_24h ? (
+                  <Flex>
                     {renderCounter(
-                      priceChange,
-                      '14px',
-                      getNumberPrecision(priceChange),
-                      getColorClass(priceChange)
+                      price_change_percentage_24h,
+                      '16px',
+                      2,
+                      getColorClass(price_change_percentage_24h)
                     )}
-                    <Text fw={500} size="sm" c={colorClass}>
-                      {')'}
+                    <Text size="md" c={colorClass} mt={1}>
+                      {'%'}
                     </Text>
                   </Flex>
+                ) : (
+                  '0.00%'
                 )}
-              </Group>
-              <Flex
-                mt={18}
-                justify="space-between"
-                align="center"
-                className={classes.details}
-              >
-                <Flex>
-                  <IconSunFilled
-                    size={18}
-                    style={{ paddingRight: '2px', marginLeft: '-2px' }}
-                  />
-                  <Text component="div" mr={5} display="flex" fz="xs">
-                    Open:
+                {Number(price_change_percentage_24h) !== 0 && (
+                  <DiffIcon size="1rem" stroke={1.5} />
+                )}
+              </Text>
+
+              {price_change_24h && (
+                <Flex
+                  ml={4}
+                  mt={4}
+                  fw={500}
+                  align="flex-start"
+                  justify="flex-start"
+                >
+                  <Text fw={500} size="sm" c={colorClass}>
+                    {'('}
                   </Text>
-                  <Text component="div" mt={0} display="flex" fz="xs">
+                  {renderCounter(
+                    price_change_24h,
+                    '14px',
+                    getNumberPrecision(current_price),
+                    getColorClass(price_change_24h)
+                  )}
+                  <Text fw={500} size="sm" c={colorClass}>
+                    {')'}
+                  </Text>
+                </Flex>
+              )}
+            </Group>
+            <Flex
+              mt={18}
+              justify="space-between"
+              align="center"
+              className={classes.details}
+            >
+              <Flex>
+                <IconArrowUp
+                  size={18}
+                  style={{ paddingRight: '2px', marginLeft: '-2px' }}
+                />
+                <Text component="div" mr={5} display="flex" fz="xs">
+                  High:
+                </Text>
+                <Text component="div" mt={0} display="flex" fz="xs">
+                  {renderCounter(
+                    high_24h as number,
+                    '12px',
+                    getNumberPrecision(high_24h as number, 2),
+                    'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
+                    false
+                  )}
+                </Text>
+              </Flex>
+              <Flex>
+                <Text component="div" display="flex" fz="xs">
+                  {'Low:'}
+                  <Text component="div" mt={0} ml={4} display="flex" fz="xs">
                     {renderCounter(
-                      openPrice as string,
+                      low_24h as number,
                       '12px',
-                      getNumberPrecision(openPrice as string, 2),
+                      getNumberPrecision(low_24h as number, 2),
                       'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
                       false
                     )}
                   </Text>
-                </Flex>
-                <Flex>
-                  <Text component="div" display="flex" fz="xs">
-                    {'High:'}
-                    <Text component="div" mt={0} ml={4} display="flex" fz="xs">
-                      {renderCounter(
-                        highPrice as string,
-                        '12px',
-                        getNumberPrecision(highPrice as string, 2),
-                        'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
-                        false
-                      )}
-                    </Text>
-                  </Text>
-                  <IconArrowUp size={16} style={{ paddingRight: '2px' }} />
-                </Flex>
+                </Text>
+                <IconArrowDown size={16} style={{ paddingRight: '2px' }} />{' '}
               </Flex>
-              <Flex
-                mt={2}
-                justify="space-between"
-                align="center"
-                className={classes.details}
-              >
-                <Flex>
-                  <Text component="div" display="flex" fz="xs">
-                    <IconMoonFilled size={16} style={{ paddingRight: '2px' }} />
-                    {'Close: '}
-                    <Text component="div" mt={0} ml={4} display="flex" fz="xs">
-                      {renderCounter(
-                        (
-                          parseFloat(prevClosePrice as string) -
-                          parseFloat(priceChange as string)
-                        ).toPrecision(12),
-                        '12px',
-                        getNumberPrecision(
-                          (
-                            parseFloat(prevClosePrice as string) -
-                            parseFloat(priceChange as string)
-                          ).toPrecision(12),
-                          2
-                        ),
-                        'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
-                        false
-                      )}
-                    </Text>
-                  </Text>
-                </Flex>
-                <Flex>
-                  <Text component="div" display="flex" fz="xs">
-                    {'Low: '}
-                    <Text component="div" mt={0} ml={4} display="flex" fz="xs">
-                      {renderCounter(
-                        lowPrice as string,
-                        '12px',
-                        getNumberPrecision(lowPrice as string, 2),
-                        'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4)',
-                        false
-                      )}
-                    </Text>
-                  </Text>
-                  <IconArrowDown size={16} style={{ paddingRight: '2px' }} />{' '}
-                </Flex>
-              </Flex>
-            </>
-          )}
+            </Flex>
+          </>
         </PageTransition>
       </Paper>
     );

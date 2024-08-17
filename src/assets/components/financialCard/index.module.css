@@ -33,6 +33,10 @@
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-white));
 }
 
+.titleContainer {
+  overflow: hidden;
+}
+
 .volume {
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark)) !important;
 

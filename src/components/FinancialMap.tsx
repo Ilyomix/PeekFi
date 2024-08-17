@@ -1,33 +1,43 @@
 import { useMemo, useState } from 'react';
-import { SimpleGrid, Paper, Skeleton, Flex, Pagination, rem } from '@mantine/core';
+import {
+  SimpleGrid,
+  Paper,
+  Skeleton,
+  Flex,
+  Pagination,
+  rem
+} from '@mantine/core';
 import PageTransition from 'components/PageTransition';
 import usePaginatedCryptoTickers from 'hooks/usePaginatedCryptoTicker';
 import FinancialCard from 'components/FinancialCard';
 import Filters from 'components/Filters';
-import { useFavoritesStore } from 'stores/useFavoritesStore'; // Import Favorites store
+import { useFavoritesStore } from 'stores/useFavoritesStore';
+import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
 import classes from 'assets/components/financialCard/index.module.css';
 
 export function FinancialMap() {
-  const itemsPerPage = 12;
+  const { itemsPerPage, cardsPerRow, setItemsPerPage, setCardsPerRow } =
+    useScreenerDisplayPreferences();
+
   const [currentPage, setCurrentPage] = useState(1);
-  const { tickersData, error, hasFetched, totalPages, goToPage } =
+  const { tickersData, error, hasFetched, totalPages, goToPage, vs_currency } =
     usePaginatedCryptoTickers((currentPage - 1) * itemsPerPage, itemsPerPage);
 
   const [filter, setFilter] = useState<string>('all');
   const favorites = useFavoritesStore((state) => state.favorites);
 
-  // Filter tickers based on the selected filter
+  // Filtre les tickers en fonction du filtre sélectionné
   const filteredTickers = useMemo(() => {
     const filtered = tickersData.filter((ticker) => {
       switch (filter) {
         case 'favorites':
           return favorites.includes(ticker.symbol.toUpperCase());
         case 'gainers':
-          return Number(ticker.priceChangePercent) > 0;
+          return ticker.price_change_percentage_24h > 0;
         case 'losers':
-          return Number(ticker.priceChangePercent) < 0;
+          return ticker.price_change_percentage_24h < 0;
         case 'volume':
-          return Number(ticker.quoteVolume) > 0;
+          return ticker.total_volume > 0;
         default:
           return true;
       }
@@ -36,21 +46,21 @@ export function FinancialMap() {
     return filtered.sort((a, b) => {
       switch (filter) {
         case 'gainers':
-          return Number(b.priceChangePercent) - Number(a.priceChangePercent);
+          return b.price_change_percentage_24h - a.price_change_percentage_24h;
         case 'losers':
-          return Number(a.priceChangePercent) - Number(b.priceChangePercent);
+          return a.price_change_percentage_24h - b.price_change_percentage_24h;
         case 'volume':
-          return Number(b.quoteVolume) - Number(a.quoteVolume);
+          return b.total_volume - a.total_volume;
         default:
           return 0;
       }
     });
   }, [tickersData, filter, favorites]);
 
-  // Show loading skeletons if data has not been fetched yet
+  // Afficher des squelettes de chargement si les données ne sont pas encore récupérées
   if (!hasFetched) {
     return (
-      <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }}>
+      <SimpleGrid cols={{ base: 1, xs: 2, md: cardsPerRow }}>
         {Array.from({ length: itemsPerPage }).map((_, index) => (
           <PageTransition key={index}>
             <Paper
@@ -88,15 +98,26 @@ export function FinancialMap() {
     );
   }
 
-  // Display error message if data fetch fails
+  // Afficher un message d'erreur si les données n'ont pas pu être récupérées
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div>
-      <Filters setFilter={setFilter} /> {/* Add Filters component */}
-      <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }}>
+      <Filters
+        setFilter={setFilter}
+        setItemsPerPage={setItemsPerPage}
+        setCardsPerRow={setCardsPerRow}
+        itemsPerPage={itemsPerPage}
+        cardsPerRow={cardsPerRow}
+      />
+      <SimpleGrid cols={{ base: 1, xs: 2, md: cardsPerRow }}>
         {filteredTickers.map((ticker, index) => (
-          <FinancialCard key={ticker.symbol} {...ticker} index={index} />
+          <FinancialCard
+            key={ticker.id}
+            {...ticker}
+            index={index}
+            vsCurrency={vs_currency}
+          />
         ))}
       </SimpleGrid>
       <Flex align="center" justify="center" my={rem(24)}>
