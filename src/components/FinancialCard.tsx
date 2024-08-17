@@ -1,5 +1,13 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import { Avatar, Flex, Group, Paper, Text, rem } from '@mantine/core';
+import {
+  ActionIcon,
+  Avatar,
+  Flex,
+  Group,
+  Paper,
+  Text,
+  rem
+} from '@mantine/core';
 import {
   IconCoin,
   IconArrowUpRight,
@@ -8,7 +16,9 @@ import {
   IconArrowUp,
   IconArrowDown,
   IconMoonFilled,
-  IconSunFilled
+  IconSunFilled,
+  IconStarFilled,
+  IconStar
 } from '@tabler/icons-react';
 import { AnimatedCounter } from 'react-animated-counter';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
@@ -17,6 +27,7 @@ import BackgroundChart from './BackgroundChart';
 import { getAssetsImageUrl } from 'utils/assetsIcons';
 import PageTransition from './PageTransition';
 import { useNavigate } from 'react-router-dom';
+import { useFavoritesStore } from 'stores/useFavoritesStore';
 
 type FinancialCardProps = {
   name: string | null;
@@ -109,6 +120,19 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
       if (symbol) navigate(`/pair/${symbol}`);
     }, [symbol, navigate]);
 
+    const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
+    const isFav = isFavorite(symbol || '');
+
+    const handleFavoriteClick = useCallback(() => {
+      if (symbol) {
+        if (isFav) {
+          removeFavorite(symbol);
+        } else {
+          addFavorite(symbol);
+        }
+      }
+    }, [symbol, isFav, addFavorite, removeFavorite]);
+
     if (loading) return <p>Loading ...</p>;
 
     return (
@@ -139,9 +163,26 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
                 delta={priceChangePercent}
               />
               <Group justify="space-between" align="center">
-                <Text size="s" fw={500} className={classes.title}>
-                  {name || `Asset #${index + 1}`}
-                </Text>
+                <Group gap={1}>
+                  <Text size="s" fw={500} className={classes.title}>
+                    {name || `Asset #${index + 1}`}
+                  </Text>
+                  <ActionIcon
+                    variant="transparent"
+                    color="gray"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click from triggering navigation
+                      handleFavoriteClick();
+                    }}
+                    size="lg"
+                  >
+                    {isFav ? (
+                      <IconStarFilled size={20} color="gold" />
+                    ) : (
+                      <IconStar size={20} />
+                    )}
+                  </ActionIcon>
+                </Group>
                 {name && (
                   <Avatar
                     src={getAssetsImageUrl(name)}

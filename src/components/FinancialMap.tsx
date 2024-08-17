@@ -1,50 +1,63 @@
-import { useMemo, useState, useEffect } from 'react';
-import { SimpleGrid, Paper, Skeleton, rem, Flex, Group } from '@mantine/core';
-import PageTransition from './PageTransition';
-import useMultipleCryptoTickers from 'hooks/useCryptoTicker';
-import assetSymbols from 'utils/assetsSymbols';
-import FinancialCard from './FinancialCard';
+import { useMemo, useState } from 'react';
+import { SimpleGrid, Paper, Skeleton, Flex, Pagination, rem } from '@mantine/core';
+import PageTransition from 'components/PageTransition';
+import usePaginatedCryptoTickers from 'hooks/usePaginatedCryptoTicker';
+import FinancialCard from 'components/FinancialCard';
+import Filters from 'components/Filters';
+import { useFavoritesStore } from 'stores/useFavoritesStore'; // Import Favorites store
 import classes from 'assets/components/financialCard/index.module.css';
 
 export function FinancialMap() {
-  const { tickersData, error, hasFetched } =
-    useMultipleCryptoTickers(assetSymbols);
+  const itemsPerPage = 12;
+  const [currentPage, setCurrentPage] = useState(1);
+  const { tickersData, error, hasFetched, totalPages, goToPage } =
+    usePaginatedCryptoTickers((currentPage - 1) * itemsPerPage, itemsPerPage);
 
-  // const BATCH_SIZE = 4; // Customize the batch size
-  // const [visibleBatches, setVisibleBatches] = useState(1);
+  const [filter, setFilter] = useState<string>('all');
+  const favorites = useFavoritesStore((state) => state.favorites);
 
-  // useEffect(() => {
-  //   if (hasFetched) {
-  //     const interval = setInterval(() => {
-  //       setVisibleBatches((prev) => prev + 1);
-  //     }, 200); // Load new batch every 200ms
+  // Filter tickers based on the selected filter
+  const filteredTickers = useMemo(() => {
+    const filtered = tickersData.filter((ticker) => {
+      switch (filter) {
+        case 'favorites':
+          return favorites.includes(ticker.symbol.toUpperCase());
+        case 'gainers':
+          return Number(ticker.priceChangePercent) > 0;
+        case 'losers':
+          return Number(ticker.priceChangePercent) < 0;
+        case 'volume':
+          return Number(ticker.quoteVolume) > 0;
+        default:
+          return true;
+      }
+    });
 
-  //     return () => clearInterval(interval);
-  //   }
-  // }, [hasFetched]);
+    return filtered.sort((a, b) => {
+      switch (filter) {
+        case 'gainers':
+          return Number(b.priceChangePercent) - Number(a.priceChangePercent);
+        case 'losers':
+          return Number(a.priceChangePercent) - Number(b.priceChangePercent);
+        case 'volume':
+          return Number(b.quoteVolume) - Number(a.quoteVolume);
+        default:
+          return 0;
+      }
+    });
+  }, [tickersData, filter, favorites]);
 
-  const stats = useMemo(() => {
-    return (
-      Object.keys(tickersData)
-        // .slice(0, BATCH_SIZE * visibleBatches)
-        .map((symbol, index) => {
-          const ticker = tickersData[symbol] || {};
-          return <FinancialCard key={symbol} {...ticker} index={index} />;
-        })
-    );
-  }, [tickersData]); // , visibleBatches]);
-
+  // Show loading skeletons if data has not been fetched yet
   if (!hasFetched) {
     return (
       <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }}>
-        {Array.from({ length: assetSymbols.length }).map((_, index) => (
+        {Array.from({ length: itemsPerPage }).map((_, index) => (
           <PageTransition key={index}>
             <Paper
               shadow="md"
               p="md"
               radius="lg"
               className={classes.card}
-              key={index}
               h={220.5}
               pos="relative"
             >
@@ -75,11 +88,36 @@ export function FinancialMap() {
     );
   }
 
-  if (error) return <p>Error: {error.message}</p>;
+  // Display error message if data fetch fails
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <div>
-      <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }}>{stats}</SimpleGrid>
+      <Filters setFilter={setFilter} /> {/* Add Filters component */}
+      <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }}>
+        {filteredTickers.map((ticker, index) => (
+          <FinancialCard key={ticker.symbol} {...ticker} index={index} />
+        ))}
+      </SimpleGrid>
+      <Flex align="center" justify="center" my={rem(24)}>
+        <Pagination
+          value={currentPage}
+          onChange={(page) => {
+            setCurrentPage(page);
+            goToPage(page);
+          }}
+          total={totalPages}
+          autoContrast
+          color="light-dark(var(--mantine-color-dark-8), var(--mantine-color-yellow-8))"
+          variant="light"
+          siblings={1}
+          boundaries={1}
+          size="md"
+          radius="xl"
+          withControls
+          withEdges
+        />
+      </Flex>
     </div>
   );
 }

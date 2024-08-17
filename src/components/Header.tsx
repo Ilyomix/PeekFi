@@ -33,9 +33,9 @@ export function Header() {
 
   const { pathname } = useLocation();
 
-  const theme = useMantineTheme();
   const navigate = useNavigate();
 
+  const theme = useMantineTheme();
   const isDarkTheme = computedColorScheme === 'dark';
 
   const items = links.map((link, index) => {
