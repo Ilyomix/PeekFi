@@ -120,7 +120,11 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
           <>
             <BackgroundChart
               cryptoId={`${symbol as string}`}
-              delta={price_change_percentage_24h.toString()}
+              delta={
+                price_change_percentage_24h
+                  ? price_change_percentage_24h.toString()
+                  : '0.00'
+              }
             />
             <Flex justify="start" align="center" title={name}>
               {name && (

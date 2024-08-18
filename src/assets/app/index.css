@@ -1,10 +1,10 @@
 @import url('https://rsms.me/inter/inter.css');
 
+/* CSS */
 :root {
   font-family: Inter, sans-serif;
-  font-feature-settings: 'calt' 1, 'liga' 1, 'dlig' 1, 'ss01' 1, 'ss02' 1, 'ss03' 1, 'ss04' 1, 'cv01' 1, 'tnum' 1, 'cv06' 1; /* fix for Chrome */
+  font-feature-settings: 'cv01' 1, 'cv02' 1, 'cv03' 1, 'cv04' 1, 'cv09' 1, 'zero' 1, 'liga' 1, 'calt' 1, 'tnum' 1; /* fix for Chrome */
 }
-
 @supports (font-variation-settings: normal) {
   :root { font-family: InterVariable, sans-serif; }
 }

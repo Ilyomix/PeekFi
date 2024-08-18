@@ -68,6 +68,7 @@ const Filters: React.FC<FiltersProps> = ({
   ];
 
   const itemsPerPageButtons: ItemsPerPageButton[] = [
+    { value: 12, label: '12' },
     { value: 25, label: '25' },
     { value: 50, label: '50' },
     { value: 100, label: '100' }
@@ -78,7 +79,6 @@ const Filters: React.FC<FiltersProps> = ({
     { value: 2, label: '2' },
     { value: 3, label: '3' },
     { value: 4, label: '4' },
-    { value: 5, label: '5' }
   ];
 
   const renderButtons = <T extends string | number>(
