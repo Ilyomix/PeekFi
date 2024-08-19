@@ -1,7 +1,5 @@
 // utils.ts
 
-import { IconArrowDownRight, IconArrowUpRight } from '@tabler/icons-react';
-
 /**
  * Retourne l'URL du gradient de fond en fonction de la variation du prix.
  */
@@ -10,7 +8,7 @@ export const backgroundChartByDelta = (value: string | null) => {
 
   const baseURL = 'https://www.shadergradient.co/customize?';
   const commonParams =
-    'animate=on&axesHelper=on&bgColor1=%23000000&bgColor2=%23000000&cAzimuthAngle=180&cDistance=2.8&cPolarAngle=95&cameraZoom=1&destination=onCanvas&embedMode=off&envPreset=city&format=gif&fov=45&frameRate=10&grain=off&lightType=3d&pixelDensity=1&positionX=0&positionY=-2.1&positionZ=0&range=enabled&rangeEnd=40&rangeStart=0&reflection=0.1&rotationX=0&rotationY=0&rotationZ=225&shader=defaults&type=waterPlane&uAmplitude=0&uDensity=1.8&uFrequency=5.5&uSpeed=0.1&uStrength=3&uTime=0.2&wireframe=false';
+    'animate=on&axesHelper=off&bgColor1=%23000000&bgColor2=%23000000&cAzimuthAngle=180&cDistance=2.8&cPolarAngle=95&cameraZoom=1&destination=onCanvas&embedMode=off&envPreset=city&format=gif&fov=45&frameRate=120&grain=off&lightType=3d&pixelDensity=1&positionX=0&positionY=-2.1&positionZ=0&range=disabled&reflection=0.1&rotationX=0&rotationY=0&rotationZ=225&shader=defaults&type=waterPlane&uAmplitude=0&uDensity=1.8&uFrequency=5.5&uSpeed=0.1&uStrength=3&uTime=0.2&wireframe=false&zoomOut=false&toggleAxis=false';
 
   if (parsedValue === 0 || !value) {
     return `${baseURL}${commonParams}&brightness=2.8&color1=%23495057&color2=%23343a40&color3=%23424242`;

@@ -235,7 +235,7 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
                       2,
                       getColorClass(price_change_percentage_24h)
                     )}
-                    <Text size="md" c={colorClass} mt={1}>
+                    <Text size="md" c={colorClass} mt={0}>
                       {'%'}
                     </Text>
                   </Flex>
@@ -250,8 +250,8 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
               {price_change_24h && (
                 <Flex
                   ml={4}
-                  mt={4}
-                  fw={500}
+                  mt={3}
+                  fw={400}
                   align="flex-start"
                   justify="flex-start"
                 >
@@ -260,7 +260,7 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
                   </Text>
                   {renderCounter(
                     price_change_24h,
-                    '14px',
+                    '16px',
                     getNumberPrecision(current_price),
                     getColorClass(price_change_24h)
                   )}
@@ -284,7 +284,7 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
                 <Text component="div" mr={5} display="flex" fz="xs">
                   High:
                 </Text>
-                <Text component="div" mt={0} display="flex" fz="xs">
+                <Text component="div" mt={-2} display="flex" fz="xs">
                   {renderCounter(
                     high_24h as number,
                     '12px',
@@ -297,7 +297,7 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
               <Flex>
                 <Text component="div" display="flex" fz="xs">
                   {'Low:'}
-                  <Text component="div" mt={0} ml={4} display="flex" fz="xs">
+                  <Text component="div" mt={-2} ml={4} display="flex" fz="xs">
                     {renderCounter(
                       low_24h as number,
                       '12px',

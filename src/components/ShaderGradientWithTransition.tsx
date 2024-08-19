@@ -37,7 +37,7 @@ export const ShaderGradientWithTransition: React.FC<
       }
     }
   }, [priceChangePercent, prevSign]);
-
+  // need to import background chart by delta as props and not by query
   return (
     <animated.div style={fadeStyle}>
       <ShaderGradientCanvas
@@ -48,6 +48,9 @@ export const ShaderGradientWithTransition: React.FC<
           height: '100%',
           zIndex: 0,
           borderRadius: '30px'
+        }}
+        onCreated={({ gl }) => {
+          gl.domElement.style.pointerEvents = 'none'; // Disable interactions
         }}
       >
         <ShaderGradient

@@ -61,7 +61,7 @@ const Pair: React.FC = () => {
               />
               <AreaChart
                 symbol={tickerSymbol}
-                interval={'1s'}
+                interval={'1m'}
                 openPrice={openPrice}
               />
             </Flex>

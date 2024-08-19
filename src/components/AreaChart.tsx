@@ -36,7 +36,7 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol, openPrice }) => {
       <ResponsiveContainer width="100%" height={600}>
         {!loading ? (
           <LineChart data={data} margin={{ top: 120, bottom: 120, right: 12 }}>
-            <YAxis domain={[minY, maxY]} width={0} />
+            <YAxis domain={[minYFromData, maxYFromData]} width={0} />
             <Line
               type="natural"
               dataKey="y"
@@ -57,23 +57,7 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol, openPrice }) => {
               strokeWidth={2}
               fill="rgba(255, 255, 255, 1)"
               className="fade-in"
-            />
-            {/* Ajout du ReferenceLine pour le minimum avec un label */}
-            <ReferenceLine
-              strokeDasharray="2 2 2"
-              y={openPrice}
-              stroke="white"
-              isFront
-            >
-              <Label
-                fill="rgba(255, 255, 255, 1)"
-                content={() => (
-                  <rect x="0" y="0" fill="black" rx="15" ry="15">
-                    <text>{Number(openPrice)}</text>
-                  </rect>
-                )}
-              ></Label>
-            </ReferenceLine>
+            />           
           </LineChart>
         ) : (
           <></>
