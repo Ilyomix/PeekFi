@@ -1,3 +1,37 @@
 .area-chart-wrapper {
     overflow: none;
+    transition: all 1s ease-in-out !important;
+    width: calc(100% - 28px);
+    padding-right: 2rem;
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.25s forwards 1s; /* Durée de l'effet de fondu */
+    transition: all 1s ease-in;
+    text-align: right;
+}
+
+.reference-dot {
+    transition: transform 0.5s ease-in-out;
+}
+
+.label-transition {
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    transform-origin: center;
+}
+
+.area-chart-wrapper .recharts-label {
+    transform: translate(0, 0);
+    transition: transform 0.5s ease-in-out;
+}
+
+text, svg, circle {
+    transition: all 1s ease; /* set to 2s to clearly show if it works */
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
 }

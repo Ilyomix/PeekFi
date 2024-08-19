@@ -2,24 +2,24 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 export type CandleData = {
-  x: Date;
+  x: string;
   open: number;
   high: number;
   low: number;
   y: number;
 };
 
-type UseCryptoKLineResponse = {
+type useCryptoKLineResponse = {
   data: CandleData[];
   loading: boolean;
   error: string | null;
 };
 
-const UseCryptoKLine = (
+const useCryptoKLine = (
   symbol: string,
   interval: string = '30m',
   maxDataPoints: number = 100 // Limit the number of data points
-): UseCryptoKLineResponse => {
+): useCryptoKLineResponse => {
   const [data, setData] = useState<CandleData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ const UseCryptoKLine = (
         string,
         string
       ]) => ({
-        x: new Date(time),
+        x: new Date(time).toLocaleTimeString(),
         open: parseFloat(open),
         high: parseFloat(high),
         low: parseFloat(low),
@@ -88,7 +88,7 @@ const UseCryptoKLine = (
         if (message?.k) {
           const kline = message.k;
           const newCandle: CandleData = {
-            x: new Date(kline.t),
+            x: new Date(kline.t).toString(),
             open: parseFloat(kline.o),
             high: parseFloat(kline.h),
             low: parseFloat(kline.l),
@@ -111,4 +111,4 @@ const UseCryptoKLine = (
   return { data, loading, error };
 };
 
-export default UseCryptoKLine;
+export default useCryptoKLine;

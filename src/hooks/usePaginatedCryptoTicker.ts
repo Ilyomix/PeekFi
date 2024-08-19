@@ -4,7 +4,7 @@ import { CoinGeckoTickerData } from 'types/coinGeckoApi';
 
 const usePaginatedCryptoTickers = (
   page: number = 1,
-  limit: number = 10,
+  limit: number = 25,
   interval: number = 60000,
   vs_currency: string = 'usd'
 ) => {
@@ -24,7 +24,7 @@ const usePaginatedCryptoTickers = (
         const response = await axios.get(url, {
           params: {
             vs_currency: 'usd',
-            order: 'market_cap_desc',
+            order: 'market_cap_rank_desc',
             per_page: limit,
             page: page
           }
