@@ -116,7 +116,7 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
         </Paper>
       );
     },
-    [hoveredData.y]
+    [hoveredData.y, yValues.length]
   );
 
   return (
