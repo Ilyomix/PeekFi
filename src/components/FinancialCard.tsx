@@ -243,7 +243,7 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
                   '0.00%'
                 )}
                 {Number(price_change_percentage_24h) !== 0 && (
-                  <DiffIcon size="1rem" stroke={1.5} />
+                  <DiffIcon size="1.2rem" stroke={1.5} />
                 )}
               </Text>
 

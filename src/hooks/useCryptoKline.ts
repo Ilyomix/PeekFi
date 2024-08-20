@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 export type CandleData = {
-  x: string;
+  x: number;
   open: number;
   high: number;
   low: number;
@@ -33,7 +33,7 @@ const useCryptoKLine = (
         string,
         string
       ]) => ({
-        x: new Date(time).toLocaleTimeString(),
+        x: new Date(time).getTime(),
         open: parseFloat(open),
         high: parseFloat(high),
         low: parseFloat(low),
@@ -88,7 +88,7 @@ const useCryptoKLine = (
         if (message?.k) {
           const kline = message.k;
           const newCandle: CandleData = {
-            x: new Date(kline.t).toString(),
+            x: new Date(kline.t).getTime(),
             open: parseFloat(kline.o),
             high: parseFloat(kline.h),
             low: parseFloat(kline.l),

@@ -2,16 +2,16 @@ import { Paper, Flex } from '@mantine/core';
 import PageTransition from 'components/PageTransition';
 import useCryptoTicker from 'hooks/useRealTimeCryptoTicker';
 import { useParams } from 'react-router-dom';
+import { useState, useCallback } from 'react';
 import { AnimatedTickerDisplay } from 'components/AnimatedTickerDisplay';
 import { ShaderGradientWithTransition } from 'components/ShaderGradientWithTransition';
 import { TickerSymbol } from 'components/TickerSymbol';
-import { LoadingErrorDisplay } from 'components/LoadingErrorDisplay';
 import AreaChart from 'components/AreaChart';
 import classes from 'assets/app/pair.module.css';
 import { IconArrowDownRight, IconArrowUpRight } from '@tabler/icons-react';
 
 /**
- * Retourne l'icône appropriée en fonction de la variation du prix.
+ * Returns the appropriate icon based on price change.
  */
 export const getDiffIcon = (value: number | string) => {
   return Number(value) > 0 ? IconArrowUpRight : IconArrowDownRight;
@@ -32,6 +32,8 @@ const Pair: React.FC = () => {
     price = '0'
   } = tickerData || {};
 
+  const tickerDataPrice = Number(price);
+
   return (
     <PageTransition>
       <Paper
@@ -44,7 +46,7 @@ const Pair: React.FC = () => {
         }}
         className={classes['ticker-wrapper']}
       >
-        {/* <LoadingErrorDisplay loading={loading} error={error} /> */}
+        {/* Loading and error display can be added back if necessary */}
         {!loading && !error && (
           <>
             {priceChangePercent && (
@@ -55,14 +57,15 @@ const Pair: React.FC = () => {
             <Flex align="flex-start" direction="column">
               <TickerSymbol tickerSymbol={tickerSymbol} />
               <AnimatedTickerDisplay
-                price={price}
+                price={tickerDataPrice}
                 priceChange={priceChange}
                 priceChangePercent={priceChangePercent}
               />
               <AreaChart
                 symbol={tickerSymbol}
-                interval={'1m'}
+                interval={'1d'}
                 openPrice={openPrice}
+                currentPrice={tickerDataPrice} // Pass current price to AreaChart
               />
             </Flex>
           </>
