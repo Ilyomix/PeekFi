@@ -22,7 +22,7 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
   const [tooltipVisibility, setTooltipVisibility] = useState(false);
   const [hoveredData, setHoveredData] = useState<{ x: number; y: number }>({
     x: 0,
-    y: 0
+    y: -1
   });
 
   // Ref to track previous hovered data
@@ -84,39 +84,41 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
       const showDate = intervalToShowDateOnly.includes(interval) || false;
 
       return (
-        <Paper
-          p={14}
-          radius="lg"
-          c="var(--mantine-color-black-text)"
-          className="tooltip"
-        >
-          <Text c="var(--mantine-color-white-text)">
-            {!showDate
-              ? showDateTime
-                ? new Date(hoveredData.x).toLocaleTimeString()
-                : new Date(hoveredData.x).toLocaleString()
-              : new Date(hoveredData.x).toLocaleDateString()}
-          </Text>
-          <div>
-            <AnimatedTickerDisplay
-              price={hoveredData.y}
-              priceChange={yValues[yValues.length - 1] - hoveredData.y}
-              priceChangePercent={
-                ((yValues[yValues.length - 1] - hoveredData.y) /
-                  hoveredData.y) *
-                100
-              }
-              darkModeEnabled
-              priceFontSize="32px"
-              deltaFontSize="16px"
-              deltaIconFontSize="14px"
-              deltaMention="Change with current:"
-            />
-          </div>
-        </Paper>
+        !!hoveredData.x && (
+          <Paper
+            p={14}
+            radius="lg"
+            c="var(--mantine-color-black-text)"
+            className="tooltip"
+          >
+            <Text c="var(--mantine-color-white-text)">
+              {!showDate
+                ? showDateTime
+                  ? new Date(hoveredData.x).toLocaleTimeString()
+                  : new Date(hoveredData.x).toLocaleString()
+                : new Date(hoveredData.x).toLocaleDateString()}
+            </Text>
+            <div>
+              <AnimatedTickerDisplay
+                price={hoveredData.y}
+                priceChange={yValues[yValues.length - 1] - hoveredData.y}
+                priceChangePercent={
+                  ((yValues[yValues.length - 1] - hoveredData.y) /
+                    hoveredData.y) *
+                  100
+                }
+                darkModeEnabled
+                priceFontSize="32px"
+                deltaFontSize="16px"
+                deltaIconFontSize="14px"
+                deltaMention="Change with current:"
+              />
+            </div>
+          </Paper>
+        )
       );
     },
-    [hoveredData.y, yValues.length]
+    [hoveredData.y, yValues.length, interval]
   );
 
   return (
@@ -127,21 +129,30 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
     >
       <ResponsiveContainer width="100%" height={600}>
         {!loading ? (
-          <LineChart data={data} margin={{ top: 80, bottom: 20, right: 12 }}>
+          <LineChart data={data} margin={{ top: 40, bottom: 20, right: 12 }}>
             <YAxis domain={[minYFromData, maxYFromData]} width={0} />
             <Line
-              type="natural"
+              type="monotoneX"
               dataKey="y"
               stroke="rgba(255, 255, 255, 0.8)"
               animationDuration={250}
               animationEasing="ease"
               strokeWidth={2}
+              activeDot={{
+                r: 0
+              }}
               dot={(e) => <div key={e.index}></div>}
               style={{ marginLeft: '-2px' }}
             />
             <Tooltip
               content={RenderTooltip}
               allowEscapeViewBox={{ x: false }}
+              position={{ y: 80 }}
+              cursor={{
+                strokeWidth: 1,
+                strokeOpacity: 1,
+                stroke: 'white'
+              }}
               animationDuration={100}
               active={tooltipVisibility ? true : false}
             />

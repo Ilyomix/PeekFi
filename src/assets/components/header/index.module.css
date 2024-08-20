@@ -1,15 +1,13 @@
 .header {
   height: rem(56px);
+  transform: translateX(-13px);
   position: fixed;
   display: flex;
   width: 100vw;
-  max-width: calc(82.5rem);
-  transform: translate(-1rem);
+  max-width: 1288px;
   flex-direction: column;
   justify-content: center;
   top: 0.5rem;
-  padding-left: var(--mantine-spacing-md);
-  padding-right: var(--mantine-spacing-md);
   z-index: 100;
 }
 

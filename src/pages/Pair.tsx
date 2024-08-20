@@ -1,12 +1,13 @@
+import React, { useState } from 'react';
 import { Paper, Flex } from '@mantine/core';
 import PageTransition from 'components/PageTransition';
 import useCryptoTicker from 'hooks/useRealTimeCryptoTicker';
 import { useParams } from 'react-router-dom';
-import { useState, useCallback } from 'react';
 import { AnimatedTickerDisplay } from 'components/AnimatedTickerDisplay';
 import { ShaderGradientWithTransition } from 'components/ShaderGradientWithTransition';
 import { TickerSymbol } from 'components/TickerSymbol';
 import AreaChart from 'components/AreaChart';
+import IntervalSelector from 'components/IntervalSelector';
 import classes from 'assets/app/pair.module.css';
 import { IconArrowDownRight, IconArrowUpRight } from '@tabler/icons-react';
 
@@ -27,10 +28,11 @@ const Pair: React.FC = () => {
   const {
     symbol: tickerSymbol = 'Unknown',
     priceChange = '0',
-    openPrice = '0',
     priceChangePercent = '0',
     price = '0'
   } = tickerData || {};
+
+  const [selectedInterval, setSelectedInterval] = useState('1d');
 
   const tickerDataPrice = Number(price);
 
@@ -46,7 +48,6 @@ const Pair: React.FC = () => {
         }}
         className={classes['ticker-wrapper']}
       >
-        {/* Loading and error display can be added back if necessary */}
         {!loading && !error && (
           <>
             {priceChangePercent && (
@@ -61,12 +62,11 @@ const Pair: React.FC = () => {
                 priceChange={priceChange}
                 priceChangePercent={priceChangePercent}
               />
-              <AreaChart
-                symbol={tickerSymbol}
-                interval={'1d'}
-                openPrice={openPrice}
-                currentPrice={tickerDataPrice} // Pass current price to AreaChart
+              <IntervalSelector
+                selectedInterval={selectedInterval}
+                onIntervalChange={setSelectedInterval}
               />
+              <AreaChart symbol={tickerSymbol} interval={selectedInterval} />
             </Flex>
           </>
         )}
