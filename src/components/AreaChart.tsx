@@ -118,7 +118,7 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
         )
       );
     },
-    [hoveredData.y, yValues.length, interval]
+    [hoveredData.y, tooltipVisibility]
   );
 
   return (
@@ -147,7 +147,7 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
             <Tooltip
               content={RenderTooltip}
               allowEscapeViewBox={{ x: false }}
-              position={{ y: 80 }}
+              position={{ y: 40 }}
               cursor={{
                 strokeWidth: 1,
                 strokeOpacity: 1,
