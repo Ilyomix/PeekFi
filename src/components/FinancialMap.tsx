@@ -38,7 +38,6 @@ const FinancialMap: React.FC = () => {
   const favorites = useFavoritesStore((state) => state.favorites);
 
   // Define the cases and their corresponding actions
-  console.log('Fetching data for page:', currentPage);
   const pageCases = {
     invalidNegativePage: () => {
       if (currentPage <= 1) {
@@ -47,7 +46,6 @@ const FinancialMap: React.FC = () => {
     },
     invalidOverMaxPage: () => {
       if (currentPage > totalPages) {
-        console.log('passed');
         navigate(`/screener/page/1`, { replace: true });
       }
     },
