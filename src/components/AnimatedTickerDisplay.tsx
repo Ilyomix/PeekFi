@@ -263,8 +263,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                       margin: diffIconMargin,
                       marginTop: diffIconMarginTop,
                       transform: diffIconTransform,
-                      visibility:
-                        Number(priceChangePercent) !== 0 ? 'inherit' : 'hidden'
+                      opacity: Number(priceChangePercent) !== 0 ? '1' : '0'
                     }}
                     size={deltaIconFontSize}
                     stroke={1.5}
@@ -278,7 +277,8 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                 align="flex-start"
                 justify="flex-start"
                 style={{
-                  visibility: Number(priceChange) !== 0 ? 'inherit' : 'hidden'
+                  transition: 'opacity 0.1s ease',
+                  opacity: Number(priceChange) !== 0 ? '1' : '0'
                 }}
               >
                 <Text

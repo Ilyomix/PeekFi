@@ -1,20 +1,16 @@
 {
-  "name": "reactjs-vite-tailwindcss-boilerplate",
-  "description": "This is a boilerplate build with Vite, React 18, TypeScript, Vitest, Testing Library, TailwindCSS 3, Eslint and Prettier.",
+  "name": "peekfi",
+  "description": "Application used to track cryptocurrencies and to have a better and quick look at the portfolio.",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "author": {
-    "name": "João Paulo Moraes",
-    "email": "joaopaulomoraes@outlook.com",
-    "url": "https://github.com/joaopaulomoraes"
-  },
-  "bugs": {
-    "url": "https://github.com/joaopaulomoraes/reactjs-vite-tailwindcss-boilerplate/issues",
-    "email": "joaopaulomoraes@outlook.com"
+    "name": "Ilyes Abd-Lillah",
+    "email": "ilyes.abd-lillah@epitech.eu",
+    "url": "https://github.com/ilyomix"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --env-file=.env.development",
     "build": "tsc && vite build",
     "serve": "vite preview",
     "test": "vitest",

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import { CoinGeckoTickerData } from 'types/coinGeckoApi';
+import { getPrivateKey } from 'utils/getCoinGeckoApiKey';
 
 type UsePaginatedCryptoTickersResult = {
   tickersData: CoinGeckoTickerData[];
@@ -19,6 +20,7 @@ const usePaginatedCryptoTickers = (
   interval: number = 60000,
   vs_currency: string = 'usd'
 ): UsePaginatedCryptoTickersResult => {
+  const privateKey = getPrivateKey();
   const [tickersData, setTickersData] = useState<CoinGeckoTickerData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +40,9 @@ const usePaginatedCryptoTickers = (
             order: 'market_cap_desc',
             per_page: limit,
             page
+          },
+          headers: {
+            Authorization: `Bearer ${privateKey}`
           }
         });
 
@@ -61,7 +66,7 @@ const usePaginatedCryptoTickers = (
     } finally {
       setLoading(false);
     }
-  }, [page, limit, vs_currency]);
+  }, [page, limit, vs_currency, privateKey]);
 
   useEffect(() => {
     fetchCryptoData();
