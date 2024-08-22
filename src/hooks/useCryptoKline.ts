@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import axios from 'axios';
 
 export type CandleData = {
@@ -15,100 +15,106 @@ type useCryptoKLineResponse = {
   error: string | null;
 };
 
+type RawCandleData = [number, string, string, string, string];
+
 const useCryptoKLine = (
   symbol: string,
   interval: string = '30m',
-  maxDataPoints: number = 100 // Limit the number of data points
+  maxDataPoints: number = 100
 ): useCryptoKLineResponse => {
   const [data, setData] = useState<CandleData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const processFetchedData = (rawData: any[]): CandleData[] =>
-    rawData.map(
-      ([time, open, high, low, close]: [
-        number,
-        string,
-        string,
-        string,
-        string
-      ]) => ({
+  const processFetchedData = useCallback(
+    (rawData: RawCandleData[]): CandleData[] =>
+      rawData.map(([time, open, high, low, close]) => ({
         x: new Date(time).getTime(),
         open: parseFloat(open),
         high: parseFloat(high),
         low: parseFloat(low),
         y: parseFloat(close)
-      })
-    );
+      })),
+    []
+  );
 
-  const updateData = (newCandle: CandleData) => {
-    setData((prevData) => {
-      // Replace the existing candle or add the new one
-      const updatedData = prevData.map((candle) =>
-        candle.x === newCandle.x ? newCandle : candle
-      );
+  const updateData = useCallback(
+    (newCandle: CandleData) => {
+      setData((prevData) => {
+        const candleIndex = prevData.findIndex(
+          (candle) => candle.x === newCandle.x
+        );
 
-      if (!updatedData.find((candle) => candle.x === newCandle.x)) {
-        updatedData.push(newCandle);
-      }
+        if (candleIndex !== -1) {
+          const updatedData = [...prevData];
+          updatedData[candleIndex] = newCandle;
+          return updatedData;
+        }
 
-      // Maintain only the most recent maxDataPoints
-      return updatedData.slice(-maxDataPoints);
-    });
-  };
+        return [...prevData, newCandle].slice(-maxDataPoints);
+      });
+    },
+    [maxDataPoints]
+  );
 
   useEffect(() => {
     if (!symbol) return;
 
+    let ws: WebSocket;
+
     const fetchData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const response = await axios.get(
+        const response = await axios.get<RawCandleData[]>(
           `https://api.binance.com/api/v3/klines?symbol=${symbol.toUpperCase()}&interval=${interval}&limit=${maxDataPoints}`
         );
         setData(processFetchedData(response.data));
-        setLoading(false);
       } catch {
         setError('Failed to fetch historical data');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
 
-    const ws = new WebSocket(
-      `wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${interval}`
-    );
+    const createWebSocket = () => {
+      ws = new WebSocket(
+        `wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${interval}`
+      );
 
-    ws.onopen = () => setLoading(false);
+      ws.onopen = () => setLoading(false);
 
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        if (message?.k) {
-          const kline = message.k;
-          const newCandle: CandleData = {
-            x: new Date(kline.t).getTime(),
-            open: parseFloat(kline.o),
-            high: parseFloat(kline.h),
-            low: parseFloat(kline.l),
-            y: parseFloat(kline.c)
-          };
-          updateData(newCandle);
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message?.k) {
+            const kline = message.k;
+            const newCandle: CandleData = {
+              x: kline.t,
+              open: parseFloat(kline.o),
+              high: parseFloat(kline.h),
+              low: parseFloat(kline.l),
+              y: parseFloat(kline.c)
+            };
+            updateData(newCandle);
+          }
+        } catch {
+          setError('Error processing WebSocket message');
         }
-      } catch {
-        setError('Error processing WebSocket message');
-      }
+      };
+
+      ws.onerror = () => setError('Failed to connect to WebSocket');
+
+      ws.onclose = () => setLoading(false);
     };
 
-    ws.onerror = () => setError('Failed to connect to WebSocket');
+    createWebSocket();
 
-    ws.onclose = () => setLoading(false);
+    return () => ws && ws.close();
+  }, [symbol, interval, maxDataPoints, processFetchedData, updateData]);
 
-    return () => ws.close();
-  }, [symbol, interval, maxDataPoints]);
-
-  return { data, loading, error };
+  return useMemo(() => ({ data, loading, error }), [data, loading, error]);
 };
 
 export default useCryptoKLine;

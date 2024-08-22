@@ -1,47 +1,96 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import { createHtmlPlugin } from 'vite-plugin-html';
-import { ViteMinifyPlugin } from 'vite-plugin-minify';
-import { visualizer } from 'rollup-plugin-visualizer'; // Optional: For analyzing bundle size
+import { visualizer } from 'rollup-plugin-visualizer';
+import viteCompression from 'vite-plugin-compression';
 
-// https://vitejs.dev/config https://vitest.dev/config
+// Dynamic import to reduce initial bundle size
+const tsconfigPaths = () => import('vite-tsconfig-paths');
+const createHtmlPlugin = () =>
+  import('vite-plugin-html').then((mod) => mod.createHtmlPlugin);
+const ViteMinifyPlugin = () =>
+  import('vite-plugin-minify').then((mod) => mod.ViteMinifyPlugin);
+
 export default defineConfig({
   plugins: [
     react(),
-    tsconfigPaths(),
-    // HTML minification
-    createHtmlPlugin({
+    (await tsconfigPaths()).default(),
+    (await createHtmlPlugin())({
       minify: true
     }),
-    // Minify the build
-    ViteMinifyPlugin(),
-    // Optional: Analyze the build output
+    (await ViteMinifyPlugin())(),
     visualizer({
       filename: 'stats.html',
-      template: 'treemap' // You can use 'sunburst' or 'network' as well
+      template: 'treemap'
+    }),
+    viteCompression({
+      algorithm: 'gzip',
+      ext: '.gz'
     })
   ],
   build: {
-    target: 'es2015', // Target modern browsers
-    minify: 'esbuild', // Use esbuild for minification
-    sourcemap: false, // Disable sourcemaps in production
+    target: 'esnext',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        passes: 2, // Increase passes for better compression
+        pure_funcs: ['console.log'] // Drop console logs
+      },
+      mangle: true
+    },
+    sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Split out vendor code into separate chunks
-          vendor: ['react', 'react-dom', 'react-router-dom']
-          // You can add more chunks if necessary
+        manualChunks(id) {
+          const moduleMapping = {
+            node_modules: 'vendor',
+            'src/assets': 'assets',
+            'src/components': 'components',
+            'src/pages': 'pages',
+            'src/utils': 'utils',
+            'src/hooks': 'hooks',
+            'src/stores': 'stores',
+            'src/types': 'types',
+            'src/routes': 'routes',
+            'src/app': 'app',
+            'src/tests': 'tests'
+          };
+
+          for (const [directory, chunkName] of Object.entries(moduleMapping)) {
+            if (id.includes(directory)) {
+              return chunkName;
+            }
+          }
+
+          // Scinder chaque paquet de node_modules en chunks distincts
+          if (id.includes('node_modules')) {
+            const dirs = id.split('node_modules/')[1].split('/');
+            return `vendor-${dirs[0]}`;
+          }
         }
       }
     },
-    chunkSizeWarningLimit: 500 // Set the size limit for chunks (in KB) to avoid large bundles
+    chunkSizeWarningLimit: 500
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
+    esbuildOptions: {
+      minify: true
+    }
   },
   test: {
     globals: true,
     environment: 'happy-dom',
     setupFiles: '.vitest/setup',
-    include: ['**/test.{ts,tsx}']
+    include: ['**/*.test.{ts,tsx}']
+  },
+  server: {
+    port: 3000,
+    strictPort: true,
+    hmr: {
+      overlay: true
+    }
   }
 });

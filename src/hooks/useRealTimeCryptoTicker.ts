@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-// Define the type for ticker data
 type TickerData = {
   symbol: string;
   price: string;
@@ -15,14 +14,17 @@ type TickerData = {
   lastPrice: string;
   currencyPair: string;
   timestamp: Date;
+};
+
+type UseCryptoTickerReturn = {
+  tickerData: TickerData | null;
   loading: boolean;
   error: string | null;
 };
 
-// Define the WebSocket URL for Binance
 const WEBSOCKET_URL = 'wss://stream.binance.com:9443/ws';
 
-const useCryptoTicker = (symbol: string) => {
+const useCryptoTicker = (symbol: string): UseCryptoTickerReturn => {
   const [tickerData, setTickerData] = useState<TickerData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,31 +37,39 @@ const useCryptoTicker = (symbol: string) => {
       setLoading(true);
     };
 
-    ws.onmessage = (event) => {
+    ws.onmessage = ({ data }) => {
       try {
-        const data = JSON.parse(event.data);
+        const {
+          s: symbol,
+          c: price,
+          p: priceChange,
+          P: priceChangePercent,
+          h: highPrice,
+          l: lowPrice,
+          o: openPrice,
+          x: prevClosePrice,
+          q: quoteVolume,
+          v: volume
+        } = JSON.parse(data);
 
-        const updatedTickerData: TickerData = {
-          symbol: data.s,
-          price: data.c,
-          priceChange: data.p,
-          priceChangePercent: data.P,
-          highPrice: data.h,
-          lowPrice: data.l,
-          openPrice: data.o,
-          prevClosePrice: data.x,
-          quoteVolume: data.q,
-          volume: data.v,
-          lastPrice: data.c,
+        setTickerData({
+          symbol,
+          price,
+          priceChange,
+          priceChangePercent,
+          highPrice,
+          lowPrice,
+          openPrice,
+          prevClosePrice,
+          quoteVolume,
+          volume,
+          lastPrice: price,
           currencyPair:
-            data.s.match(/USDT|USD|EUR|GBP|AUD|JPY|TRY/)?.[0] || 'UNKNOWN',
-          timestamp: new Date(),
-          loading: false,
-          error: null
-        };
-
-        setTickerData(updatedTickerData);
+            symbol.match(/USDT|USD|EUR|GBP|AUD|JPY|TRY/)?.[0] || 'UNKNOWN',
+          timestamp: new Date()
+        });
         setLoading(false);
+        setError(null);
       } catch (err) {
         console.error('Error parsing WebSocket data:', err);
         setError('Error parsing WebSocket data');
@@ -77,7 +87,6 @@ const useCryptoTicker = (symbol: string) => {
       setLoading(false);
     };
 
-    // Cleanup on unmount
     return () => {
       ws.close();
     };

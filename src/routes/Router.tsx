@@ -6,7 +6,7 @@ const Pair = lazy(() => import('pages/Pair'));
 
 export function AppRoutes() {
   return (
-    <Suspense>
+    <Suspense fallback={<div>Loading...</div>}>
       <Routes>
         <Route path="/" element={<Screener />} />
         <Route path="/pair/:pair" element={<Pair />} />

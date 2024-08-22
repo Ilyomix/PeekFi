@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Paper, Flex } from '@mantine/core';
 import PageTransition from 'components/PageTransition';
 import useCryptoTicker from 'hooks/useRealTimeCryptoTicker';
@@ -10,6 +10,7 @@ import AreaChart from 'components/AreaChart';
 import IntervalSelector from 'components/IntervalSelector';
 import classes from 'assets/app/pair.module.css';
 import { IconArrowDownRight, IconArrowUpRight } from '@tabler/icons-react';
+import useIntervalStore from 'stores/useIntervalStore'; // Import the store
 
 /**
  * Returns the appropriate icon based on price change.
@@ -32,7 +33,7 @@ const Pair: React.FC = () => {
     price = '0'
   } = tickerData || {};
 
-  const [selectedInterval, setSelectedInterval] = useState('1d');
+  const { selectedInterval } = useIntervalStore(); // use the store
 
   const tickerDataPrice = Number(price);
 
@@ -62,10 +63,7 @@ const Pair: React.FC = () => {
                 priceChange={priceChange}
                 priceChangePercent={priceChangePercent}
               />
-              <IntervalSelector
-                selectedInterval={selectedInterval}
-                onIntervalChange={setSelectedInterval}
-              />
+              <IntervalSelector />
               <AreaChart symbol={tickerSymbol} interval={selectedInterval} />
             </Flex>
           </>

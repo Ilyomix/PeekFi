@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSpring, animated } from 'react-spring';
 import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient';
-import * as drei from '@react-three/drei';
-import * as fiber from '@react-three/fiber';
-import * as reactSpring from '@react-spring/three';
+import { OrbitControls, Box, useTexture } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { useSpring as springThree } from '@react-spring/three';
 import { backgroundChartByDelta } from 'utils/backgroundChartByDelta';
 
 type ShaderGradientWithTransitionProps = {
@@ -13,7 +13,7 @@ type ShaderGradientWithTransitionProps = {
 export const ShaderGradientWithTransition: React.FC<
   ShaderGradientWithTransitionProps
 > = ({ priceChangePercent }) => {
-  const [prevUrl, setPrevUrl] = useState(
+  const [prevUrl, setPrevUrl] = useState<string>(
     backgroundChartByDelta(priceChangePercent)
   );
   const [prevSign, setPrevSign] = useState<number | null>(null);
@@ -33,15 +33,22 @@ export const ShaderGradientWithTransition: React.FC<
         setPrevUrl(newUrl);
         setPrevSign(newSign);
 
-        fadeStyle.opacity.start({ opacity: 1, from: { opacity: 0 } });
+        fadeStyle.opacity.set(1);
       }
     }
-  }, [priceChangePercent, prevSign]);
-  // need to import background chart by delta as props and not by query
+  }, [priceChangePercent, prevSign, fadeStyle]);
+
   return (
     <animated.div style={fadeStyle}>
       <ShaderGradientCanvas
-        importedfiber={{ ...fiber, ...drei, ...reactSpring }}
+        importedfiber={{
+          Canvas,
+          OrbitControls,
+          Box,
+          useTexture,
+          useFrame,
+          springThree
+        }}
         style={{
           position: 'absolute',
           top: 0,
@@ -49,7 +56,7 @@ export const ShaderGradientWithTransition: React.FC<
           zIndex: 0,
           borderRadius: '30px'
         }}
-        onCreated={({ gl }) => {
+        onCreated={({ gl }: { gl: import('three').WebGLRenderer }) => {
           gl.domElement.style.pointerEvents = 'none'; // Disable interactions
         }}
       >
