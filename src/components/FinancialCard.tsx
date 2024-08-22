@@ -11,11 +11,11 @@ import {
 import {
   IconArrowUpRight,
   IconArrowDownRight,
-  IconArrowUp,
-  IconArrowDown,
   IconStarFilled,
   IconStar,
-  IconQuestionMark
+  IconQuestionMark,
+  IconArrowUp,
+  IconArrowDown
 } from '@tabler/icons-react';
 import { AnimatedCounter } from 'react-animated-counter';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
@@ -75,12 +75,13 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
     symbol,
     high_24h,
     low_24h,
+    id,
     vsCurrency,
-    index
+    index,
+    sparkline_in_7d
   }) => {
     const navigate = useNavigate();
 
-    // Memoize the icon and color classes
     const DiffIcon = useMemo(
       () => getDiffIcon(price_change_percentage_24h),
       [price_change_percentage_24h]
@@ -90,9 +91,8 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
       [price_change_percentage_24h]
     );
 
-    // Callback for navigation
     const handleClick = useCallback(() => {
-      if (symbol) navigate(`/pair/${symbol.toUpperCase()}USDT`);
+      if (symbol) navigate(`/pair/${symbol}USDT`);
     }, [symbol, navigate]);
 
     const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
@@ -119,12 +119,13 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
         <PageTransition duration={1}>
           <>
             <BackgroundChart
-              cryptoId={`${symbol as string}`}
+              cryptoId={id}
               delta={
                 price_change_percentage_24h
                   ? price_change_percentage_24h.toString()
                   : '0.00'
               }
+              sparkline={sparkline_in_7d.price} // Pass the sparkline data here
             />
             <Flex justify="start" align="center" title={name}>
               {name && (

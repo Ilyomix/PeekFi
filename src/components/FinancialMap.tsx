@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   SimpleGrid,
   Paper,
@@ -14,51 +14,94 @@ import Filters from 'components/Filters';
 import { useFavoritesStore } from 'stores/useFavoritesStore';
 import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
 import classes from 'assets/components/financialCard/index.module.css';
+import { useNavigate, useParams } from 'react-router-dom';
 
-export function FinancialMap() {
+const FinancialMap: React.FC = () => {
   const { itemsPerPage, cardsPerRow, setItemsPerPage, setCardsPerRow } =
     useScreenerDisplayPreferences();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const { tickersData, error, hasFetched, totalPages, goToPage, vs_currency } =
-    usePaginatedCryptoTickers((currentPage - 1) * itemsPerPage, itemsPerPage);
+  const params = useParams();
+  const navigate = useNavigate();
+
+  // Parse the page number from the URL
+  const initialPage = parseInt(params.page as string, 10);
+  const validInitialPage =
+    !isNaN(initialPage) && initialPage > 0 ? initialPage : 1;
+
+  const [currentPage, setCurrentPage] = useState<number>(validInitialPage);
+
+  // Fetch data with the currentPage
+  const { tickersData, error, loading, totalPages, goToPage, vsCurrency } =
+    usePaginatedCryptoTickers(currentPage, itemsPerPage);
 
   const [filter, setFilter] = useState<string>('all');
   const favorites = useFavoritesStore((state) => state.favorites);
 
-  // Filtre les tickers en fonction du filtre sélectionné
-  const filteredTickers = useMemo(() => {
-    const filtered = tickersData.filter((ticker) => {
-      switch (filter) {
-        case 'favorites':
-          return favorites.includes(ticker.symbol.toUpperCase());
-        case 'gainers':
-          return ticker.price_change_percentage_24h > 0;
-        case 'losers':
-          return ticker.price_change_percentage_24h < 0;
-        case 'volume':
-          return ticker.total_volume > 0;
-        default:
-          return true;
+  // Define the cases and their corresponding actions
+  console.log('Fetching data for page:', currentPage);
+  const pageCases = {
+    invalidNegativePage: () => {
+      if (currentPage <= 1) {
+        navigate(`/screener/page/1`, { replace: true });
       }
-    });
+    },
+    invalidOverMaxPage: () => {
+      if (currentPage > totalPages) {
+        console.log('passed');
+        navigate(`/screener/page/1`, { replace: true });
+      }
+    },
+    invalidPageFormat: () => {
+      if (isNaN(currentPage)) {
+        navigate(`/screener/page/1`, { replace: true });
+      }
+    }
+  };
 
-    return filtered.sort((a, b) => {
-      switch (filter) {
-        case 'gainers':
-          return b.price_change_percentage_24h - a.price_change_percentage_24h;
-        case 'losers':
-          return a.price_change_percentage_24h - b.price_change_percentage_24h;
-        case 'volume':
-          return b.total_volume - a.total_volume;
-        default:
-          return 0;
-      }
-    });
+  // Execute the appropriate case based on the currentPage
+  useEffect(() => {
+    if (totalPages > 0) {
+      Object.values(pageCases).forEach((caseHandler) => caseHandler());
+    }
+  }, [currentPage, totalPages, navigate]);
+
+  // Filter tickers based on the selected filter
+  const filteredTickers = useMemo(() => {
+    return tickersData
+      .filter((ticker) => {
+        switch (filter) {
+          case 'favorites':
+            return favorites.includes(ticker.symbol.toUpperCase());
+          case 'gainers':
+            return ticker.price_change_percentage_24h > 0;
+          case 'losers':
+            return ticker.price_change_percentage_24h < 0;
+          case 'volume':
+            return ticker.total_volume > 0;
+          default:
+            return true;
+        }
+      })
+      .sort((a, b) => {
+        switch (filter) {
+          case 'gainers':
+            return (
+              b.price_change_percentage_24h - a.price_change_percentage_24h
+            );
+          case 'losers':
+            return (
+              a.price_change_percentage_24h - b.price_change_percentage_24h
+            );
+          case 'volume':
+            return b.total_volume - a.total_volume;
+          default:
+            return 0;
+        }
+      });
   }, [tickersData, filter, favorites]);
 
-  // Afficher des squelettes de chargement si les données ne sont pas encore récupérées
-  if (!hasFetched) {
+  // Show a loading state
+  if (loading) {
     return (
       <SimpleGrid cols={{ base: 1, xs: 2, md: cardsPerRow }}>
         {Array.from({ length: itemsPerPage }).map((_, index) => (
@@ -98,7 +141,6 @@ export function FinancialMap() {
     );
   }
 
-  // Afficher un message d'erreur si les données n'ont pas pu être récupérées
   if (error) return <p>Error: {error}</p>;
 
   return (
@@ -116,7 +158,8 @@ export function FinancialMap() {
             key={ticker.id}
             {...ticker}
             index={index}
-            vsCurrency={vs_currency}
+            vsCurrency={vsCurrency}
+            sparkline_in_7d={ticker.sparkline_in_7d} // Pass historical data here
           />
         ))}
       </SimpleGrid>
@@ -126,6 +169,8 @@ export function FinancialMap() {
           onChange={(page) => {
             setCurrentPage(page);
             goToPage(page);
+            navigate('/screener/page/' + page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           total={totalPages}
           autoContrast
@@ -141,4 +186,6 @@ export function FinancialMap() {
       </Flex>
     </div>
   );
-}
+};
+
+export default FinancialMap;

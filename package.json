@@ -10,7 +10,7 @@
     "url": "https://github.com/ilyomix"
   },
   "scripts": {
-    "dev": "vite --env-file=.env.development",
+    "dev": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview",
     "test": "vitest",

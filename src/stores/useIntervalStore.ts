@@ -13,7 +13,7 @@ const useIntervalStore = create<IntervalState>()(
       setSelectedInterval: (interval) => set({ selectedInterval: interval })
     }),
     {
-      name: 'interval-storage',
+      name: 'interval-storage'
     }
   )
 );

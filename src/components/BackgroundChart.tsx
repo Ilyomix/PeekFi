@@ -1,11 +1,11 @@
 import React, { memo, useMemo } from 'react';
 import { ResponsiveLine } from '@nivo/line';
-import useCryptoData from 'hooks/useCryptoData';
-import PageTransition from './PageTransition';
+import PageTransition from 'components/PageTransition';
 
 type BackgroundChartProps = {
   cryptoId: string;
   delta: string | null;
+  sparkline: number[]; // Pass sparkline data here
 };
 
 const getColorClass = (value: string | null) => {
@@ -17,24 +17,23 @@ const getColorClass = (value: string | null) => {
 };
 
 const BackgroundChart: React.FC<BackgroundChartProps> = memo(
-  ({ cryptoId, delta }) => {
-    const { data, loading, error } = useCryptoData(cryptoId);
-
-    // Memoize chartData to avoid recalculations on each render
+  ({ cryptoId, delta, sparkline }) => {
+    // Prepare chart data
     const chartData = useMemo(
       () => [
         {
           id: cryptoId,
-          data
+          data: sparkline.map((price, index) => ({
+            x: index.toString(),
+            y: price
+          }))
         }
       ],
-      [cryptoId, data]
+      [cryptoId, sparkline]
     );
 
-    // Memoize the color class based on the delta
     const lineColor = useMemo(() => getColorClass(delta), [delta]);
-
-    if (loading || error || !data.length) return null;
+    if (!sparkline.length) return null;
 
     return (
       <PageTransition duration={0.75}>
@@ -59,6 +58,7 @@ const BackgroundChart: React.FC<BackgroundChartProps> = memo(
             curve="natural"
             enableArea
             animate
+            pointSize={50}
             enablePoints={false}
             enableGridX={false}
             enableGridY={false}

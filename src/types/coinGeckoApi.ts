@@ -16,4 +16,5 @@ export interface CoinGeckoTickerData {
   total_supply: number;
   ath: number;
   atl: number;
+  sparkline_in_7d: { price: number[] };
 }

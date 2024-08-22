@@ -1,4 +1,4 @@
-import { FinancialMap } from 'components/FinancialMap';
+import FinancialMap from 'components/FinancialMap';
 import PageTransition from 'components/PageTransition';
 
 const Screener: React.FC = () => {

@@ -1,96 +1,128 @@
-import { useState, useEffect, useCallback } from 'react';
-import axios, { AxiosResponse } from 'axios';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import axios from 'axios';
 import { CoinGeckoTickerData } from 'types/coinGeckoApi';
 import { getPrivateKey } from 'utils/getCoinGeckoApiKey';
 
-type UsePaginatedCryptoTickersResult = {
-  tickersData: CoinGeckoTickerData[];
+type TickerWithSparkline = CoinGeckoTickerData & {
+  sparkline_in_7d?: { price: number[] };
+};
+
+type PaginatedCryptoTickersResult = {
+  tickersData: TickerWithSparkline[];
   loading: boolean;
   error: string | null;
-  hasFetched: boolean;
   currentPage: number;
   totalPages: number;
   goToPage: (page: number) => void;
-  vs_currency: string;
+  vsCurrency: string;
 };
 
 const usePaginatedCryptoTickers = (
   initialPage: number = 1,
   limit: number = 25,
-  interval: number = 60000,
-  vs_currency: string = 'usd'
-): UsePaginatedCryptoTickersResult => {
+  initialVsCurrency: string = 'usd'
+): PaginatedCryptoTickersResult => {
   const privateKey = getPrivateKey();
-  const [tickersData, setTickersData] = useState<CoinGeckoTickerData[]>([]);
+  const [tickersData, setTickersData] = useState<{
+    [key: number]: TickerWithSparkline[];
+  }>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasFetched, setHasFetched] = useState<boolean>(false);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [page, setPage] = useState<number>(initialPage);
 
-  const fetchCryptoData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
+  // Fetch the total number of tickers and set totalPages
+  const fetchTotalPages = useCallback(async () => {
     try {
-      const { data: tickersData }: AxiosResponse<CoinGeckoTickerData[]> =
-        await axios.get('https://api.coingecko.com/api/v3/coins/markets', {
-          params: {
-            vs_currency,
-            order: 'market_cap_desc',
-            per_page: limit,
-            page
-          },
+      const totalCountResponse = await axios.get(
+        'https://api.coingecko.com/api/v3/coins/list?include_platform=false',
+        {
           headers: {
-            Authorization: `Bearer ${privateKey}`
+            accept: 'application/json',
+            'x-cg-demo-api-key': privateKey
           }
-        });
-
-      const { data: allCoinsData }: AxiosResponse<{ id: string }[]> =
-        await axios.get('https://api.coingecko.com/api/v3/coins/list');
-      const totalItems: number = allCoinsData.length;
-
-      setTickersData(
-        tickersData.map((item, index) => ({
-          ...item,
-          rank: index + 1 + (page - 1) * limit
-        }))
+        }
       );
-      setTotalPages(Math.ceil(totalItems / limit));
-      setHasFetched(true);
+
+      const totalTickers = totalCountResponse.data.length;
+      const calculatedTotalPages = Math.ceil(totalTickers / limit);
+      setTotalPages(calculatedTotalPages);
+
+      // If the current page is out of bounds, reset to the last valid page
+      if (page > calculatedTotalPages) {
+        setError('Requested page exceeds total available pages.');
+        setPage(1);
+      }
     } catch (err) {
-      console.error('Error fetching crypto data:', err);
-      setError('Error fetching crypto data');
-      setTickersData([]);
-      setHasFetched(true);
-    } finally {
-      setLoading(false);
+      console.error('Error fetching total tickers count:', err);
+      setError('Error fetching total tickers count');
     }
-  }, [page, limit, vs_currency, privateKey]);
+  }, [privateKey, limit, page]);
+
+  const fetchCryptoData = useCallback(
+    async (requestedPage: number) => {
+      if (requestedPage > totalPages) return; // Prevent fetching if page exceeds totalPages
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await axios.get<TickerWithSparkline[]>(
+          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${initialVsCurrency}&order=market_cap_desc&per_page=${limit}&page=${requestedPage}&sparkline=true`,
+          {
+            headers: {
+              accept: 'application/json',
+              'x-cg-demo-api-key': privateKey
+            }
+          }
+        );
+
+        setTickersData((prevData) => ({
+          ...prevData,
+          [requestedPage]: response.data
+        }));
+      } catch (err) {
+        console.error('Error fetching crypto data:', err);
+        setError('Error fetching crypto data');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [privateKey, initialVsCurrency, limit, totalPages]
+  );
 
   useEffect(() => {
-    fetchCryptoData();
-    const intervalId = setInterval(fetchCryptoData, interval);
-    return () => clearInterval(intervalId);
-  }, [fetchCryptoData, interval]);
+    fetchTotalPages(); // Fetch total pages when the component mounts or page changes
+  }, [fetchTotalPages]);
+
+  useEffect(() => {
+    if (!tickersData[page] && page <= totalPages && page >= 1) {
+      fetchCryptoData(page);
+    }
+  }, [fetchCryptoData, page, tickersData, totalPages]);
 
   const goToPage = (newPage: number): void => {
     if (newPage >= 1 && newPage <= totalPages) {
-      setHasFetched(false);
-      setTickersData([]);
       setPage(newPage);
+    } else if (newPage < 1) {
+      setError('You are trying to access a page below the first page.');
+    } else if (newPage > totalPages) {
+      setError('You are trying to access a page beyond the last page.');
     }
   };
 
+  const paginatedData = useMemo(() => {
+    return tickersData[page] || [];
+  }, [tickersData, page]);
+
   return {
-    tickersData,
+    tickersData: paginatedData,
     loading,
     error,
-    hasFetched,
     currentPage: page,
     totalPages,
     goToPage,
-    vs_currency
+    vsCurrency: initialVsCurrency
   };
 };
 
