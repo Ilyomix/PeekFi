@@ -4,7 +4,6 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/936fbfb5-9383-43da-a15a-b1232068fc6f/deploy-status)](https://app.netlify.com/sites/peekfi/deploys)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React Version](https://img.shields.io/badge/react-17.0.2-blue.svg)](https://reactjs.org/)
-[![Node.js CI](https://github.com/username/repository/workflows/Node.js%20CI/badge.svg)](https://github.com/username/repository/actions)
 [![Coverage Status](https://coveralls.io/repos/github/username/repository/badge.svg?branch=main)](https://coveralls.io/github/username/repository?branch=main)
 
 PeekFi is a cutting-edge cryptocurrency tracking application designed to provide users with real-time data on market trends, price changes, and trading volumes of various cryptocurrencies. With its sleek interface and powerful search functionality, PeekFi makes it easier than ever to monitor the volatile world of crypto markets.
@@ -17,7 +16,7 @@ PeekFi is a cutting-edge cryptocurrency tracking application designed to provide
 - 🌗 **Dark Mode Support**: Toggle between light and dark themes to suit your preference and environment.
 - 🚀 **Fast and Responsive**: Built with React and optimized for performance, ensuring a smooth and responsive user experience.
 
-![PeekFi Overview](path/to/your/screenshot.png)
+![image](https://github.com/user-attachments/assets/05815c37-c1a3-476f-92fe-ce99edc94c52)
 
 ## Table of Contents
 
@@ -123,7 +122,7 @@ To manually deploy to Netlify:
 
     Drag and drop the contents of the `build/` directory into the Netlify dashboard or use the Netlify CLI for continuous deployment.
 
-![Netlify Status](https://api.netlify.com/api/v1/badges/936fbfb5-9383-43da-a15a-b1232068fc6f/deploy-status)
+    ![Netlify Status](https://api.netlify.com/api/v1/badges/936fbfb5-9383-43da-a15a-b1232068fc6f/deploy-status)
 
 ## Running Tests
 
@@ -167,6 +166,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For any inquiries or support, please reach out:
 
-- **Email**: your-email@example.com
-- **Twitter**: [@yourhandle](https://twitter.com/yourhandle)
+- **Email**: ilyes.abd-lillah@epitech.eu
+- **x**: [@IlyesAbd](https://twitter.com/IlyesAbd)
 
