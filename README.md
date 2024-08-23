@@ -167,5 +167,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 For any inquiries or support, please reach out:
 
 - **Email**: ilyes.abd-lillah@epitech.eu
-- **x**: [@IlyesAbd](https://twitter.com/IlyesAbd)
+- **x**: [@AbdIlyes](https://twitter.com/AbdIlyes)
 
