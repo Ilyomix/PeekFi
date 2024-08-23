@@ -14,6 +14,23 @@ export interface CryptoSearchResult {
   total_volume?: number;
 }
 
+interface TrendingCoin {
+  item: {
+    id: string;
+    name: string;
+    symbol: string;
+    market_cap_rank: number;
+    thumb: string;
+  };
+}
+
+interface CoinMarketData {
+  id: string;
+  current_price: number;
+  price_change_percentage_24h: number;
+  total_volume: number;
+}
+
 export const useCryptoSearch = () => {
   const privateKey = getPrivateKey();
 
@@ -23,7 +40,7 @@ export const useCryptoSearch = () => {
   const fetchTrending = useCallback(async () => {
     setLoading(true);
     try {
-      const trendingResponse = await axios.get(
+      const trendingResponse = await axios.get<{ coins: TrendingCoin[] }>(
         'https://api.coingecko.com/api/v3/search/trending',
         {
           headers: {
@@ -33,7 +50,7 @@ export const useCryptoSearch = () => {
         }
       );
 
-      const trendingCoins = trendingResponse.data.coins.map((item: any) => ({
+      const trendingCoins = trendingResponse.data.coins.map((item) => ({
         id: item.item.id,
         name: item.item.name,
         symbol: item.item.symbol,
@@ -43,7 +60,7 @@ export const useCryptoSearch = () => {
 
       const coinIds = trendingCoins.map((coin) => coin.id).join(',');
 
-      const priceResponse = await axios.get<CryptoSearchResult[]>(
+      const priceResponse = await axios.get<CoinMarketData[]>(
         'https://api.coingecko.com/api/v3/coins/markets',
         {
           headers: {
@@ -87,7 +104,7 @@ export const useCryptoSearch = () => {
       }
 
       try {
-        const searchResponse = await axios.get(
+        const searchResponse = await axios.get<{ coins: CryptoSearchResult[] }>(
           'https://api.coingecko.com/api/v3/search',
           {
             headers: {
@@ -98,15 +115,13 @@ export const useCryptoSearch = () => {
           }
         );
 
-        const coins: CryptoSearchResult[] = searchResponse.data.coins.map(
-          (coin) => ({
-            id: coin.id,
-            name: coin.name,
-            symbol: coin.symbol,
-            market_cap_rank: coin.market_cap_rank,
-            thumb: coin.thumb
-          })
-        );
+        const coins = searchResponse.data.coins.map((coin) => ({
+          id: coin.id,
+          name: coin.name,
+          symbol: coin.symbol,
+          market_cap_rank: coin.market_cap_rank,
+          thumb: coin.thumb
+        }));
 
         if (coins.length === 0) {
           setResults([]);
@@ -115,7 +130,7 @@ export const useCryptoSearch = () => {
 
         const coinIds = coins.map((coin) => coin.id).join(',');
 
-        const priceResponse = await axios.get<CryptoSearchResult[]>(
+        const priceResponse = await axios.get<CoinMarketData[]>(
           'https://api.coingecko.com/api/v3/coins/markets',
           {
             headers: {
