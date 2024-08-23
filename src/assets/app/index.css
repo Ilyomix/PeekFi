@@ -34,6 +34,25 @@ body {
   transition: background 0.5s ease-in-out;
 }
 
+.mantine-Spotlight-search {
+  outline: 0;
+  border: 1px solid transparent !important;
+}
+
+.mantine-Spotlight-actionsList {
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-8)) !important;
+  padding: 0 !important;
+}
+
+.mantine-Spotlight-actionsGroup {
+  margin-top: 18px;
+  margin-bottom: 14px;
+}
+
+.mantine-Spotlight-actionsGroup::before {
+  margin-bottom: 7px;
+}
+
 ::-webkit-scrollbar {
   width: 14px;
   height: 18px;

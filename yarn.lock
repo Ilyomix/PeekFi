@@ -340,7 +340,7 @@
 
 "@mantine/spotlight@^7.12.1":
   version "7.12.1"
-  resolved "https://registry.npmjs.org/@mantine/spotlight/-/spotlight-7.12.1.tgz"
+  resolved "https://registry.yarnpkg.com/@mantine/spotlight/-/spotlight-7.12.1.tgz#51adcde8324a25ed922f508794b3b0f39c978f69"
   integrity sha512-WaXB149ZVYXLz0Oft5FTan63M75NBq/Q/HNKXtkQ071X1AnbAwAEPpA895GRlXP2/NTFNan4MO69Wit/+XJceA==
   dependencies:
     "@mantine/store" "7.12.1"

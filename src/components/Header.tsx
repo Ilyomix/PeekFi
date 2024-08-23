@@ -12,9 +12,11 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { openSpotlight } from '@mantine/spotlight';
 import classes from 'assets/components/header/index.module.css';
 import { ThemeToggle } from './ThemeToggle';
 import logo from 'assets/logo.png';
+import CryptoSearch from './CryptoSearch';
 
 const links = [
   { link: '/', label: 'Screener' },
@@ -32,25 +34,19 @@ export function Header() {
   });
 
   const { pathname } = useLocation();
-
   const navigate = useNavigate();
-
   const theme = useMantineTheme();
   const isDarkTheme = computedColorScheme === 'dark';
 
-  const items = links.map((link, index) => {
-    return (
-      <Link
-        key={index + 1}
-        to={link.link}
-        className={
-          pathname === link.link ? classes['link-active'] : classes.link
-        }
-      >
-        {link.label}
-      </Link>
-    );
-  });
+  const items = links.map((link, index) => (
+    <Link
+      key={index + 1}
+      to={link.link}
+      className={pathname === link.link ? classes['link-active'] : classes.link}
+    >
+      {link.label}
+    </Link>
+  ));
 
   return (
     <>
@@ -66,7 +62,7 @@ export function Header() {
             <Image
               className={classes.logo}
               radius="md"
-              w="100"
+              w="100px"
               src={logo}
               style={{
                 filter: isDarkTheme ? 'invert()' : ''
@@ -83,6 +79,7 @@ export function Header() {
             <Button
               classNames={{ root: classes.search }}
               variant="light"
+              onClick={() => openSpotlight()}
               leftSection={
                 <>
                   <IconSearch
@@ -105,12 +102,13 @@ export function Header() {
               radius="xl"
               rightSection={
                 <div>
-                  <Kbd>Ctrl</Kbd> + <Kbd>F</Kbd>
+                  <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd>
                 </div>
               }
               visibleFrom="xs"
             />
           </Group>
+          <CryptoSearch />
         </div>
       </header>
     </>
