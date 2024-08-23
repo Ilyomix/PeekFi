@@ -19,10 +19,10 @@ const FinancialMap: React.FC = () => {
   const {
     itemsPerPage,
     cardsPerRow,
-    filter,
     setItemsPerPage,
     setCardsPerRow,
-    setFilter
+    setFilter,
+    filter
   } = useScreenerDisplayPreferences();
 
   const params = useParams();
@@ -38,56 +38,63 @@ const FinancialMap: React.FC = () => {
     usePaginatedCryptoTickers(currentPage, itemsPerPage, 'usd', filter);
 
   useEffect(() => {
-    if (totalPages > 0 && (currentPage < 1 || currentPage > totalPages)) {
-      const validPage = Math.min(Math.max(1, currentPage), totalPages);
-      setCurrentPage(validPage);
-      navigate(`/screener/page/${validPage}`, { replace: true });
+    if (totalPages > 0 && currentPage > totalPages) {
+      navigate(`/screener/page/1`, { replace: true });
+      setCurrentPage(1);
     }
   }, [currentPage, totalPages, navigate]);
 
-  // Reset to page 1 when filter or itemsPerPage changes, and fetch new data
   useEffect(() => {
-    setCurrentPage(1);
-    goToPage(1);
-  }, [filter, goToPage, itemsPerPage]);
+    goToPage(currentPage); // Trigger fetch on filter or itemsPerPage change
+  }, [currentPage, filter, goToPage, itemsPerPage]);
 
   if (loading) {
     return (
-      <SimpleGrid cols={{ base: 1, xs: 2, md: cardsPerRow }}>
-        {Array.from({ length: itemsPerPage }).map((_, index) => (
-          <PageTransition key={index}>
-            <Paper
-              shadow="md"
-              p="md"
-              radius="lg"
-              className={classes.card}
-              h={220.5}
-              pos="relative"
-            >
-              <Flex
-                h="100%"
-                justify="space-between"
-                align="start"
-                direction="column"
-                gap={14}
+      <div>
+        <Filters
+          setFilter={setFilter}
+          setItemsPerPage={setItemsPerPage}
+          setCardsPerRow={setCardsPerRow}
+          itemsPerPage={itemsPerPage}
+          cardsPerRow={cardsPerRow}
+          currentFilter={filter}
+        />
+        <SimpleGrid cols={{ base: 1, xs: 2, md: cardsPerRow }}>
+          {Array.from({ length: itemsPerPage }).map((_, index) => (
+            <PageTransition key={index}>
+              <Paper
+                shadow="md"
+                p="md"
+                radius="lg"
+                className={classes.card}
+                h={220.5}
+                pos="relative"
               >
-                <Skeleton radius={10} h={14} w="50%" />
-                <Skeleton radius={10} h={7} w="36%" />
-                <Skeleton radius={10} h={60} />
-                <Skeleton radius={10} h={14} w="50%" />
-                <Flex w="100%" gap={4} justify="space-between">
-                  <Skeleton radius={10} h={7} w="33%" />
-                  <Skeleton radius={10} h={7} w="33%" />
+                <Flex
+                  h="100%"
+                  justify="space-between"
+                  align="start"
+                  direction="column"
+                  gap={14}
+                >
+                  <Skeleton radius={10} h={14} w="50%" />
+                  <Skeleton radius={10} h={7} w="36%" />
+                  <Skeleton radius={10} h={60} />
+                  <Skeleton radius={10} h={14} w="50%" />
+                  <Flex w="100%" gap={4} justify="space-between">
+                    <Skeleton radius={10} h={7} w="33%" />
+                    <Skeleton radius={10} h={7} w="33%" />
+                  </Flex>
+                  <Flex w="100%" gap={4} justify="space-between">
+                    <Skeleton radius={10} h={7} w="33%" />
+                    <Skeleton radius={10} h={7} w="33%" />
+                  </Flex>
                 </Flex>
-                <Flex w="100%" gap={4} justify="space-between">
-                  <Skeleton radius={10} h={7} w="33%" />
-                  <Skeleton radius={10} h={7} w="33%" />
-                </Flex>
-              </Flex>
-            </Paper>
-          </PageTransition>
-        ))}
-      </SimpleGrid>
+              </Paper>
+            </PageTransition>
+          ))}
+        </SimpleGrid>
+      </div>
     );
   }
 
@@ -101,7 +108,7 @@ const FinancialMap: React.FC = () => {
         setCardsPerRow={setCardsPerRow}
         itemsPerPage={itemsPerPage}
         cardsPerRow={cardsPerRow}
-        currentFilter={filter} // Pass current filter to Filters
+        currentFilter={filter}
       />
       <SimpleGrid cols={{ base: 1, xs: 2, md: cardsPerRow }}>
         {tickersData.map((ticker, index) => (

@@ -28,7 +28,7 @@ interface FiltersProps {
   setCardsPerRow: (value: number) => void;
   itemsPerPage: number;
   cardsPerRow: number;
-  currentFilter: string;
+  currentFilter?: string;
 }
 
 type FilterButton = {
