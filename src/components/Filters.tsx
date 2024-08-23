@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Container,
@@ -11,12 +11,14 @@ import {
   Flex,
   Title
 } from '@mantine/core';
-import { useFavoritesStore } from 'stores/useFavoritesStore';
 import {
   IconFilterFilled,
   IconListDetails,
   IconTableRow,
-  IconX
+  IconX,
+  IconArrowUp,
+  IconArrowDown,
+  IconRefresh
 } from '@tabler/icons-react';
 import 'assets/components/filter/filter.css';
 
@@ -26,11 +28,13 @@ interface FiltersProps {
   setCardsPerRow: (value: number) => void;
   itemsPerPage: number;
   cardsPerRow: number;
+  currentFilter: string;
 }
 
 type FilterButton = {
   value: string;
   label: string;
+  icon: React.ReactNode;
 };
 
 type ItemsPerPageButton = {
@@ -48,23 +52,81 @@ const Filters: React.FC<FiltersProps> = ({
   setItemsPerPage,
   setCardsPerRow,
   itemsPerPage,
-  cardsPerRow
+  cardsPerRow,
+  currentFilter
 }) => {
-  const [filter, setLocalFilter] = useState<string>('all');
   const [drawerOpened, setDrawerOpened] = useState<boolean>(false); // State for managing drawer
-  const favorites = useFavoritesStore((state) => state.favorites);
+  const [resetVisible, setResetVisible] = useState<boolean>(false); // State for Reset button visibility
+  const [applyVisible, setApplyVisible] = useState<boolean>(false); // State for Apply/Cancel buttons visibility
+  const [localFilter, setLocalFilter] = useState(currentFilter);
+  const [localItemsPerPage, setLocalItemsPerPage] = useState(itemsPerPage);
+  const [localCardsPerRow, setLocalCardsPerRow] = useState(cardsPerRow);
 
-  const handleFilterChange = (value: string) => {
-    setLocalFilter(value);
-    setFilter(value);
+  useEffect(() => {
+    const hasChanged =
+      localFilter !== currentFilter ||
+      localItemsPerPage !== itemsPerPage ||
+      localCardsPerRow !== cardsPerRow;
+
+    setResetVisible(
+      localFilter !== 'market_cap_desc' ||
+        localItemsPerPage !== 25 ||
+        localCardsPerRow !== 4
+    );
+
+    setApplyVisible(hasChanged);
+  }, [
+    localFilter,
+    localItemsPerPage,
+    localCardsPerRow,
+    currentFilter,
+    itemsPerPage,
+    cardsPerRow
+  ]);
+
+  const handleReset = () => {
+    setLocalFilter('market_cap_desc');
+    setLocalItemsPerPage(25);
+    setLocalCardsPerRow(4);
+    setResetVisible(false);
+    setApplyVisible(false);
+  };
+
+  const handleApplyFilters = () => {
+    setFilter(localFilter);
+    setItemsPerPage(localItemsPerPage);
+    setCardsPerRow(localCardsPerRow);
+    setDrawerOpened(false);
+  };
+
+  const handleCloseDrawer = () => {
+    setDrawerOpened(false);
+    // Reset local states to original values if the drawer is closed without applying changes
+    setLocalFilter(currentFilter);
+    setLocalItemsPerPage(itemsPerPage);
+    setLocalCardsPerRow(cardsPerRow);
+    setApplyVisible(false);
   };
 
   const filterButtons: FilterButton[] = [
-    { value: 'all', label: 'All' },
-    { value: 'favorites', label: `Favorites (${favorites.length})` },
-    { value: 'gainers', label: 'Top Gainers' },
-    { value: 'losers', label: 'Top Losers' },
-    { value: 'volume', label: 'High Volume' }
+    {
+      value: 'market_cap_desc',
+      label: 'Marketcap',
+      icon: <IconArrowUp size={14} />
+    },
+    {
+      value: 'market_cap_asc',
+      label: 'Marketcap',
+      icon: <IconArrowDown size={14} />
+    },
+    {
+      value: 'volume_desc',
+      label: 'Volume',
+      icon: <IconArrowUp size={14} />
+    },
+    { value: 'volume_asc', label: 'Volume', icon: <IconArrowDown size={14} /> },
+    { value: 'id_desc', label: 'ID', icon: <IconArrowUp size={14} /> },
+    { value: 'id_asc', label: 'ID', icon: <IconArrowDown size={14} /> }
   ];
 
   const itemsPerPageButtons: ItemsPerPageButton[] = [
@@ -82,12 +144,12 @@ const Filters: React.FC<FiltersProps> = ({
   ];
 
   const renderButtons = <T extends string | number>(
-    buttons: { value: T; label: string }[],
+    buttons: { value: T; label: string; icon?: React.ReactNode }[],
     activeValue: T,
     onClick: (value: T) => void
   ) => (
     <>
-      {buttons.map(({ value, label }) => (
+      {buttons.map(({ value, label, icon }) => (
         <Button
           key={value.toString()}
           className="filter-active"
@@ -97,6 +159,7 @@ const Filters: React.FC<FiltersProps> = ({
           size="xs"
           w="100%"
           m={2}
+          rightSection={icon}
           c={activeValue === value ? 'var(--mantine-color-white)' : 'inherit'}
           color={`light-dark(var(--mantine-color-dark-8), ${
             activeValue === value
@@ -119,7 +182,7 @@ const Filters: React.FC<FiltersProps> = ({
   }: {
     icon: React.ElementType;
     label: string;
-    buttons: { value: T; label: string }[];
+    buttons: { value: T; label: string; icon?: React.ReactNode }[];
     activeValue: T;
     onClick: (value: T) => void;
   }) => (
@@ -160,7 +223,7 @@ const Filters: React.FC<FiltersProps> = ({
         <Button
           className="filter-active-neutral"
           component="div"
-          leftSection={<IconFilterFilled size="14" />}
+          leftSection={<IconFilterFilled size={14} />}
           variant="filled"
           onClick={() => setDrawerOpened(true)}
           radius="xl"
@@ -183,7 +246,7 @@ const Filters: React.FC<FiltersProps> = ({
 
       <Drawer
         opened={drawerOpened}
-        onClose={() => setDrawerOpened(false)}
+        onClose={handleCloseDrawer} // Handle drawer close with resetting to original values
         padding="xl"
         position="right"
         size="xl"
@@ -195,15 +258,36 @@ const Filters: React.FC<FiltersProps> = ({
           }
         }}
       >
-        <Flex p="apart" justify="space-between" align="center">
-          <Title order={2} fw={700}>
-            Filters preferences
-          </Title>
+        <Flex
+          p="apart"
+          justify="space-between"
+          align="center"
+          style={{ width: '100%' }}
+        >
+          <Flex justify="start" align="center" gap="md">
+            <Title order={2} fw={700}>
+              Filters preferences
+            </Title>
+            {resetVisible && (
+              <Button
+                rightSection={<IconRefresh size={18} />}
+                className="button-filter-neutral"
+                variant="filled"
+                onClick={handleReset}
+                radius="xl"
+                c="light-dark(var(--mantine-color-white), var(--mantine-color-black))"
+                color="light-dark(var(--mantine-color-black), var(--mantine-color-white))"
+                size="xs"
+              >
+                Reset to Defaults
+              </Button>
+            )}
+          </Flex>
           <ActionIcon
             size="md"
             variant="transparent"
             c="light-dark(var(--mantine-color-gray-9), var(--mantine-color-gray))"
-            onClick={() => setDrawerOpened(false)}
+            onClick={handleCloseDrawer} // Handle close drawer with reset
           >
             <IconX size="32" />
           </ActionIcon>
@@ -211,30 +295,53 @@ const Filters: React.FC<FiltersProps> = ({
         <Divider my="md" />
 
         <ScrollArea
-          style={{ height: '70vh', paddingTop: '1rem' }}
+          style={{ height: '70vh', paddingTop: '0rem' }}
           type="scroll"
         >
           <Section
             icon={IconFilterFilled}
-            label="Display"
+            label="Sort By"
             buttons={filterButtons}
-            activeValue={filter}
-            onClick={handleFilterChange}
+            activeValue={localFilter}
+            onClick={(value) => setLocalFilter(value)}
           />
           <Section
             icon={IconListDetails}
             label="Items per Page"
             buttons={itemsPerPageButtons}
-            activeValue={itemsPerPage}
-            onClick={setItemsPerPage}
+            activeValue={localItemsPerPage}
+            onClick={(value) => setLocalItemsPerPage(Number(value))}
           />
           <Section
             icon={IconTableRow}
             label="Items per Row"
             buttons={cardsPerRowButtons}
-            activeValue={cardsPerRow}
-            onClick={setCardsPerRow}
+            activeValue={localCardsPerRow}
+            onClick={(value) => setLocalCardsPerRow(Number(value))}
           />
+          <Divider my="md" />
+          {applyVisible && ( // Conditionally render Apply and Cancel buttons
+            <Flex justify="end" gap="sm">
+              <Button
+                variant="transparent"
+                onClick={handleCloseDrawer} // Close without applying changes
+                radius="xl"
+                size="sm"
+                color="light-dark(var(--mantine-color-black), var(--mantine-color-white)"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="filled"
+                onClick={handleApplyFilters} // Apply changes
+                radius="xl"
+                size="sm"
+                color="teal"
+              >
+                Apply Filters
+              </Button>
+            </Flex>
+          )}
         </ScrollArea>
       </Drawer>
     </>

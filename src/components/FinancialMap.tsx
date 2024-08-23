@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SimpleGrid,
   Paper,
@@ -11,94 +11,46 @@ import PageTransition from 'components/PageTransition';
 import usePaginatedCryptoTickers from 'hooks/usePaginatedCryptoTicker';
 import FinancialCard from 'components/FinancialCard';
 import Filters from 'components/Filters';
-import { useFavoritesStore } from 'stores/useFavoritesStore';
 import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
-import classes from 'assets/components/financialCard/index.module.css';
 import { useNavigate, useParams } from 'react-router-dom';
+import classes from 'assets/components/financialCard/index.module.css';
 
 const FinancialMap: React.FC = () => {
-  const { itemsPerPage, cardsPerRow, setItemsPerPage, setCardsPerRow } =
-    useScreenerDisplayPreferences();
+  const {
+    itemsPerPage,
+    cardsPerRow,
+    filter,
+    setItemsPerPage,
+    setCardsPerRow,
+    setFilter
+  } = useScreenerDisplayPreferences();
 
   const params = useParams();
   const navigate = useNavigate();
 
-  // Parse the page number from the URL
   const initialPage = parseInt(params.page as string, 10);
   const validInitialPage =
     !isNaN(initialPage) && initialPage > 0 ? initialPage : 1;
 
   const [currentPage, setCurrentPage] = useState<number>(validInitialPage);
 
-  // Fetch data with the currentPage
   const { tickersData, error, loading, totalPages, goToPage, vsCurrency } =
-    usePaginatedCryptoTickers(currentPage, itemsPerPage);
+    usePaginatedCryptoTickers(currentPage, itemsPerPage, 'usd', filter);
 
-  const [filter, setFilter] = useState<string>('all');
-  const favorites = useFavoritesStore((state) => state.favorites);
-
-  // Define the cases and their corresponding actions
-  const pageCases = {
-    invalidNegativePage: () => {
-      if (currentPage <= 1) {
-        navigate(`/screener/page/1`, { replace: true });
-      }
-    },
-    invalidOverMaxPage: () => {
-      if (currentPage > totalPages) {
-        navigate(`/screener/page/1`, { replace: true });
-      }
-    },
-    invalidPageFormat: () => {
-      if (isNaN(currentPage)) {
-        navigate(`/screener/page/1`, { replace: true });
-      }
-    }
-  };
-
-  // Execute the appropriate case based on the currentPage
   useEffect(() => {
-    if (totalPages > 0) {
-      Object.values(pageCases).forEach((caseHandler) => caseHandler());
+    if (totalPages > 0 && (currentPage < 1 || currentPage > totalPages)) {
+      const validPage = Math.min(Math.max(1, currentPage), totalPages);
+      setCurrentPage(validPage);
+      navigate(`/screener/page/${validPage}`, { replace: true });
     }
   }, [currentPage, totalPages, navigate]);
 
-  // Filter tickers based on the selected filter
-  const filteredTickers = useMemo(() => {
-    return tickersData
-      .filter((ticker) => {
-        switch (filter) {
-          case 'favorites':
-            return favorites.includes(ticker.symbol.toUpperCase());
-          case 'gainers':
-            return ticker.price_change_percentage_24h > 0;
-          case 'losers':
-            return ticker.price_change_percentage_24h < 0;
-          case 'volume':
-            return ticker.total_volume > 0;
-          default:
-            return true;
-        }
-      })
-      .sort((a, b) => {
-        switch (filter) {
-          case 'gainers':
-            return (
-              b.price_change_percentage_24h - a.price_change_percentage_24h
-            );
-          case 'losers':
-            return (
-              a.price_change_percentage_24h - b.price_change_percentage_24h
-            );
-          case 'volume':
-            return b.total_volume - a.total_volume;
-          default:
-            return 0;
-        }
-      });
-  }, [tickersData, filter, favorites]);
+  // Reset to page 1 when filter or itemsPerPage changes, and fetch new data
+  useEffect(() => {
+    setCurrentPage(1);
+    goToPage(1);
+  }, [filter, goToPage, itemsPerPage]);
 
-  // Show a loading state
   if (loading) {
     return (
       <SimpleGrid cols={{ base: 1, xs: 2, md: cardsPerRow }}>
@@ -149,13 +101,14 @@ const FinancialMap: React.FC = () => {
         setCardsPerRow={setCardsPerRow}
         itemsPerPage={itemsPerPage}
         cardsPerRow={cardsPerRow}
+        currentFilter={filter} // Pass current filter to Filters
       />
       <SimpleGrid cols={{ base: 1, xs: 2, md: cardsPerRow }}>
-        {filteredTickers.map((ticker, index) => (
+        {tickersData.map((ticker, index) => (
           <FinancialCard
+            index={index}
             key={ticker.id}
             {...ticker}
-            index={index}
             vsCurrency={vsCurrency}
             sparkline_in_7d={ticker.sparkline_in_7d} // Pass historical data here
           />
