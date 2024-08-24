@@ -157,8 +157,8 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
       noAnimation = false
     }) => {
       const colorClass = useMemo(
-        () => getColorClass(priceChange),
-        [priceChange]
+        () => getColorClass(priceChangePercent),
+        [priceChangePercent]
       );
       const DiffIcon = useMemo(() => getDiffIcon(priceChange), [priceChange]);
 

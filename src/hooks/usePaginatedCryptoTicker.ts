@@ -102,6 +102,15 @@ const usePaginatedCryptoTickers = (
     }
   }, [fetchCryptoData, page, totalPages]);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchCryptoData(page);
+      setLoading(false);
+    }, 60000); // Update every 60 seconds
+
+    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+  }, [fetchCryptoData, page]);
+
   const goToPage = (newPage: number): void => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
