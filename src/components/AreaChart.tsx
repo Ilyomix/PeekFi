@@ -80,7 +80,7 @@ const Chart: React.FC<ChartProps> = ({
   useEffect(() => {
     const payload = hoveredDataRef.current;
     if (payload.x !== hoveredData.x || payload.y !== hoveredData.y) {
-      setHoveredData(payload); // Mettre à jour si nécessaire
+      setHoveredData(payload);
     }
   }, [hoveredData]);
 
@@ -214,7 +214,13 @@ const Chart: React.FC<ChartProps> = ({
               fill="rgba(255, 255, 255, 1)"
               className="fade-in"
             />
-            <ReferenceLine y={baseline} stroke="white" strokeDasharray="3 3" />
+
+            <ReferenceLine
+              // @ts-expect-error The defintion 'y' is missing from the type of 'ReferenceLine'
+              y={baseline}
+              stroke="white"
+              strokeDasharray="3 3"
+            />
           </AreaChart>
         ) : (
           <></>
