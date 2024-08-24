@@ -9,7 +9,7 @@ type IntervalState = {
 const useIntervalStore = create<IntervalState>()(
   persist(
     (set) => ({
-      selectedInterval: '1d',
+      selectedInterval: '1D',
       setSelectedInterval: (interval) => set({ selectedInterval: interval })
     }),
     {

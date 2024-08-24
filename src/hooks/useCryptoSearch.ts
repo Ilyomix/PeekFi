@@ -41,11 +41,11 @@ export const useCryptoSearch = () => {
     setLoading(true);
     try {
       const trendingResponse = await axios.get<{ coins: TrendingCoin[] }>(
-        'https://api.coingecko.com/api/v3/search/trending',
+        'https://pro-api.coingecko.com/api/v3/search/trending',
         {
           headers: {
             accept: 'application/json',
-            'x-cg-demo-api-key': privateKey
+            'x-cg-pro-api-key': privateKey
           }
         }
       );
@@ -61,11 +61,11 @@ export const useCryptoSearch = () => {
       const coinIds = trendingCoins.map((coin) => coin.id).join(',');
 
       const priceResponse = await axios.get<CoinMarketData[]>(
-        'https://api.coingecko.com/api/v3/coins/markets',
+        'https://pro-api.coingecko.com/api/v3/coins/markets',
         {
           headers: {
             accept: 'application/json',
-            'x-cg-demo-api-key': privateKey
+            'x-cg-pro-api-key': privateKey
           },
           params: {
             vs_currency: 'usd',
@@ -105,11 +105,11 @@ export const useCryptoSearch = () => {
 
       try {
         const searchResponse = await axios.get<{ coins: CryptoSearchResult[] }>(
-          'https://api.coingecko.com/api/v3/search',
+          'https://pro-api.coingecko.com/api/v3/search',
           {
             headers: {
               accept: 'application/json',
-              'x-cg-demo-api-key': privateKey
+              'x-cg-pro-api-key': privateKey
             },
             params: { query }
           }
@@ -131,11 +131,11 @@ export const useCryptoSearch = () => {
         const coinIds = coins.map((coin) => coin.id).join(',');
 
         const priceResponse = await axios.get<CoinMarketData[]>(
-          'https://api.coingecko.com/api/v3/coins/markets',
+          'https://pro-api.coingecko.com/api/v3/coins/markets',
           {
             headers: {
               accept: 'application/json',
-              'x-cg-demo-api-key': privateKey
+              'x-cg-pro-api-key': privateKey
             },
             params: {
               vs_currency: 'usd',

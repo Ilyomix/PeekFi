@@ -25,7 +25,6 @@ import PageTransition from 'components/PageTransition';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritesStore } from 'stores/useFavoritesStore';
 import { CoinGeckoTickerData } from 'types/coinGeckoApi';
-import { getAssetsImageUrl } from 'utils/assetsIcons';
 
 type FinancialCardProps = CoinGeckoTickerData & {
   index: number;
@@ -74,6 +73,7 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
     price_change_percentage_24h,
     symbol,
     high_24h,
+    image,
     low_24h,
     id,
     vsCurrency,
@@ -92,8 +92,8 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
     );
 
     const handleClick = useCallback(() => {
-      if (symbol) navigate(`/pair/${symbol}USDT`);
-    }, [symbol, navigate]);
+      if (symbol) navigate(`/pair/${id}`, { replace: true });
+    }, [id, navigate, symbol]);
 
     const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
     const isFav = isFavorite(symbol);
@@ -129,12 +129,7 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
             />
             <Flex justify="start" align="center" title={name}>
               {name && (
-                <Avatar
-                  src={getAssetsImageUrl(symbol.toUpperCase())}
-                  alt={name || ''}
-                  size="sm"
-                  mr={14}
-                >
+                <Avatar src={image} alt={name || ''} size="sm" mr={14}>
                   <IconQuestionMark />
                 </Avatar>
               )}

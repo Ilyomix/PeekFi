@@ -1,13 +1,16 @@
 import React from 'react';
 import { Avatar, Flex, Text } from '@mantine/core';
-import { getAssetsImageUrl } from 'utils/assetsIcons';
 import { IconQuestionMark } from '@tabler/icons-react';
 
 type TickerSymbolProps = {
   tickerSymbol: string;
+  imgUrl: string;
 };
 
-export const TickerSymbol: React.FC<TickerSymbolProps> = ({ tickerSymbol }) => (
+export const TickerSymbol: React.FC<TickerSymbolProps> = ({
+  tickerSymbol,
+  imgUrl = ''
+}) => (
   <Flex
     justify="center"
     align="center"
@@ -19,9 +22,7 @@ export const TickerSymbol: React.FC<TickerSymbolProps> = ({ tickerSymbol }) => (
   >
     {tickerSymbol && (
       <Avatar
-        src={getAssetsImageUrl(
-          tickerSymbol.replace(/USDT|USD|EUR|GBP|AUD|JPY|TRY/g, '')
-        )}
+        src={imgUrl}
         alt={tickerSymbol.toUpperCase() || ''}
         size="md"
         mr={14}

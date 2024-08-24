@@ -1,12 +1,13 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import UseCryptoKLine from 'hooks/useCryptoKline';
 import {
-  Line,
-  LineChart,
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  ReferenceDot
+  ReferenceDot,
+  AreaChart,
+  Area,
+  ReferenceLine
 } from 'recharts';
 import 'assets/components/areaCharts/index.css';
 import { AnimatedTickerDisplay } from 'components/AnimatedTickerDisplay';
@@ -15,6 +16,9 @@ import { Paper, Text } from '@mantine/core';
 interface ChartProps {
   interval: string;
   symbol: string;
+  precision: number;
+  baseline: number;
+  deltaPositive: boolean;
 }
 
 interface DataPoint {
@@ -23,8 +27,18 @@ interface DataPoint {
   y: number;
 }
 
-const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
-  const { data, loading } = UseCryptoKLine(symbol, interval) as unknown as {
+const Chart: React.FC<ChartProps> = ({
+  interval,
+  symbol,
+  precision,
+  baseline,
+  deltaPositive
+}) => {
+  const { data, loading } = UseCryptoKLine(
+    symbol,
+    'usd',
+    interval
+  ) as unknown as {
     data: DataPoint[];
     loading: boolean;
   };
@@ -71,8 +85,8 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
   }, [hoveredData]);
 
   const getTooltipContent = useCallback(() => {
-    const intervalToShowTimeOnly = ['1s', '1m', '5m', '15m'];
-    const intervalToShowDateOnly = ['1d', '3d', '1w', '1M'];
+    const intervalToShowTimeOnly = ['1d'];
+    const intervalToShowDateOnly = ['3M', '1Y', '5Y', 'Max'];
     const showDateTime = intervalToShowTimeOnly.includes(interval);
     const showDate = intervalToShowDateOnly.includes(interval);
 
@@ -88,7 +102,7 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
       ? (priceChange / yValues[yValues.length - 1]) * 100
       : 0;
 
-    return (
+    return hoveredDataRef.current.y > 0 ? (
       <Paper p={14} radius="lg" className="tooltip">
         <Text>
           {showDate
@@ -99,8 +113,8 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
         </Text>
         <div>
           <AnimatedTickerDisplay
-            price={hoveredDataRef.current.y}
-            priceChange={priceChange}
+            price={hoveredDataRef.current.y.toFixed(precision)}
+            priceChange={priceChange.toFixed(precision)}
             priceChangePercent={priceChangePercent}
             darkModeEnabled
             priceFontSize="40px"
@@ -112,8 +126,10 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
           />
         </div>
       </Paper>
+    ) : (
+      <></>
     );
-  }, [interval, yValues]);
+  }, [interval, precision, yValues]);
 
   const RenderTooltip: React.FC<{ payload?: DataPoint[] }> = ({
     payload = []
@@ -125,6 +141,18 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
     return getTooltipContent();
   };
 
+  const gradientOffset = () => {
+    if (maxYFromData <= baseline) {
+      return 0;
+    }
+    if (minYFromData >= baseline) {
+      return 1;
+    }
+
+    return 1 - (baseline - minYFromData) / (maxYFromData - minYFromData);
+  };
+  const gradientOffsetValue = gradientOffset();
+
   return (
     <div
       className="area-chart-wrapper"
@@ -133,16 +161,39 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
     >
       <ResponsiveContainer width="100%" height={600}>
         {!loading ? (
-          <LineChart data={data} margin={{ top: 40, bottom: 20, right: 12 }}>
+          <AreaChart data={data} margin={{ top: 40 }} width={500} height={400}>
             <YAxis domain={[minYFromData, maxYFromData]} width={0} />
-            <Line
+            <defs>
+              <linearGradient id="colorPriceChart" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset={gradientOffsetValue}
+                  stopColor={
+                    deltaPositive
+                      ? 'rgba(12, 166, 120, 0.7)'
+                      : 'rgba(0, 0, 0, 0.1)'
+                  }
+                  stopOpacity={1}
+                />
+                <stop
+                  offset={gradientOffsetValue}
+                  stopColor={
+                    deltaPositive
+                      ? 'rgba(0, 0, 0, 0.1)'
+                      : 'rgba(240, 62, 62, 0.7)'
+                  }
+                  stopOpacity={1}
+                />
+              </linearGradient>
+            </defs>
+            <Area
               type="monotoneX"
               dataKey="y"
               stroke="rgba(255, 255, 255, 0.8)"
-              animationDuration={250}
+              animationDuration={1000}
               animationEasing="ease"
               strokeWidth={2}
               activeDot={{ r: 0 }}
+              fill="url(#colorPriceChart)"
               dot={{ r: 0 }}
               style={{ marginLeft: '-2px' }}
             />
@@ -157,13 +208,14 @@ const Chart: React.FC<ChartProps> = ({ interval, symbol }) => {
             <ReferenceDot
               x={data.length - 1}
               y={data[data.length - 1]?.y || 0}
-              r={8}
+              r={1}
               stroke="rgba(255, 255, 255, 0.8)"
-              strokeWidth={2}
+              strokeWidth={0}
               fill="rgba(255, 255, 255, 1)"
               className="fade-in"
             />
-          </LineChart>
+            <ReferenceLine y={baseline} stroke="white" strokeDasharray="3 3" />
+          </AreaChart>
         ) : (
           <></>
         )}

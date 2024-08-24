@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Paper, Flex } from '@mantine/core';
 import PageTransition from 'components/PageTransition';
-import useCryptoTicker from 'hooks/useRealTimeCryptoTicker';
 import { useParams } from 'react-router-dom';
 import { AnimatedTickerDisplay } from 'components/AnimatedTickerDisplay';
 import { ShaderGradientWithTransition } from 'components/ShaderGradientWithTransition';
@@ -9,33 +8,39 @@ import { TickerSymbol } from 'components/TickerSymbol';
 import AreaChart from 'components/AreaChart';
 import IntervalSelector from 'components/IntervalSelector';
 import classes from 'assets/app/pair.module.css';
-import { IconArrowDownRight, IconArrowUpRight } from '@tabler/icons-react';
-import useIntervalStore from 'stores/useIntervalStore'; // Import the store
+import useIntervalStore from 'stores/useIntervalStore';
+import useCryptoInfo from 'hooks/useCryptoInfo';
+import { getNumberPrecision } from 'utils/getNumberPrecision';
+import { IconArrowUpRight, IconArrowDownRight } from '@tabler/icons-react';
 
-/**
- * Returns the appropriate icon based on price change.
- */
 export const getDiffIcon = (value: number | string) => {
   return Number(value) > 0 ? IconArrowUpRight : IconArrowDownRight;
 };
 
 const Pair: React.FC = () => {
   const { pair } = useParams<{ pair: string }>();
-
-  const { tickerData, loading, error } = useCryptoTicker(
-    pair?.toLowerCase() || ''
-  );
+  const coinId = pair?.toLowerCase();
+  const { selectedInterval } = useIntervalStore();
 
   const {
-    symbol: tickerSymbol = 'Unknown',
-    priceChange = '0',
-    priceChangePercent = '0',
-    price = '0'
-  } = tickerData || {};
+    data: cryptoInfo,
+    loading: infoLoading,
+    error: infoError
+  } = useCryptoInfo(coinId || '');
 
-  const { selectedInterval } = useIntervalStore(); // use the store
+  if (infoLoading || !cryptoInfo || infoError) {
+    return null;
+  }
 
-  const tickerDataPrice = Number(price);
+  const {
+    name: cryptoName = '',
+    image: { small: image } = { small: '' },
+    market_data: {
+      current_price: { usd: currentPrice } = { usd: 0 },
+      price_change_percentage_24h: priceChange24h = 0,
+      price_change_24h: priceChangePercent24h = 0
+    } = {}
+  } = cryptoInfo || {};
 
   return (
     <PageTransition>
@@ -49,25 +54,29 @@ const Pair: React.FC = () => {
         }}
         className={classes['ticker-wrapper']}
       >
-        {!loading && !error && (
-          <>
-            {priceChangePercent && (
-              <ShaderGradientWithTransition
-                priceChangePercent={priceChangePercent}
-              />
-            )}
-            <Flex align="flex-start" direction="column">
-              <TickerSymbol tickerSymbol={tickerSymbol} />
-              <AnimatedTickerDisplay
-                price={tickerDataPrice}
-                priceChange={priceChange}
-                priceChangePercent={priceChangePercent}
-              />
-              <IntervalSelector />
-              <AreaChart symbol={tickerSymbol} interval={selectedInterval} />
-            </Flex>
-          </>
-        )}
+        <>
+          {priceChange24h && (
+            <ShaderGradientWithTransition
+              priceChangePercent={priceChange24h.toString()}
+            />
+          )}
+          <Flex align="flex-start" direction="column">
+            <TickerSymbol tickerSymbol={cryptoName || ''} imgUrl={image} />
+            <AnimatedTickerDisplay
+              price={currentPrice}
+              priceChangePercent={priceChange24h}
+              priceChange={priceChangePercent24h}
+            />
+            <IntervalSelector />
+            <AreaChart
+              symbol={pair || ''}
+              interval={selectedInterval}
+              baseline={currentPrice - priceChange24h}
+              deltaPositive={priceChange24h > 0}
+              precision={getNumberPrecision(currentPrice)}
+            />
+          </Flex>
+        </>
       </Paper>
     </PageTransition>
   );

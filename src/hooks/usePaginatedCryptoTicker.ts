@@ -33,11 +33,11 @@ const usePaginatedCryptoTickers = (
   const fetchTotalPages = useCallback(async () => {
     try {
       const totalCountResponse = await axios.get(
-        'https://api.coingecko.com/api/v3/coins/list?include_platform=false',
+        'https://pro-api.coingecko.com/api/v3/coins/list?include_platform=false',
         {
           headers: {
             accept: 'application/json',
-            'x-cg-demo-api-key': privateKey
+            'x-cg-pro-api-key': privateKey
           }
         }
       );
@@ -65,7 +65,7 @@ const usePaginatedCryptoTickers = (
 
       try {
         const response = await axios.get<TickerWithSparkline[]>(
-          `https://api.coingecko.com/api/v3/coins/markets`,
+          `https://pro-api.coingecko.com/api/v3/coins/markets`,
           {
             params: {
               vs_currency: initialVsCurrency,
@@ -76,7 +76,7 @@ const usePaginatedCryptoTickers = (
             },
             headers: {
               accept: 'application/json',
-              'x-cg-demo-api-key': privateKey
+              'x-cg-pro-api-key': privateKey
             }
           }
         );

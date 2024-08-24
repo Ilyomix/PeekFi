@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSpring, animated } from 'react-spring';
 import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient';
 import { OrbitControls, Box, useTexture } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useSpring as springThree } from '@react-spring/three';
 import { backgroundChartByDelta } from 'utils/backgroundChartByDelta';
+import * as THREE from 'three';
 
 type ShaderGradientWithTransitionProps = {
   priceChangePercent: string;
@@ -17,6 +18,7 @@ export const ShaderGradientWithTransition: React.FC<
     backgroundChartByDelta(priceChangePercent)
   );
   const [prevSign, setPrevSign] = useState<number | null>(null);
+  const glRef = useRef<THREE.WebGLRenderer | null>(null); // Capture WebGLRenderer reference
 
   const fadeStyle = useSpring({
     opacity: 1,
@@ -38,6 +40,16 @@ export const ShaderGradientWithTransition: React.FC<
     }
   }, [priceChangePercent, prevSign, fadeStyle]);
 
+  useEffect(() => {
+    return () => {
+      // Cleanup function to ensure the WebGL context is properly disposed of
+      if (glRef.current) {
+        glRef.current.dispose();
+        glRef.current = null;
+      }
+    };
+  }, []);
+
   return (
     <animated.div style={fadeStyle}>
       <ShaderGradientCanvas
@@ -56,8 +68,9 @@ export const ShaderGradientWithTransition: React.FC<
           zIndex: 0,
           borderRadius: '30px'
         }}
-        onCreated={({ gl }: { gl: import('three').WebGLRenderer }) => {
+        onCreated={({ gl }: { gl: THREE.WebGLRenderer }) => {
           gl.domElement.style.pointerEvents = 'none'; // Disable interactions
+          glRef.current = gl; // Store the renderer reference
         }}
       >
         <ShaderGradient

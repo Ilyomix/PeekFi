@@ -1,8 +1,9 @@
 .area-chart-wrapper {
-    overflow: none;
+    overflow: hidden;
     transition: all 1s ease-in-out !important;
-    width: calc(100% - 28px);
-    padding-right: 2rem;
+    width: calc(100%);
+    border-radius: 30px;
+
 }
 
 .fade-in {
@@ -30,6 +31,6 @@
   overflow: hidden;
 }
 
-text, svg, circle {
-    transition: all 0.25s ease; /* set to 2s to clearly show if it works */
+text, svg, circle, line {
+    transition: all 0.25s ease !important; /* set to 2s to clearly show if it works */
 }

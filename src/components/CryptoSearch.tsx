@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Spotlight, SpotlightActionData } from '@mantine/spotlight';
 import { useCryptoSearch, CryptoSearchResult } from 'hooks/useCryptoSearch';
 import {
@@ -18,86 +18,96 @@ const CryptoSearch: React.FC = () => {
   const { results, search, loading } = useCryptoSearch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (debouncedValueQuery || debouncedValueQuery === '') {
+  const handleSearch = useCallback(
+    (query: string) => {
       setInternalLoading(true);
-      search(debouncedValueQuery).finally(() => {
+      search(query).finally(() => {
         setInternalLoading(false);
       });
+    },
+    [search]
+  );
+
+  useEffect(() => {
+    if (debouncedValueQuery || debouncedValueQuery === '') {
+      handleSearch(debouncedValueQuery);
     }
-  }, [debouncedValueQuery, search]);
+  }, [debouncedValueQuery, handleSearch]);
 
   const isLoading = loading || internalLoading;
 
-  const actions: SpotlightActionData[] = results.map(
-    (coin: CryptoSearchResult) => {
-      const priceChangeColor =
-        Number(coin.price_change_percentage_24h) < 0
-          ? 'var(--mantine-color-red-5)'
-          : 'var(--mantine-color-teal-5)';
-      const PriceChangeIcon =
-        Number(coin.price_change_percentage_24h) < 0
-          ? IconArrowDownRight
-          : IconArrowUpRight;
+  const actions: SpotlightActionData[] = useMemo(
+    () =>
+      results.map((coin: CryptoSearchResult) => {
+        const priceChangeColor =
+          Number(coin.price_change_percentage_24h) < 0
+            ? 'var(--mantine-color-red-5)'
+            : 'var(--mantine-color-teal-5)';
+        const PriceChangeIcon =
+          Number(coin.price_change_percentage_24h) < 0
+            ? IconArrowDownRight
+            : IconArrowUpRight;
 
-      return {
-        group: !query && !isLoading ? '🔥 Trending coins' : '🔎 Search results',
-        id: coin.id,
-        onClick: () => navigate(`/pair/${coin.symbol}usdt`),
-        dimmedSections: false,
-        keywords: results.map((result) => result.name),
-        leftSection: (
-          <Flex align="center" gap={12}>
-            <Avatar
-              src={coin.thumb}
-              alt={`${coin.symbol} icon`}
-              size={24}
-              ml={14}
-              my={12}
-            />
-            <Text fw={600}>{`${
-              coin.name
-            } (${coin.symbol.toUpperCase()})`}</Text>
-          </Flex>
-        ),
-        rightSection: (
-          <Flex
-            gap={3}
-            direction="column"
-            align="end"
-            justify="start"
-            mx={rem(14)}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                gap: rem(8)
-              }}
-            >
-              <Text component="div" size={rem(15)} fw={500} lh={0} mt={0}>
-                ${coin.current_price?.toFixed(2) ?? 'N/A'}
-              </Text>
-              <Text
-                component="div"
-                size={rem(12)}
-                c={priceChangeColor}
-                lh={1}
-                style={{ transform: 'translateY(0px)' }}
-              >
-                {coin.price_change_percentage_24h?.toFixed(2) ?? 'N/A'}%
-              </Text>
-              <PriceChangeIcon
-                style={{ lineHeight: 0 }}
-                size={16}
-                color={priceChangeColor}
+        return {
+          group:
+            !query && !isLoading ? '🔥 Trending coins' : '🔎 Search results',
+          id: coin.id,
+          onClick: () => navigate(`/pair/${coin.id}`),
+          dimmedSections: false,
+          keywords: results.map((result) => result.name),
+          leftSection: (
+            <Flex align="center" gap={12}>
+              <Avatar
+                src={coin.thumb}
+                alt={`${coin.symbol} icon`}
+                size={24}
+                ml={14}
+                my={12}
               />
-            </div>
-          </Flex>
-        )
-      };
-    }
+              <Text fw={600}>{`${
+                coin.name
+              } (${coin.symbol.toUpperCase()})`}</Text>
+            </Flex>
+          ),
+          rightSection: (
+            <Flex
+              gap={3}
+              direction="column"
+              align="end"
+              justify="start"
+              mx={rem(14)}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: rem(8)
+                }}
+              >
+                <Text component="div" size={rem(15)} fw={500} lh={0} mt={0}>
+                  ${coin.current_price?.toFixed(2) ?? 'N/A'}
+                </Text>
+                <Text
+                  component="div"
+                  size={rem(12)}
+                  c={priceChangeColor}
+                  lh={1}
+                  style={{ transform: 'translateY(0px)' }}
+                >
+                  {coin.price_change_percentage_24h?.toFixed(2) ?? 'N/A'}%
+                </Text>
+                <PriceChangeIcon
+                  style={{ lineHeight: 0 }}
+                  size={16}
+                  color={priceChangeColor}
+                />
+              </div>
+            </Flex>
+          )
+        };
+      }),
+    [results, query, isLoading, navigate]
   );
 
   return (
@@ -123,7 +133,7 @@ const CryptoSearch: React.FC = () => {
       onQueryChange={(q) => {
         setQuery(q);
         if (q === '') {
-          search(''); // Explicitly call search with an empty string to fetch trending results
+          handleSearch(''); // Explicitly call search with an empty string to fetch trending results
         }
       }}
       limit={5}

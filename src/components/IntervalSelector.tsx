@@ -2,23 +2,7 @@ import React from 'react';
 import { Button, Group } from '@mantine/core';
 import useIntervalStore from 'stores/useIntervalStore'; // Import the store
 
-const intervals = [
-  '1m',
-  '3m',
-  '5m',
-  '15m',
-  '30m',
-  '1h',
-  '2h',
-  '4h',
-  '6h',
-  '8h',
-  '12h',
-  '1d',
-  '3d',
-  '1w',
-  '1M'
-];
+const intervals = ['1D', '1W', '1M', '3M', '1Y', '5Y', 'Max'];
 
 const IntervalSelector: React.FC = () => {
   const { selectedInterval, setSelectedInterval } = useIntervalStore();
