@@ -3,7 +3,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/936fbfb5-9383-43da-a15a-b1232068fc6f/deploy-status)](https://app.netlify.com/sites/peekfi/deploys)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![React Version](https://img.shields.io/badge/react-17.0.2-blue.svg)](https://reactjs.org/)
+[![React Version](https://img.shields.io/badge/react-18.3.1-blue.svg)](https://reactjs.org/)
 [![Coverage Status](https://coveralls.io/repos/github/username/repository/badge.svg?branch=main)](https://coveralls.io/github/username/repository?branch=main)
 
 PeekFi is a cutting-edge cryptocurrency tracking application designed to provide users with real-time data on market trends, price changes, and trading volumes of various cryptocurrencies. With its sleek interface and powerful search functionality, PeekFi makes it easier than ever to monitor the volatile world of crypto markets.
