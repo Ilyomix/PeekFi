@@ -21,6 +21,7 @@
   line-height: 1;
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .icon {
@@ -46,6 +47,8 @@
 }
 
 .details {
+  z-index: 10;
+  position: relative;
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-text));
 }
 

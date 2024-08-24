@@ -5,6 +5,7 @@ import { OrbitControls, Box, useTexture } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useSpring as springThree } from '@react-spring/three';
 import { backgroundChartByDelta } from 'utils/backgroundChartByDelta';
+import { GradientT } from 'types/threeGradient';
 import * as THREE from 'three';
 
 type ShaderGradientWithTransitionProps = {
@@ -14,11 +15,10 @@ type ShaderGradientWithTransitionProps = {
 export const ShaderGradientWithTransition: React.FC<
   ShaderGradientWithTransitionProps
 > = ({ priceChangePercent }) => {
-  const [prevUrl, setPrevUrl] = useState<string>(
-    backgroundChartByDelta(priceChangePercent)
-  );
+  const initialProps = backgroundChartByDelta(priceChangePercent);
+  const [shaderProps, setShaderProps] = useState<GradientT>(initialProps);
   const [prevSign, setPrevSign] = useState<number | null>(null);
-  const glRef = useRef<THREE.WebGLRenderer | null>(null); // Capture WebGLRenderer reference
+  const glRef = useRef<THREE.WebGLRenderer | null>(null);
 
   const fadeStyle = useSpring({
     opacity: 1,
@@ -31,8 +31,8 @@ export const ShaderGradientWithTransition: React.FC<
       const newSign = Math.sign(parseFloat(priceChangePercent));
 
       if (newSign !== prevSign) {
-        const newUrl = backgroundChartByDelta(priceChangePercent);
-        setPrevUrl(newUrl);
+        const newProps = backgroundChartByDelta(priceChangePercent);
+        setShaderProps(newProps);
         setPrevSign(newSign);
 
         fadeStyle.opacity.set(1);
@@ -42,7 +42,6 @@ export const ShaderGradientWithTransition: React.FC<
 
   useEffect(() => {
     return () => {
-      // Cleanup function to ensure the WebGL context is properly disposed of
       if (glRef.current) {
         glRef.current.dispose();
         glRef.current = null;
@@ -69,17 +68,11 @@ export const ShaderGradientWithTransition: React.FC<
           borderRadius: '30px'
         }}
         onCreated={({ gl }: { gl: THREE.WebGLRenderer }) => {
-          gl.domElement.style.pointerEvents = 'none'; // Disable interactions
-          glRef.current = gl; // Store the renderer reference
+          gl.domElement.style.pointerEvents = 'none';
+          glRef.current = gl;
         }}
       >
-        <ShaderGradient
-          zoomOut={false}
-          toggleAxis={false}
-          enableTransition={false}
-          control="query"
-          urlString={prevUrl}
-        />
+        <ShaderGradient {...shaderProps} frameRate={2} />
       </ShaderGradientCanvas>
     </animated.div>
   );

@@ -85,7 +85,7 @@ const Chart: React.FC<ChartProps> = ({
   }, [hoveredData]);
 
   const getTooltipContent = useCallback(() => {
-    const intervalToShowTimeOnly = ['1d'];
+    const intervalToShowTimeOnly = ['1D'];
     const intervalToShowDateOnly = ['3M', '1Y', '5Y', 'Max'];
     const showDateTime = intervalToShowTimeOnly.includes(interval);
     const showDate = intervalToShowDateOnly.includes(interval);
@@ -193,6 +193,7 @@ const Chart: React.FC<ChartProps> = ({
               animationEasing="ease"
               strokeWidth={2}
               activeDot={{ r: 0 }}
+              strokeOpacity={0.8}
               fill="url(#colorPriceChart)"
               dot={{ r: 0 }}
               style={{ marginLeft: '-2px' }}

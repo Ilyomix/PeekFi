@@ -35,7 +35,7 @@ const getColorClass = (value: number) => {
   if (value === 0) return 'var(--mantine-color-gray-text)';
   return value > 0
     ? 'var(--mantine-color-teal-text)'
-    : 'var(--mantine-color-red-text)';
+    : 'var(--mantine-color-red-6)';
 };
 
 const getDiffIcon = (value: number) => {
@@ -214,7 +214,14 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
                 )}
               </Text>
             </Group>
-            <Group align="flex-start" gap={4}>
+            <Group
+              align="flex-start"
+              gap={4}
+              style={{
+                position: 'relative',
+                zIndex: 10
+              }}
+            >
               <Text
                 component="div"
                 c={getColorClass(price_change_24h)}
