@@ -48,7 +48,11 @@ const BackgroundChart: React.FC<BackgroundChartProps> = memo(
           <ResponsiveContainer width="100%">
             <AreaChart margin={{ bottom: -1, top: 30 }} data={chartData}>
               <XAxis dataKey="x" hide />
-              <YAxis domain={yDomain} hide />
+              <YAxis
+                // @ts-expect-error domain definition is not available in Recharts 2.x
+                domain={yDomain}
+                hide
+              />
               <Area
                 type="monotone"
                 dataKey="y"
