@@ -121,8 +121,8 @@ const getColorClass = (value: number | string) => {
   const numericValue = Number(value);
   if (numericValue === 0) return 'var(--mantine-color-gray-text)';
   return numericValue > 0
-    ? 'var(--mantine-color-teal-4)'
-    : 'var(--mantine-color-red-4)';
+    ? 'var(--mantine-color-teal-2)'
+    : 'var(--mantine-color-red-2)';
 };
 
 const getDiffIcon = (value: number | string) => {

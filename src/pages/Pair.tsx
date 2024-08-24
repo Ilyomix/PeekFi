@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Paper, Flex } from '@mantine/core';
 import PageTransition from 'components/PageTransition';
 import { useParams } from 'react-router-dom';
 import { AnimatedTickerDisplay } from 'components/AnimatedTickerDisplay';
-import { ShaderGradientWithTransition } from 'components/ShaderGradientWithTransition';
 import { TickerSymbol } from 'components/TickerSymbol';
 import AreaChart from 'components/AreaChart';
 import IntervalSelector from 'components/IntervalSelector';
@@ -47,7 +46,13 @@ const Pair: React.FC = () => {
       <Paper
         shadow="xl"
         radius="xl"
-        bg="dark"
+        bg={
+          Number(priceChangePercent24h) !== 0
+            ? Number(priceChangePercent24h) > 0
+              ? 'linear-gradient(to top, #0ba360 0%, #3cba92 100%)'
+              : 'linear-gradient(to top, #e53935 0%, #f77f7f 100%)'
+            : 'linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.15) 100%), radial-gradient(at top center, rgba(255,255,255,0.40) 0%, rgba(0,0,0,0.40) 120%) #989898'
+        }
         style={{
           background: 'transparent',
           position: 'relative'
@@ -55,11 +60,11 @@ const Pair: React.FC = () => {
         className={classes['ticker-wrapper']}
       >
         <>
-          {priceChange24h && (
+          {/* {priceChange24h && (
             <ShaderGradientWithTransition
               priceChangePercent={priceChange24h.toString()}
             />
-          )}
+          )} */}
           <Flex align="flex-start" direction="column">
             <TickerSymbol tickerSymbol={cryptoName || ''} imgUrl={image} />
             <AnimatedTickerDisplay
