@@ -9,7 +9,8 @@ import {
   ScrollArea,
   Divider,
   Flex,
-  Title
+  Title,
+  Grid
 } from '@mantine/core';
 import {
   IconFilterFilled,
@@ -149,25 +150,30 @@ const Filters: React.FC<FiltersProps> = ({
   ) => (
     <>
       {buttons.map(({ value, label, icon }) => (
-        <Button
+        <Grid.Col
           key={value.toString()}
-          className="filter-active"
-          onClick={() => onClick(value)}
-          variant={activeValue === value ? 'filled' : 'default'}
-          radius="xl"
-          size="xs"
-          w="100%"
-          m={2}
-          rightSection={icon}
-          c={activeValue === value ? 'var(--mantine-color-white)' : 'inherit'}
-          color={`light-dark(var(--mantine-color-dark-8), ${
-            activeValue === value
-              ? 'var(--mantine-color-teal-8)'
-              : 'var(--mantine-color-dark-4)'
-          })`}
+          span={{ base: 6, xs: 3, md: 4, lg: 3 }}
         >
-          {label}
-        </Button>
+          <Button
+            className="filter-active"
+            onClick={() => onClick(value)}
+            variant={activeValue === value ? 'filled' : 'default'}
+            radius="xl"
+            size="xs"
+            fullWidth
+            m={8}
+            mt={14}
+            rightSection={icon}
+            c={activeValue === value ? 'var(--mantine-color-white)' : 'inherit'}
+            color={`light-dark(var(--mantine-color-dark-8), ${
+              activeValue === value
+                ? 'var(--mantine-color-teal-8)'
+                : 'var(--mantine-color-dark-4)'
+            })`}
+          >
+            {label}
+          </Button>
+        </Grid.Col>
       ))}
     </>
   );
@@ -203,16 +209,16 @@ const Filters: React.FC<FiltersProps> = ({
           {label}
         </Text>
       </Group>
-      <div
+      <Grid
         style={{
           marginBottom: '2rem',
           display: 'flex',
-          gap: 'px',
+          gap: '2px',
           justifyContent: 'space-between'
         }}
       >
         {renderButtons(buttons, activeValue, onClick)}
-      </div>
+      </Grid>
     </Container>
   );
 
@@ -292,56 +298,50 @@ const Filters: React.FC<FiltersProps> = ({
           </ActionIcon>
         </Flex>
         <Divider my="md" />
-
-        <ScrollArea
-          style={{ height: '70vh', paddingTop: '0rem' }}
-          type="scroll"
-        >
-          <Section
-            icon={IconFilterFilled}
-            label="Sort By"
-            buttons={filterButtons}
-            activeValue={localFilter}
-            onClick={(value) => setLocalFilter(value)}
-          />
-          <Section
-            icon={IconListDetails}
-            label="Items per Page"
-            buttons={itemsPerPageButtons}
-            activeValue={localItemsPerPage}
-            onClick={(value) => setLocalItemsPerPage(Number(value))}
-          />
-          <Section
-            icon={IconTableRow}
-            label="Items per Row"
-            buttons={cardsPerRowButtons}
-            activeValue={localCardsPerRow}
-            onClick={(value) => setLocalCardsPerRow(Number(value))}
-          />
-          <Divider my="md" />
-          {applyVisible && ( // Conditionally render Apply and Cancel buttons
-            <Flex justify="end" gap="sm">
-              <Button
-                variant="transparent"
-                onClick={handleCloseDrawer} // Close without applying changes
-                radius="xl"
-                size="sm"
-                color="light-dark(var(--mantine-color-black), var(--mantine-color-white)"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="filled"
-                onClick={handleApplyFilters} // Apply changes
-                radius="xl"
-                size="sm"
-                color="teal"
-              >
-                Apply Filters
-              </Button>
-            </Flex>
+        <Section
+          icon={IconFilterFilled}
+          label="Sort By"
+          buttons={filterButtons}
+          activeValue={localFilter}
+          onClick={(value) => setLocalFilter(value)}
+        />
+        <Section
+          icon={IconListDetails}
+          label="Items per Page"
+          buttons={itemsPerPageButtons}
+          activeValue={localItemsPerPage}
+          onClick={(value) => setLocalItemsPerPage(Number(value))}
+        />
+        <Section
+          icon={IconTableRow}
+          label="Items per Row"
+          buttons={cardsPerRowButtons}
+          activeValue={localCardsPerRow}
+          onClick={(value) => setLocalCardsPerRow(Number(value))}
+        />
+        <Divider my="md" />
+        <Flex justify="end" gap="sm">
+          <Button
+            variant="transparent"
+            onClick={handleCloseDrawer} // Close without applying changes
+            radius="xl"
+            size="sm"
+            color="light-dark(var(--mantine-color-black), var(--mantine-color-white)"
+          >
+            Cancel
+          </Button>
+          {applyVisible && (
+            <Button
+              variant="filled"
+              onClick={handleApplyFilters} // Apply changes
+              radius="xl"
+              size="sm"
+              color="teal"
+            >
+              Apply Filters
+            </Button>
           )}
-        </ScrollArea>
+        </Flex>
       </Drawer>
     </>
   );
