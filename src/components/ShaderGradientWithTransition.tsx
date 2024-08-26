@@ -1,44 +1,32 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useSpring, animated } from 'react-spring';
 import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient';
 import { OrbitControls, Box, useTexture } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useSpring as springThree } from '@react-spring/three';
 import { backgroundChartByDelta } from 'utils/backgroundChartByDelta';
-import { GradientT } from 'types/threeGradient';
 import * as THREE from 'three';
 
 type ShaderGradientWithTransitionProps = {
-  priceChangePercent: string;
+  delta: 'positive' | 'negative' | 'neutral';
+  value: number;
 };
 
 export const ShaderGradientWithTransition: React.FC<
   ShaderGradientWithTransitionProps
-> = ({ priceChangePercent }) => {
-  const initialProps = backgroundChartByDelta(priceChangePercent);
-  const [shaderProps, setShaderProps] = useState<GradientT>(initialProps);
-  const [prevSign, setPrevSign] = useState<number | null>(null);
+> = ({ delta, value }) => {
   const glRef = useRef<THREE.WebGLRenderer | null>(null);
 
-  const fadeStyle = useSpring({
+  const shaderProps = useMemo(() => {
+    return backgroundChartByDelta(delta);
+  }, [delta]);
+
+  const { opacity } = useSpring({
     opacity: 1,
-    from: { opacity: 0.9 },
-    config: { duration: 2000 }
+    from: { opacity: 0 },
+    config: { duration: 1000 },
+    reset: true
   });
-
-  useEffect(() => {
-    if (priceChangePercent !== null && priceChangePercent !== undefined) {
-      const newSign = Math.sign(parseFloat(priceChangePercent));
-
-      if (newSign !== prevSign) {
-        const newProps = backgroundChartByDelta(priceChangePercent);
-        setShaderProps(newProps);
-        setPrevSign(newSign);
-
-        fadeStyle.opacity.set(1);
-      }
-    }
-  }, [priceChangePercent, prevSign, fadeStyle]);
 
   useEffect(() => {
     return () => {
@@ -47,10 +35,10 @@ export const ShaderGradientWithTransition: React.FC<
         glRef.current = null;
       }
     };
-  }, []);
+  }, [delta]);
 
   return (
-    <animated.div style={fadeStyle}>
+    <animated.div style={{ opacity }}>
       <ShaderGradientCanvas
         importedfiber={{
           Canvas,
@@ -64,15 +52,22 @@ export const ShaderGradientWithTransition: React.FC<
           position: 'absolute',
           top: 0,
           height: '100%',
-          zIndex: 0,
+          zIndex: -1,
           borderRadius: '30px'
         }}
         onCreated={({ gl }: { gl: THREE.WebGLRenderer }) => {
           gl.domElement.style.pointerEvents = 'none';
           glRef.current = gl;
         }}
+        pixelDensity={0.35}
+        fov={40}
       >
-        <ShaderGradient {...shaderProps} frameRate={2} />
+        <ShaderGradient
+          {...shaderProps}
+          uSpeed={0.01 * Math.abs(value)}
+          enableTransition={false}
+          control="props"
+        />
       </ShaderGradientCanvas>
     </animated.div>
   );

@@ -8,7 +8,7 @@ const IntervalSelector: React.FC = () => {
   const { selectedInterval, setSelectedInterval } = useIntervalStore();
 
   return (
-    <Group gap="xs" w="100%" px={28} pt={14} justify="center" grow>
+    <Group gap="xs" w="100%" px={28} py={14} justify="center" grow>
       {intervals.map((interval) => (
         <Button
           key={interval}

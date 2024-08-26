@@ -21,6 +21,7 @@ export type MeshT = {
   rotationX?: number;
   rotationY?: number;
   rotationZ?: number;
+  range?: 'enabled' | 'disabled';
   color1?: string;
   color2?: string;
   color3?: string;

@@ -3,7 +3,7 @@
     transition: all 1s ease-in-out !important;
     width: calc(100%);
     border-radius: 30px;
-
+  position: relative;
 }
 
 .fade-in {
@@ -24,13 +24,14 @@
 }
 
 .tooltip {
-  border: 1px solid light-dark(rgba(128, 128, 128, 0.15), rgba(76, 76, 76, 0.4));
-  background-color: light-dark(rgba(255, 255, 255, 0.9), rgba(0, 0, 0, 0.2));
+  border: 0px solid light-dark(rgba(128, 128, 128, 0.15), rgba(76, 76, 76, 0.4));
+  background-color: light-dark(rgba(255, 255, 255, 0.9), rgba(0, 0, 0, 0.3));
   border-radius: 28px;
   backdrop-filter: blur(10px);
   overflow: hidden;
+  color: light-dark(var(--mantine-color-dark-text), var(--mantine-color-white-text));
 }
 
-text, svg, circle, line {
+text, svg, circle {
     transition: all 0.25s ease !important; /* set to 2s to clearly show if it works */
 }

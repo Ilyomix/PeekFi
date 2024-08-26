@@ -77,7 +77,7 @@ const renderCounter = (
   decimalPrecision?: number,
   color?: string,
   valueMovementColor = true,
-  deltaMention = false,
+  tooltipMode = false,
   noAnimation = false,
   fontWeight?: number,
   narrowed = false
@@ -108,10 +108,10 @@ const renderCounter = (
     <AnimatedCounter
       {...counterProps}
       incrementColor={
-        !valueMovementColor || deltaMention ? color : COLORS.tealText
+        !valueMovementColor || tooltipMode ? color : COLORS.tealText
       }
       decrementColor={
-        !valueMovementColor || deltaMention ? color : COLORS.redText
+        !valueMovementColor || tooltipMode ? color : COLORS.redText
       }
     />
   );
@@ -121,8 +121,16 @@ const getColorClass = (value: number | string) => {
   const numericValue = Number(value);
   if (numericValue === 0) return 'var(--mantine-color-gray-text)';
   return numericValue > 0
-    ? 'var(--mantine-color-teal-2)'
-    : 'var(--mantine-color-red-2)';
+    ? 'var(--mantine-color-teal-5)'
+    : 'var(--mantine-color-red-4)';
+};
+
+const getColorClassTooltip = (value: number | string) => {
+  const numericValue = Number(value);
+  if (numericValue === 0) return 'var(--mantine-color-gray-text)';
+  return numericValue > 0
+    ? 'var(--mantine-color-teal-5)'
+    : 'var(--mantine-color-red-4)';
 };
 
 const getDiffIcon = (value: number | string) => {
@@ -140,6 +148,7 @@ type AnimatedTickerDisplayProps = {
   deltaMention?: string;
   darkModeEnabled?: boolean;
   noAnimation?: boolean;
+  tooltipMode?: boolean;
 };
 
 export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
@@ -154,12 +163,19 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
       deltaAbsoluteFontSize = DEFAULT_DELTA_ABSOLUTE_FONT_SIZE,
       deltaMention,
       darkModeEnabled = false,
-      noAnimation = false
+      noAnimation = false,
+      tooltipMode = false
     }) => {
       const colorClass = useMemo(
         () => getColorClass(priceChangePercent),
         [priceChangePercent]
       );
+
+      const colorClassTooltip = useMemo(
+        () => getColorClassTooltip(priceChangePercent),
+        [priceChangePercent]
+      );
+
       const DiffIcon = useMemo(() => getDiffIcon(priceChange), [priceChange]);
 
       const computedColorScheme = useComputedColorScheme('light', {
@@ -210,14 +226,14 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
               priceFontSize,
               undefined,
               textColor,
-              true,
+              tooltipMode,
               false,
               noAnimation,
               undefined,
               true
             )}
           </Text>
-          <Flex direction={deltaMention ? 'column' : 'row'}>
+          <Flex direction={tooltipMode ? 'column' : 'row'}>
             {deltaMention && (
               <Text component="div" size="sm">
                 {deltaMention}
@@ -231,7 +247,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
             >
               <Text
                 component="div"
-                c={colorClass}
+                c={tooltipMode ? colorClassTooltip : colorClass}
                 fz="md"
                 fw={500}
                 className={classes.diff}
@@ -242,15 +258,15 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                     priceChangePercent,
                     deltaFontSize,
                     2,
-                    colorClass,
-                    true,
+                    tooltipMode ? colorClassTooltip : colorClass,
+                    tooltipMode,
                     false,
                     noAnimation,
                     400
                   )}
                   <Text
                     size={deltaFontSize}
-                    c={colorClass}
+                    c={tooltipMode ? colorClassTooltip : colorClass}
                     mt={noAnimation ? 4 : 0}
                     fw={noAnimation ? 400 : 500}
                   >
@@ -286,7 +302,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                   mt={noAnimation ? 3 : -2}
                   ml={INNER_TEXT.marginLeft}
                   size={deltaAbsoluteFontSize}
-                  c={colorClass}
+                  c={tooltipMode ? colorClassTooltip : colorClass}
                   style={{ zIndex: TEXT_Z_INDEX }}
                 >
                   {'('}
@@ -295,8 +311,8 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                   priceChange,
                   deltaAbsoluteFontSize,
                   getNumberPrecision(price),
-                  colorClass,
-                  true,
+                  tooltipMode ? colorClassTooltip : colorClass,
+                  tooltipMode,
                   false,
                   noAnimation,
                   400
@@ -305,7 +321,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                   fw={noAnimation ? 400 : 500}
                   mt={noAnimation ? 3 : -2}
                   size={deltaAbsoluteFontSize}
-                  c={colorClass}
+                  c={tooltipMode ? colorClassTooltip : colorClass}
                   style={{ zIndex: TEXT_Z_INDEX }}
                 >
                   {')'}
