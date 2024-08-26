@@ -59,6 +59,23 @@ const Pair: React.FC = () => {
     return null;
   }
 
+  // Responsive styles for the component
+  const responsiveStyles = {
+    animatedTickerDisplay: {
+      fontSize: '100px',
+      ...(window.innerWidth <= 1408 && { fontSize: '80px' }),
+      ...(window.innerWidth <= 768 && { fontSize: '60px' }),
+      ...(window.innerWidth <= 425 && { fontSize: '40px' })
+    },
+    deltaFontSize: {
+      fontSizeDelta: '30px',
+      ...(window.innerWidth <= 1408 && { fontSize: '20px' }),
+      ...(window.innerWidth <= 768 && { fontSize: '16px' }),
+      ...(window.innerWidth <= 425 && { fontSize: '16px' })
+    },
+    animatedTicker: window.innerWidth <= 1408
+  };
+
   return (
     <PageTransition>
       <Paper
@@ -68,28 +85,32 @@ const Pair: React.FC = () => {
           position: 'relative',
           transition: 'all 0.5s ease-in-out'
         }}
+        h="100%"
         className={classes['ticker-wrapper']}
       >
-        <>
-          {GradientBackground}
-          <Flex align="flex-start" direction="column">
-            <TickerSymbol tickerSymbol={cryptoName || ''} imgUrl={image} />
-            <AnimatedTickerDisplay
-              price={currentPrice}
-              priceChangePercent={priceChangePercent24h}
-              priceChange={priceChange24h}
-            />
-            <IntervalSelector />
-            <AreaChart
-              symbol={pair || ''}
-              interval={selectedInterval}
-              baseline={currentPrice - priceChange24h}
-              deltaPositive={priceChange24h > 0}
-              priceChangePercent24h={priceChangePercent24h}
-              precision={getNumberPrecision(currentPrice)}
-            />
-          </Flex>
-        </>
+        {GradientBackground}
+        <Flex align="flex-start" direction="column">
+          <TickerSymbol tickerSymbol={cryptoName || ''} imgUrl={image} />
+          <AnimatedTickerDisplay
+            price={currentPrice}
+            priceChangePercent={priceChangePercent24h}
+            priceChange={priceChange24h}
+            deltaFontSize={responsiveStyles.deltaFontSize.fontSize}
+            deltaIconFontSize={responsiveStyles.deltaFontSize.fontSize}
+            deltaAbsoluteFontSize={responsiveStyles.deltaFontSize.fontSize}
+            priceFontSize={responsiveStyles.animatedTickerDisplay.fontSize}
+            noAnimation={responsiveStyles.animatedTicker}
+          />
+          <IntervalSelector />
+          <AreaChart
+            symbol={pair || ''}
+            interval={selectedInterval}
+            baseline={currentPrice - priceChange24h}
+            deltaPositive={priceChange24h > 0}
+            priceChangePercent24h={priceChangePercent24h}
+            precision={getNumberPrecision(currentPrice)}
+          />
+        </Flex>
       </Paper>
     </PageTransition>
   );

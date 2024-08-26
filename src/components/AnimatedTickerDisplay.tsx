@@ -164,7 +164,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
       deltaMention,
       darkModeEnabled = false,
       noAnimation = false,
-      tooltipMode = false
+      tooltipMode = false,
     }) => {
       const colorClass = useMemo(
         () => getColorClass(priceChangePercent),
@@ -208,14 +208,29 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
       } = deltaIconFontSize === DEFAULT_DELTA_ICON_FONT_SIZE
         ? DIFF_ICON_DEFAULTS
         : DIFF_ICON_SMALLS;
-
       return (
-        <Flex align="flex-start" justify="flex-start" gap={FLEX_GAP}>
+        <Flex
+          align="flex-start"
+          justify="flex-start"
+          gap={FLEX_GAP}
+          direction={{ xl: 'row', base: 'column' }}
+          style={{ zIndex: TEXT_Z_INDEX }}
+        >
           <Text
             component="div"
-            mt={textMarginTop}
+            mt={{
+              base: !tooltipMode ? -50 : textMarginTop,
+              xs: !tooltipMode ? -60 : textMarginTop,
+              md: !tooltipMode ? -60 : textMarginTop,
+              xl: textMarginTop
+            }}
             mb={textMarginBottom}
-            ml={textMarginLeft}
+            ml={{
+              base: !tooltipMode ? 30 : textMarginLeft,
+              xs: !tooltipMode ? 30 : textMarginLeft,
+              md: !tooltipMode ? 24 : textMarginLeft,
+              xl: textMarginLeft
+            }}
             mr={noAnimation ? 6 : 0}
             fw={textFontWeight}
             c={textColor}
@@ -235,13 +250,24 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
           </Text>
           <Flex direction={tooltipMode ? 'column' : 'row'}>
             {deltaMention && (
-              <Text component="div" size="sm">
+              <Text component="div" size="sm" mt={{ base: 7, md: 0 }}>
                 {deltaMention}
               </Text>
             )}
             <Flex
               mt={flexMarginTop}
-              ml={flexMarginLeft}
+              ml={{
+                base: !tooltipMode ? 36 : flexMarginLeft,
+                xs: !tooltipMode ? 30 : flexMarginLeft,
+                md: !tooltipMode ? 24 : flexMarginLeft,
+                xl: flexMarginLeft
+              }}
+              mb={{
+                base: !tooltipMode ? 30 : 0,
+                xs: !tooltipMode ? 30 : 0,
+                md: !tooltipMode ? 24 : 0,
+                xl: 0
+              }}
               justify="start"
               align="center"
             >

@@ -22,11 +22,13 @@
 #root {
   padding: 5rem 0rem 1rem 0rem;
   transition: background 0.25s ease-in-out;
+  min-height: 100vh;
 }
 
 html {
   scrollbar-gutter: stable;
   width: 100vw;
+  min-height: 100vh;
   overflow-x: hidden;
 }
 

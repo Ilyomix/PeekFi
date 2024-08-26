@@ -1,0 +1,41 @@
+/* intervalSelector.module.css */
+
+.group-wrapper {
+    width: 100%;
+    padding: 14px 28px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  @media (max-width: 1408px) {
+    .group-wrapper {
+      padding: 12px 20px;
+      gap: 6px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .group-wrapper {
+      padding: 10px 16px;
+      gap: 4px;
+    }
+  
+    button {
+      font-size: 14px;
+      padding: 8px 12px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .group-wrapper {
+      padding: 8px 12px;
+      gap: 2px;
+    }
+  
+    button {
+      font-size: 12px;
+      padding: 6px 8px;
+    }
+  }
+  

@@ -8,10 +8,9 @@ import {
   Area,
   ReferenceLine
 } from 'recharts';
-import { Paper, Text } from '@mantine/core';
+import { Flex, Paper, Text } from '@mantine/core';
 import 'assets/components/areaCharts/index.css';
 import { AnimatedTickerDisplay } from 'components/AnimatedTickerDisplay';
-import { ShaderGradientWithTransition } from './ShaderGradientWithTransition';
 
 type DataPoint = {
   x: number;
@@ -118,7 +117,7 @@ const Chart: React.FC<ChartProps> = ({
             priceChange={priceChange.toFixed(precision)}
             priceChangePercent={priceChangePercent}
             darkModeEnabled
-            priceFontSize="40px"
+            priceFontSize={window.innerWidth <= 768 ? '30px' : '40px'}
             deltaAbsoluteFontSize="15px"
             deltaFontSize="16px"
             deltaIconFontSize="22px"
@@ -145,17 +144,23 @@ const Chart: React.FC<ChartProps> = ({
 
   return (
     <>
-      <div
+      <Flex
         className="area-chart-wrapper"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        style={{ position: 'relative', zIndex: 2 }}
+        style={{ zIndex: 2 }}
+        h={{
+          base: 'calc(100vh - 420px)',
+          sm: 'calc(100vh - 420px)',
+          md: 'calc(100vh - 420px)',
+          xl: 'calc(100vh - 340px)'
+        }}
       >
-        <ResponsiveContainer width="100%" height={600}>
+        <ResponsiveContainer width="100%" height="100%">
           {!loading ? (
             <AreaChart
               data={data}
-              margin={{ top: 40, bottom: 40 }}
+              margin={{ top: 40, bottom: 10 }}
               width={500}
               height={400}
             >
@@ -241,7 +246,7 @@ const Chart: React.FC<ChartProps> = ({
             <></>
           )}
         </ResponsiveContainer>
-      </div>
+      </Flex>
     </>
   );
 };

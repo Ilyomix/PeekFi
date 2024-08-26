@@ -5,11 +5,13 @@ import { IconQuestionMark } from '@tabler/icons-react';
 type TickerSymbolProps = {
   tickerSymbol: string;
   imgUrl: string;
+  style?: React.CSSProperties;
 };
 
 export const TickerSymbol: React.FC<TickerSymbolProps> = ({
   tickerSymbol,
-  imgUrl = ''
+  imgUrl = '',
+  style
 }) => (
   <Flex
     justify="center"
@@ -18,7 +20,7 @@ export const TickerSymbol: React.FC<TickerSymbolProps> = ({
     mb={21}
     ml={7}
     p={32}
-    style={{ zIndex: 3 }}
+    style={{ zIndex: 3, ...style }}
   >
     {tickerSymbol && (
       <Avatar

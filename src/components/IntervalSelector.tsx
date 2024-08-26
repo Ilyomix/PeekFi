@@ -1,30 +1,47 @@
 import React from 'react';
-import { Button, Group } from '@mantine/core';
-import useIntervalStore from 'stores/useIntervalStore'; // Import the store
+import { Button, Grid } from '@mantine/core';
+import useIntervalStore from 'stores/useIntervalStore';
 
 const intervals = ['1D', '1W', '1M', '3M', '1Y', '5Y', 'Max'];
 
-const IntervalSelector: React.FC = () => {
+interface IntervalSelectorProps {
+  style?: React.CSSProperties;
+}
+
+const IntervalSelector: React.FC<IntervalSelectorProps> = ({ style }) => {
   const { selectedInterval, setSelectedInterval } = useIntervalStore();
 
   return (
-    <Group gap="xs" w="100%" px={28} py={14} justify="center" grow>
+    <Grid
+      grow
+      w="100%"
+      style={style}
+      px={{ base: 28 }}
+      gutter="xs"
+      justify="center"
+      align="center"
+    >
       {intervals.map((interval) => (
-        <Button
+        <Grid.Col
+          span={{ lg: 1, md: 1, sm: 1, xs: 1, base: 2 }} // Takes half the width on small screens
           key={interval}
-          radius="xl"
-          variant={selectedInterval === interval ? 'filled' : 'light'}
-          color={
-            selectedInterval === interval
-              ? 'rgba(0, 0, 0, 0.3)'
-              : 'rgba(255, 255, 255, 0.8)'
-          }
-          onClick={() => setSelectedInterval(interval)}
         >
-          {interval}
-        </Button>
+          <Button
+            fullWidth
+            radius="xl"
+            variant={selectedInterval === interval ? 'filled' : 'light'}
+            color={
+              selectedInterval === interval
+                ? 'rgba(0, 0, 0, 0.3)'
+                : 'rgba(255, 255, 255, 0.8)'
+            }
+            onClick={() => setSelectedInterval(interval)}
+          >
+            {interval}
+          </Button>
+        </Grid.Col>
       ))}
-    </Group>
+    </Grid>
   );
 };
 

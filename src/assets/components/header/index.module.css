@@ -3,7 +3,7 @@
   transform: translateX(0px);
   position: fixed;
   display: flex;
-  width: 100vw;
+  width: calc(100vw - 2rem);
   max-width: 1288px;
   flex-direction: column;
   justify-content: center;
