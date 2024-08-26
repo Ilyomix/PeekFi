@@ -13,9 +13,10 @@ import {
   Divider,
   ScrollArea,
   Title,
-  ActionIcon
+  ActionIcon,
+  Kbd
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { openSpotlight } from '@mantine/spotlight';
@@ -37,6 +38,7 @@ export function Header() {
   const computedColorScheme = useComputedColorScheme('light', {
     getInitialValueInEffect: true
   });
+  const isDesktop = useMediaQuery('(min-width: 768px)');
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const theme = useMantineTheme();
@@ -58,7 +60,12 @@ export function Header() {
       <header className={classes.header}>
         <div className={classes.inner}>
           <Group>
-            <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />
+            <Burger
+              opened={opened}
+              onClick={toggle}
+              size="sm"
+              hiddenFrom="sm"
+            />
             <Image
               className={classes.logo}
               radius="md"
@@ -79,16 +86,20 @@ export function Header() {
             <Button
               classNames={{ root: classes.search }}
               variant="light"
+              display="flex"
               onClick={() => openSpotlight()}
               leftSection={
-                <IconSearch
-                  style={{
-                    width: rem(16),
-                    height: rem(16),
-                    marginRight: rem(8)
-                  }}
-                  stroke={1.5}
-                />
+                <>
+                  <IconSearch
+                    style={{
+                      width: rem(16),
+                      height: rem(16),
+                      marginRight: rem(8)
+                    }}
+                    stroke={1.5}
+                  />
+                  Search
+                </>
               }
               fw="500"
               color={
@@ -98,9 +109,14 @@ export function Header() {
               }
               radius="xl"
               visibleFrom="xs"
-            >
-              Search
-            </Button>
+              rightSection={
+                isDesktop && (
+                  <>
+                    <Kbd ml={rem(isDesktop ? 20 : 0)}>Ctrl</Kbd> + <Kbd>K</Kbd>
+                  </>
+                )
+              }
+            ></Button>
           </Group>
           <CryptoSearch />
         </div>
@@ -115,7 +131,12 @@ export function Header() {
         size="xl"
         withCloseButton={false}
       >
-        <Flex p="apart" justify="space-between" align="center" style={{ width: '100%' }}>
+        <Flex
+          p="apart"
+          justify="space-between"
+          align="center"
+          style={{ width: '100%' }}
+        >
           <Title order={2} fw={700}>
             Menu
           </Title>
@@ -130,7 +151,10 @@ export function Header() {
         </Flex>
         <Divider my="md" />
 
-        <ScrollArea style={{ height: '70vh', paddingTop: '0rem' }} type="scroll">
+        <ScrollArea
+          style={{ height: '70vh', paddingTop: '0rem' }}
+          type="scroll"
+        >
           {items}
           <Button
             className={classes.link}
@@ -140,14 +164,17 @@ export function Header() {
               close(); // Close the drawer when the search button is clicked
             }}
             leftSection={
-              <IconSearch
-                style={{
-                  width: rem(16),
-                  height: rem(16),
-                  marginRight: rem(8)
-                }}
-                stroke={1.5}
-              />
+              <>
+                <IconSearch
+                  style={{
+                    width: rem(16),
+                    height: rem(16),
+                    marginRight: rem(8)
+                  }}
+                  stroke={1.5}
+                />
+                Search
+              </>
             }
             radius="xl"
             fullWidth
@@ -158,9 +185,7 @@ export function Header() {
                 ? getThemeColor('white', theme)
                 : getThemeColor('gray.9', theme)
             }
-          >
-            Search
-          </Button>
+          ></Button>
         </ScrollArea>
       </Drawer>
     </>
