@@ -58,6 +58,10 @@ body {
   justify-content: center;
 }
 
+.mantine-Spotlight-actionLabel {
+  display: none;
+}
+
 ::-webkit-scrollbar {
   width: 14px;
   height: 18px;

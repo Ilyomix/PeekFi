@@ -51,9 +51,10 @@ const CryptoSearch: React.FC = () => {
         return {
           group:
             !query && !isLoading ? '🔥 Trending coins' : '🔎 Search results',
-          id: coin.id,
+          id: coin.symbol,
           onClick: () => navigate(`/pair/${coin.id}`),
           dimmedSections: false,
+          label: `(${coin.symbol})`,
           keywords: results.map((result) => result.name),
           leftSection: (
             <Flex align="center" gap={12}>
@@ -64,9 +65,12 @@ const CryptoSearch: React.FC = () => {
                 ml={14}
                 my={12}
               />
-              <Text fw={600}>{`${
-                coin.name
-              } (${coin.symbol.toUpperCase()})`}</Text>
+              <Text
+                lineClamp={1}
+                component="div"
+                fw={600}
+                mr={-12}
+              >{`${coin.name}`}</Text>
             </Flex>
           ),
           rightSection: (
@@ -89,6 +93,7 @@ const CryptoSearch: React.FC = () => {
                   ${coin.current_price?.toFixed(2) ?? 'N/A'}
                 </Text>
                 <Text
+                  lineClamp={1}
                   component="div"
                   size={rem(12)}
                   c={priceChangeColor}
@@ -116,7 +121,6 @@ const CryptoSearch: React.FC = () => {
       radius="lg"
       style={{ border: 'none' }}
       shortcut={['mod + k']}
-      scrollable
       searchProps={{
         leftSection: (
           <IconSearch
@@ -137,7 +141,7 @@ const CryptoSearch: React.FC = () => {
           handleSearch(''); // Explicitly call search with an empty string to fetch trending results
         }
       }}
-      limit={10}
+      limit={8}
     />
   );
 };
