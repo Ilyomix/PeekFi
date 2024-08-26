@@ -211,7 +211,7 @@ const Chart: React.FC<ChartProps> = ({
                 stroke={
                   'rgba(255, 255, 255, 0.7)' // No fill when there's no change
                 }
-                animationDuration={150}
+                animationDuration={250}
                 animationEasing="ease"
                 strokeWidth={2}
                 activeDot={{ r: 0 }}
