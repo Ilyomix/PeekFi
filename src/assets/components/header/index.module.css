@@ -18,7 +18,7 @@
 .inner {
   height: rem(56px);
   border: 1px solid light-dark(rgba(128, 128, 128, 0.15), rgba(76, 76, 76, 0.4));
-  background-color: light-dark(rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.2));
+  background-color: light-dark(rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.6));
   border-radius: 28px;
   padding: 0.5rem 0.75rem;
   backdrop-filter: blur(10px);
