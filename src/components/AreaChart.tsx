@@ -150,8 +150,8 @@ const Chart: React.FC<ChartProps> = ({
         onMouseLeave={handleMouseLeave}
         style={{ zIndex: 2 }}
         h={{
-          base: 'calc(100vh - 420px)',
-          sm: 'calc(100vh - 420px)',
+          base: 'calc(100vh - 470px)',
+          sm: 'calc(100vh - 470px)',
           md: 'calc(100vh - 420px)',
           xl: 'calc(100vh - 340px)'
         }}

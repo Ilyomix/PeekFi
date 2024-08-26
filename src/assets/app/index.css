@@ -55,6 +55,11 @@ body {
   margin-bottom: 7px;
 }
 
+.mantine-Pagination-root div {
+  display: flex;
+  justify-content: center;
+}
+
 ::-webkit-scrollbar {
   width: 14px;
   height: 18px;

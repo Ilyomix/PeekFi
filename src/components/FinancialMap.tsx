@@ -14,6 +14,13 @@ import Filters from 'components/Filters';
 import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
 import { useNavigate, useParams } from 'react-router-dom';
 import classes from 'assets/components/financialCard/index.module.css';
+import {
+  IconArrowBarToLeft,
+  IconArrowBarToRight,
+  IconArrowLeft,
+  IconArrowRight,
+  IconGripHorizontal
+} from '@tabler/icons-react';
 
 const FinancialMap: React.FC = () => {
   const {
@@ -134,12 +141,18 @@ const FinancialMap: React.FC = () => {
           autoContrast
           color="light-dark(var(--mantine-color-dark-8), var(--mantine-color-teal-8))"
           variant="light"
-          siblings={1}
+          siblings={2}
+          display="flex"
           boundaries={1}
           size="md"
           radius="xl"
           withControls
           withEdges
+          nextIcon={IconArrowRight}
+          previousIcon={IconArrowLeft}
+          firstIcon={IconArrowBarToLeft}
+          lastIcon={IconArrowBarToRight}
+          dotsIcon={IconGripHorizontal}
         />
       </Flex>
     </div>
