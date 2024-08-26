@@ -116,6 +116,7 @@ const CryptoSearch: React.FC = () => {
       radius="lg"
       style={{ border: 'none' }}
       shortcut={['mod + k']}
+      scrollable
       searchProps={{
         leftSection: (
           <IconSearch
@@ -136,7 +137,7 @@ const CryptoSearch: React.FC = () => {
           handleSearch(''); // Explicitly call search with an empty string to fetch trending results
         }
       }}
-      limit={5}
+      limit={10}
     />
   );
 };
