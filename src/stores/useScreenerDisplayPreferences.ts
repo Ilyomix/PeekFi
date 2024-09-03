@@ -3,25 +3,27 @@ import { persist } from 'zustand/middleware';
 
 interface PreferencesState {
   itemsPerPage: number;
-  cardsPerRow: number;
   filter: string;
   setItemsPerPage: (value: number) => void;
-  setCardsPerRow: (value: number) => void;
   setFilter: (value: string) => void;
 }
 
+/**
+ * useScreenerDisplayPreferences - A Zustand store to manage user preferences for the screener display.
+ *
+ * @returns {PreferencesState} The state and actions to manage screener display preferences.
+ */
 export const useScreenerDisplayPreferences = create<PreferencesState>()(
   persist(
     (set) => ({
-      itemsPerPage: 25, // Default value
-      cardsPerRow: 4, // Default value
-      filter: 'market_cap_desc', // Default filter value
-      setItemsPerPage: (value) => set({ itemsPerPage: value }),
-      setCardsPerRow: (value) => set({ cardsPerRow: value }),
-      setFilter: (value) => set({ filter: value })
+      itemsPerPage: 25,
+      filter: 'market_cap_desc',
+
+      setItemsPerPage: (value) => set(() => ({ itemsPerPage: value })),
+      setFilter: (value) => set(() => ({ filter: value }))
     }),
     {
-      name: 'user-screener-display-preferences' // Storage key
+      name: 'user-screener-display-preferences'
     }
   )
 );

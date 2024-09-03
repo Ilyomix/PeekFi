@@ -1,12 +1,23 @@
-import FinancialMap from 'components/FinancialMap';
-import PageTransition from 'components/PageTransition';
+import React from 'react';
+import FinancialMap from 'components/Pages/Screener/FinancialMap';
+import PageTransition from 'components/App/PageTransition';
 
-const Screener: React.FC = () => {
+/**
+ * Screener Component
+ *
+ * This component serves as a wrapper for the FinancialMap component,
+ * providing a page transition effect.
+ *
+ * @returns {JSX.Element} The rendered Screener component.
+ */
+const Screener: React.FC = React.memo(() => {
   return (
     <PageTransition>
       <FinancialMap />
     </PageTransition>
   );
-};
+});
+
+Screener.displayName = 'Screener';
 
 export default Screener;

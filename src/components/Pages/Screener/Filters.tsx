@@ -6,7 +6,6 @@ import {
   Text,
   Drawer,
   ActionIcon,
-  ScrollArea,
   Divider,
   Flex,
   Title,
@@ -133,7 +132,9 @@ const Filters: React.FC<FiltersProps> = ({
   const itemsPerPageButtons: ItemsPerPageButton[] = [
     { value: 12, label: '12' },
     { value: 25, label: '25' },
-    { value: 50, label: '50' }
+    { value: 50, label: '50' },
+    { value: 100, label: '100' },
+    { value: 200, label: '200' }
   ];
 
   const cardsPerRowButtons: CardsPerRowButton[] = [
@@ -233,6 +234,7 @@ const Filters: React.FC<FiltersProps> = ({
           onClick={() => setDrawerOpened(true)}
           radius="xl"
           size="xs"
+          mx={16}
           c="light-dark(var(--mantine-color-white), var(--mantine-color-black))"
           color="light-dark(var(--mantine-color-black), var(--mantine-color-white))"
           styles={(theme) => ({

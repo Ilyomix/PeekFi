@@ -3,11 +3,17 @@ import axios from 'axios';
 import { CoinGeckoTickerData } from 'types/coinGeckoApi';
 import { getPrivateKey } from 'utils/getCoinGeckoApiKey';
 
-type TickerWithSparkline = CoinGeckoTickerData & {
+export type TickerWithSparkline = CoinGeckoTickerData & {
   sparkline_in_7d?: { price: number[] };
+  circulating_supply: number;
+  image: string; // Include image URL for the crypto icon
+  price_change_percentage_1h_in_currency?: number;
+  price_change_percentage_24h: number;
+  price_change_percentage_7d_in_currency?: number;
+  market_cap_rank: number; // Include rank in the data structure
 };
 
-type PaginatedCryptoTickersResult = {
+type PaginatedCryptoDataResult = {
   tickersData: TickerWithSparkline[];
   loading: boolean;
   error: string | null;
@@ -17,18 +23,19 @@ type PaginatedCryptoTickersResult = {
   vsCurrency: string;
 };
 
-const usePaginatedCryptoTickers = (
+const usePaginatedCryptoData = (
   initialPage: number = 1,
   limit: number = 25,
   initialVsCurrency: string = 'usd',
-  filter: string = 'market_cap_desc' // Default to market_cap_desc
-): PaginatedCryptoTickersResult => {
+  filter: string = 'market_cap_desc'
+): PaginatedCryptoDataResult => {
   const privateKey = getPrivateKey();
   const [tickersData, setTickersData] = useState<TickerWithSparkline[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [page, setPage] = useState<number>(initialPage);
+  const [binanceData, setBinanceData] = useState<Record<string, any>>({});
 
   const fetchTotalPages = useCallback(async () => {
     try {
@@ -72,7 +79,8 @@ const usePaginatedCryptoTickers = (
               order: filter,
               per_page: limit,
               page: requestedPage,
-              sparkline: true
+              sparkline: true,
+              price_change_percentage: '1h,24h,7d'
             },
             headers: {
               accept: 'application/json',
@@ -92,6 +100,32 @@ const usePaginatedCryptoTickers = (
     [privateKey, initialVsCurrency, limit, totalPages, filter]
   );
 
+  const fetchBinanceData = useCallback(async () => {
+    try {
+      // Fetch all tickers from Binance
+      const response = await axios.get(
+        `https://api.binance.com/api/v3/ticker/24hr`
+      );
+
+      const data = response.data.reduce(
+        (acc: Record<string, any>, curr: any) => {
+          acc[curr.symbol.toLowerCase()] = {
+            price: parseFloat(curr.lastPrice),
+            volume: parseFloat(curr.volume),
+            priceChangePercent: parseFloat(curr.priceChangePercent)
+          };
+          return acc;
+        },
+        {}
+      );
+
+      setBinanceData(data);
+    } catch (err) {
+      console.error('Error fetching Binance data:', err);
+      setError('Error fetching Binance data');
+    }
+  }, []);
+
   useEffect(() => {
     fetchTotalPages();
   }, [fetchTotalPages]);
@@ -101,6 +135,15 @@ const usePaginatedCryptoTickers = (
       fetchCryptoData(page);
     }
   }, [fetchCryptoData, page, totalPages]);
+
+  useEffect(() => {
+    fetchBinanceData(); // Fetch Binance data once when component mounts
+    const intervalId = setInterval(() => {
+      fetchBinanceData();
+    }, 5000); // Refresh Binance data every 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+  }, [fetchBinanceData]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -121,8 +164,23 @@ const usePaginatedCryptoTickers = (
     }
   };
 
+  // Merge Binance data with CoinGecko data
+  const mergedData = tickersData.map((ticker) => {
+    const symbol = ticker.symbol.toLowerCase() + 'usdt';
+    const binanceTicker = binanceData[symbol] || {};
+
+    return {
+      ...ticker,
+      current_price: binanceTicker.price || ticker.current_price,
+      total_volume: ticker.total_volume,
+      price_change_percentage_24h:
+        binanceTicker.priceChangePercent || ticker.price_change_percentage_24h
+      // Other fields like market_cap, circulating_supply etc. remain from CoinGecko
+    };
+  });
+
   return {
-    tickersData,
+    tickersData: mergedData,
     loading,
     error,
     currentPage: page,
@@ -132,4 +190,4 @@ const usePaginatedCryptoTickers = (
   };
 };
 
-export default usePaginatedCryptoTickers;
+export default usePaginatedCryptoData;

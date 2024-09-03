@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring';
 import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient';
 import { OrbitControls, Box, useTexture } from '@react-three/drei';
@@ -12,11 +12,11 @@ type ShaderGradientWithTransitionProps = {
   value: number;
 };
 
-export const ShaderGradientWithTransition: React.FC<
+const ShaderGradientWithTransition: React.FC<
   ShaderGradientWithTransitionProps
 > = ({ delta, value }) => {
   const glRef = useRef<THREE.WebGLRenderer | null>(null);
-
+  console.log('passed', delta);
   const shaderProps = useMemo(() => {
     return backgroundChartByDelta(delta);
   }, [delta]);
@@ -60,7 +60,7 @@ export const ShaderGradientWithTransition: React.FC<
           glRef.current = gl;
         }}
         pixelDensity={0.35}
-        fov={40}
+        fov={25}
       >
         <ShaderGradient
           {...shaderProps}
@@ -72,3 +72,8 @@ export const ShaderGradientWithTransition: React.FC<
     </animated.div>
   );
 };
+
+export default React.memo(
+  ShaderGradientWithTransition,
+  (prevProps, nextProps) => prevProps.delta === nextProps.delta
+);

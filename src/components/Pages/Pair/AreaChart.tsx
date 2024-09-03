@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import { Flex, Paper, Text } from '@mantine/core';
 import 'assets/components/areaCharts/index.css';
-import { AnimatedTickerDisplay } from 'components/AnimatedTickerDisplay';
+import { AnimatedTickerDisplay } from 'components/Pages/Pair/AnimatedTickerDisplay';
 
 type DataPoint = {
   x: number;

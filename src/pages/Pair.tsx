@@ -1,21 +1,10 @@
-import React, { useMemo } from 'react';
-import { Paper, Flex } from '@mantine/core';
-import PageTransition from 'components/PageTransition';
+// src/pages/Pair.tsx
+import React from 'react';
+import PageTransition from 'components/App/PageTransition';
 import { useParams } from 'react-router-dom';
-import { AnimatedTickerDisplay } from 'components/AnimatedTickerDisplay';
-import { TickerSymbol } from 'components/TickerSymbol';
-import AreaChart from 'components/AreaChart';
-import IntervalSelector from 'components/IntervalSelector';
-import classes from 'assets/app/pair.module.css';
 import useIntervalStore from 'stores/useIntervalStore';
 import useCryptoInfo from 'hooks/useCryptoInfo';
-import { getNumberPrecision } from 'utils/getNumberPrecision';
-import { IconArrowUpRight, IconArrowDownRight } from '@tabler/icons-react';
-import { ShaderGradientWithTransition } from 'components/ShaderGradientWithTransition';
-
-export const getDiffIcon = (value: number | string) => {
-  return Number(value) > 0 ? IconArrowUpRight : IconArrowDownRight;
-};
+import PairContent from 'components/Pages/Pair/PairContent';
 
 const Pair: React.FC = () => {
   const { pair } = useParams<{ pair: string }>();
@@ -28,6 +17,10 @@ const Pair: React.FC = () => {
     error: infoError
   } = useCryptoInfo(coinId || '');
 
+  if (infoLoading || !cryptoInfo || infoError) {
+    return null;
+  }
+
   const {
     name: cryptoName = '',
     image: { small: image } = { small: '' },
@@ -38,80 +31,17 @@ const Pair: React.FC = () => {
     } = {}
   } = cryptoInfo || {};
 
-  // Determine the current sign of priceChangePercent24h
-  const currentSign = useMemo(() => {
-    if (priceChangePercent24h > 0) return 'positive';
-    if (priceChangePercent24h < 0) return 'negative';
-    return 'neutral';
-  }, [priceChangePercent24h]);
-
-  const GradientBackground = useMemo(() => {
-    // Re-render gradient only if the sign changes
-    return (
-      <ShaderGradientWithTransition
-        delta={currentSign}
-        value={priceChangePercent24h}
-      />
-    );
-  }, [currentSign]);
-
-  if (infoLoading || !cryptoInfo || infoError) {
-    return null;
-  }
-
-  // Responsive styles for the component
-  const responsiveStyles = {
-    animatedTickerDisplay: {
-      fontSize: '100px',
-      ...(window.innerWidth <= 1408 && { fontSize: '80px' }),
-      ...(window.innerWidth <= 768 && { fontSize: '60px' }),
-      ...(window.innerWidth <= 425 && { fontSize: '40px' })
-    },
-    deltaFontSize: {
-      fontSizeDelta: '30px',
-      ...(window.innerWidth <= 1408 && { fontSize: '20px' }),
-      ...(window.innerWidth <= 768 && { fontSize: '16px' }),
-      ...(window.innerWidth <= 425 && { fontSize: '16px' })
-    },
-    animatedTicker: window.innerWidth <= 1408
-  };
-
   return (
     <PageTransition>
-      <Paper
-        shadow="xl"
-        radius="xl"
-        style={{
-          position: 'relative',
-          transition: 'all 0.5s ease-in-out'
-        }}
-        h="100%"
-        className={classes['ticker-wrapper']}
-      >
-        {GradientBackground}
-        <Flex align="flex-start" direction="column">
-          <TickerSymbol tickerSymbol={cryptoName || ''} imgUrl={image} />
-          <AnimatedTickerDisplay
-            price={currentPrice}
-            priceChangePercent={priceChangePercent24h}
-            priceChange={priceChange24h}
-            deltaFontSize={responsiveStyles.deltaFontSize.fontSize}
-            deltaIconFontSize={responsiveStyles.deltaFontSize.fontSize}
-            deltaAbsoluteFontSize={responsiveStyles.deltaFontSize.fontSize}
-            priceFontSize={responsiveStyles.animatedTickerDisplay.fontSize}
-            noAnimation={responsiveStyles.animatedTicker}
-          />
-          <IntervalSelector />
-          <AreaChart
-            symbol={pair || ''}
-            interval={selectedInterval}
-            baseline={currentPrice - priceChange24h}
-            deltaPositive={priceChange24h > 0}
-            priceChangePercent24h={priceChangePercent24h}
-            precision={getNumberPrecision(currentPrice)}
-          />
-        </Flex>
-      </Paper>
+      <PairContent
+        cryptoName={cryptoName}
+        image={image}
+        currentPrice={currentPrice}
+        priceChangePercent24h={priceChangePercent24h}
+        priceChange24h={priceChange24h}
+        pair={pair || ''}
+        selectedInterval={selectedInterval}
+      />
     </PageTransition>
   );
 };

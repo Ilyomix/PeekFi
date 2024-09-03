@@ -4,7 +4,6 @@
   position: fixed;
   display: flex;
   width: calc(100vw - 2rem);
-  max-width: 1288px;
   flex-direction: column;
   justify-content: center;
   top: 0.5rem;

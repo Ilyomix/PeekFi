@@ -1,0 +1,31 @@
+.tableContainer {
+    background-color: #1E1E2F;
+    border-radius: 10px;
+    color: #E0E0E0;
+    padding-top: 16px;
+    font-feature-settings: 'tnum' 1, 'cv02';
+}
+
+.tableCell {
+  border-bottom: 1px solid #333;
+}
+
+.percentageText {
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.supplyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.supplyProgress {
+  width: 100%;
+}
+
+.dimmedText {
+  color: var(--mantine-color-gray-text);
+  font-size: 12px;
+}

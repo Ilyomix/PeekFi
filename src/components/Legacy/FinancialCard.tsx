@@ -17,11 +17,10 @@ import {
   IconArrowUp,
   IconArrowDown
 } from '@tabler/icons-react';
-import { AnimatedCounter } from 'react-animated-counter';
+import { AnimatedCounter } from 'components/Pages/Pair/AnimatedCounter';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
 import classes from 'assets/components/financialCard/index.module.css';
-import BackgroundChart from 'components/BackgroundChart';
-import PageTransition from 'components/PageTransition';
+import PageTransition from 'components/App/PageTransition';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritesStore } from 'stores/useFavoritesStore';
 import { CoinGeckoTickerData } from 'types/coinGeckoApi';
@@ -107,7 +106,6 @@ const FinancialCard: React.FC<FinancialCardProps> = memo(
         }
       }
     }, [symbol, isFav, addFavorite, removeFavorite]);
-
     return (
       <Paper
         shadow="md"

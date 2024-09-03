@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Text, Flex, useComputedColorScheme } from '@mantine/core';
-import { AnimatedCounter } from 'react-animated-counter';
+import { AnimatedCounter } from 'components/Pages/Pair/AnimatedCounter';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
 import { IconArrowUpRight, IconArrowDownRight } from '@tabler/icons-react';
 import classes from 'assets/app/pair.module.css';
@@ -16,7 +16,7 @@ const TEXT_DEFAULTS = {
   marginTop: -37,
   marginBottom: 21,
   marginLeft: 28,
-  fontWeight: 200,
+  fontWeight: 300,
   letterSpacing: '-4px'
 };
 
@@ -76,11 +76,11 @@ const renderCounter = (
   fontSize: string,
   decimalPrecision?: number,
   color?: string,
-  valueMovementColor = true,
   tooltipMode = false,
   noAnimation = false,
   fontWeight?: number,
-  narrowed = false
+  narrowed = false,
+  valueMovementColor = true
 ) => {
   const counterProps = {
     fontSize,
@@ -164,7 +164,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
       deltaMention,
       darkModeEnabled = false,
       noAnimation = false,
-      tooltipMode = false,
+      tooltipMode = false
     }) => {
       const colorClass = useMemo(
         () => getColorClass(priceChangePercent),
@@ -242,7 +242,6 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
               undefined,
               textColor,
               tooltipMode,
-              false,
               noAnimation,
               undefined,
               true
@@ -258,7 +257,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
               mt={flexMarginTop}
               ml={{
                 base: !tooltipMode ? 36 : flexMarginLeft,
-                xs: !tooltipMode ? 30 : flexMarginLeft,
+                xs: !tooltipMode ? 38 : flexMarginLeft,
                 md: !tooltipMode ? 24 : flexMarginLeft,
                 xl: flexMarginLeft
               }}
@@ -286,9 +285,9 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                     2,
                     tooltipMode ? colorClassTooltip : colorClass,
                     tooltipMode,
-                    false,
                     noAnimation,
-                    400
+                    400,
+                    false
                   )}
                   <Text
                     size={deltaFontSize}
@@ -339,9 +338,9 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                   getNumberPrecision(price),
                   tooltipMode ? colorClassTooltip : colorClass,
                   tooltipMode,
-                  false,
                   noAnimation,
-                  400
+                  400,
+                  false
                 )}
                 <Text
                   fw={noAnimation ? 400 : 500}
