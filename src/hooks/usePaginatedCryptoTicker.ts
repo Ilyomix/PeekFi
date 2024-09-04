@@ -11,6 +11,7 @@ export type TickerWithSparkline = CoinGeckoTickerData & {
   price_change_percentage_24h: number;
   price_change_percentage_7d_in_currency?: number;
   market_cap_rank: number; // Include rank in the data structure
+  max_supply: number; // Include max supply in the data structure
 };
 
 type PaginatedCryptoDataResult = {

@@ -48,8 +48,10 @@ const Chart: React.FC<ChartProps> = ({
   const [hoveredData, setHoveredData] = useState<DataPoint>({ x: 0, y: -1 });
   const hoveredDataRef = useRef<DataPoint>({ x: 0, y: -1 });
   const yValues = data.map((d) => d.y);
-  const minYFromData = Math.min(...yValues);
-  const maxYFromData = Math.max(...yValues);
+  const minYFromData =
+    baseline < Math.min(...yValues) ? baseline : Math.min(...yValues);
+  const maxYFromData =
+    baseline > Math.max(...yValues) ? baseline : Math.max(...yValues);
 
   const handleMouseEnter = useCallback(() => setTooltipVisibility(true), []);
   const handleMouseLeave = useCallback(() => {
@@ -173,16 +175,9 @@ const Chart: React.FC<ChartProps> = ({
                   x2="0"
                   y2="1"
                 >
-                  <stop
-                    offset="0%"
-                    stopColor="rgba(12, 166, 120, 0.7)"
-                    stopOpacity={1}
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor="rgba(12, 166, 120, 0)"
-                    stopOpacity={0}
-                  />
+                  <stop offset="0%" stopColor="rgba(12, 166, 120, 0.9)" />
+                  <stop offset="50%" stopColor="rgba(12, 166, 120, 0.2)" />
+                  <stop offset="100%" stopColor="rgba(12, 166, 120, 0)" />
                 </linearGradient>
 
                 <linearGradient
@@ -192,17 +187,25 @@ const Chart: React.FC<ChartProps> = ({
                   x2="0"
                   y2="1"
                 >
-                  <stop
-                    offset="0%"
-                    stopColor="rgba(240, 62, 62, 0.7)"
-                    stopOpacity={1}
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor="rgba(240, 62, 62, 0)"
-                    stopOpacity={1}
-                  />
+                  <stop offset="0%" stopColor="rgba(240, 62, 62, 0.9)" />
+                  <stop offset="50%" stopColor="rgba(240, 62, 62, 0.2)" />
+                  <stop offset="100%" stopColor="rgba(240, 62, 62, 0)" />
                 </linearGradient>
+
+                <filter
+                  id="shadow"
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%"
+                >
+                  <feGaussianBlur in="SourceAlpha" stdDeviation="5" />
+                  <feOffset dx="0" dy="2" result="offsetBlur" />
+                  <feMerge>
+                    <feMergeNode />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
               </defs>
 
               <Area
@@ -214,7 +217,11 @@ const Chart: React.FC<ChartProps> = ({
                 animationDuration={250}
                 animationEasing="ease"
                 strokeWidth={2}
-                activeDot={{ r: 0 }}
+                activeDot={{
+                  r: 6,
+                  fill: 'rgba(255, 255, 255, 0.9)',
+                  strokeOpacity: 0
+                }}
                 strokeOpacity={0.8}
                 fill={
                   priceChangePercent24h !== 0
@@ -225,12 +232,13 @@ const Chart: React.FC<ChartProps> = ({
                 }
                 dot={{ r: 0 }}
                 style={{ marginLeft: '-2px' }}
+                filter="url(#shadow)"
               />
               <Tooltip
                 content={<RenderTooltip />}
                 allowEscapeViewBox={{ x: false }}
                 position={{ y: 40 }}
-                cursor={{ strokeWidth: 1, strokeOpacity: 1, stroke: 'white' }}
+                cursor={{ strokeWidth: 1, strokeOpacity: 0.8, stroke: 'white' }}
                 animationDuration={100}
                 active={tooltipVisibility}
               />
@@ -238,7 +246,7 @@ const Chart: React.FC<ChartProps> = ({
                 // @ts-expect-error domain definition is not available in Recharts 2.x
                 y={baseline}
                 strokeDasharray="3 3"
-                stroke="rgba(255, 255, 255, 0.4)"
+                stroke="rgba(255, 255, 255, 0.7)"
                 className="baseline"
               />
             </AreaChart>

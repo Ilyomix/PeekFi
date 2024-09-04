@@ -42,13 +42,7 @@ const FinancialMap: React.FC = () => {
   if (loading) {
     return (
       <div>
-        <Filters
-          setFilter={setFilter}
-          setItemsPerPage={setItemsPerPage}
-          itemsPerPage={itemsPerPage}
-          currentFilter={filter}
-        />
-        <TableSkeleton rows={10} columns={9} />{' '}
+        <TableSkeleton />
         {/* Adjust rows/columns as needed */}
       </div>
     );
@@ -58,19 +52,7 @@ const FinancialMap: React.FC = () => {
 
   return (
     <div>
-      <TableView
-        vsCurrency={vsCurrency}
-        data={tickersData}
-        filter={filter}
-        setFilter={setFilter}
-      >
-        <Filters
-          setFilter={setFilter}
-          setItemsPerPage={setItemsPerPage}
-          itemsPerPage={itemsPerPage}
-          currentFilter={filter}
-        />
-      </TableView>
+      <TableView vsCurrency={vsCurrency} data={tickersData}></TableView>
       <Flex align="center" justify="center" my={rem(14)} mt={rem(28)}>
         <Pagination
           value={currentPage}

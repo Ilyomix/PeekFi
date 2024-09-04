@@ -1,19 +1,36 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import { Table, Text, Avatar, Flex, Progress, ScrollArea } from '@mantine/core';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import {
+  Table,
+  Text,
+  Avatar,
+  Flex,
+  Progress,
+  ScrollArea,
+  Paper
+} from '@mantine/core';
 import { TickerWithSparkline } from 'hooks/usePaginatedCryptoTicker';
 import SparklineChart from 'components/Pages/Screener/SparklineChart';
 import { useNavigate } from 'react-router-dom';
+import {
+  IconTriangleFilled,
+  IconTriangleInvertedFilled,
+  IconCaretUpFilled,
+  IconCaretDownFilled,
+  IconMinus
+} from '@tabler/icons-react';
 import classes from 'assets/app/screener.module.css';
-import PriceCell from './PriceCell'; // Import the PriceCell component
+import PriceCell from './PriceCell';
+import PageTransition from 'components/App/PageTransition';
 
+// Mapping currency symbols
 const currencySymbols: Record<string, string> = {
   usd: '$',
   eur: '€',
   gbp: '£',
   jpy: '¥'
-  // Add other currencies as needed
 };
 
+// Helper function to get the currency symbol
 const getCurrencySymbol = (currency: string) =>
   currencySymbols[currency.toLowerCase()] || currency.toUpperCase();
 
@@ -26,75 +43,115 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
   const navigate = useNavigate();
   const currencySymbol = getCurrencySymbol(vsCurrency);
 
-  // State to store previous prices for comparison
-  const [previousPrices, setPreviousPrices] = useState<{
-    [key: string]: number;
-  }>({});
+  // Store previous prices for comparison
+  const [previousPrices, setPreviousPrices] = useState<Record<string, number>>(
+    {}
+  );
+  const [sortedDataBy, setSortedDataBy] = useState<
+    Record<string, 'asc' | 'desc' | ''>
+  >({});
 
+  // Store the previous prices when data changes
   useEffect(() => {
-    // Update previous prices when data changes
-    const newPrices: { [key: string]: number } = {};
-    data.forEach((ticker) => {
-      newPrices[ticker.id] = ticker.current_price;
-    });
+    const newPrices = Object.fromEntries(
+      data.map((ticker) => [ticker.id, ticker.current_price])
+    );
     setPreviousPrices(newPrices);
   }, [data]);
 
+  // Handle click to navigate
   const handleClick = useCallback(
-    (id: string, symbol: string) => {
-      if (symbol) navigate(`/pair/${id}`, { replace: true });
-    },
+    (id: string) => navigate(`/pair/${id}`, { replace: true }),
     [navigate]
   );
 
-  const renderPercentage = (value: number | undefined) => {
+  // Memoize the sorting function to avoid re-creation
+  const handleSort = useCallback((dataKey: string) => {
+    setSortedDataBy((current) => {
+      const currentDirection = current[dataKey] || '';
+      const directions: Record<string, 'asc' | 'desc' | ''> = {
+        '': 'asc',
+        asc: 'desc',
+        desc: ''
+      };
+      return { [dataKey]: directions[currentDirection] };
+    });
+  }, []);
+
+  // Helper function to render percentage values with color coding and triangles
+  const renderPercentage = useCallback((value?: number) => {
+    if (value === undefined) return 'N/A';
     const displayValue = value ? value.toFixed(2) : '0.00';
     const color =
-      value !== undefined && value > 0
+      value > 0
         ? 'var(--mantine-color-teal-6)'
-        : value !== undefined && value < 0
+        : value < 0
           ? 'var(--mantine-color-red-6)'
           : 'var(--mantine-color-gray-text)';
-    return (
-      <Text c={color} className={classes.percentageText}>
-        {displayValue}%
-      </Text>
-    );
-  };
 
-  const renderCirculatingSupply = (
-    circulatingSupply: number,
-    maxSupply: number | null
-  ) => {
-    if (!maxSupply || !circulatingSupply)
-      return circulatingSupply
-        ? circulatingSupply.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })
-        : 'N/A';
-    const percentage = (circulatingSupply / maxSupply) * 100;
     return (
-      <Flex direction="column" align="flex-end" w="100%">
-        <Text fz={14}>
-          {circulatingSupply && circulatingSupply.toLocaleString()}
-        </Text>
-        <Progress
-          value={percentage}
-          color="teal"
-          mt={4}
-          size="xs"
-          className={classes.supplyProgress}
-        />
+      <Flex align="center" gap={6} c={color} className={classes.percentageText}>
+        {value > 0 && <IconTriangleFilled size={10} />}
+        {value < 0 && <IconTriangleInvertedFilled size={10} />} {displayValue}%
       </Flex>
     );
-  };
+  }, []);
+
+  // Helper function to render circulating supply and its percentage
+  const renderCirculatingSupply = useCallback(
+    (circulatingSupply: number, maxSupply: number | null) => {
+      if (!circulatingSupply) return '';
+      if (!maxSupply) return circulatingSupply.toLocaleString();
+
+      const percentage = (circulatingSupply / maxSupply) * 100;
+      return (
+        <Flex direction="column" align="flex-end" w="100%">
+          <Text fz={14}>{circulatingSupply.toLocaleString()}</Text>
+          <Progress
+            value={percentage}
+            color="teal"
+            mt={4}
+            size="xs"
+            className={classes.supplyProgress}
+          />
+        </Flex>
+      );
+    },
+    []
+  );
+
+  // Table Headers with sorting indicators
+  const headers = [
+    { label: '#', sortKey: 'market_cap_rank' },
+    { label: 'Name', sortKey: 'name' },
+    { label: 'Price', sortKey: 'current_price' },
+    { label: '1h %', sortKey: 'price_change_percentage_1h_in_currency' },
+    { label: '24h %', sortKey: 'price_change_percentage_24h' },
+    { label: '7d %', sortKey: 'price_change_percentage_7d_in_currency' },
+    { label: 'Market Cap', sortKey: 'market_cap' },
+    { label: 'Volume (24H)', sortKey: 'total_volume' },
+    { label: 'Circulating Supply', sortKey: 'circulating_supply' },
+    { label: 'Chart 1w', sortKey: '' } // No sort for Chart
+  ];
+
+  // Render table rows with memoized and sorted data
+  const sortedData = useMemo(() => {
+    const [key, direction] = Object.entries(sortedDataBy)[0] || [];
+    if (!key || !direction) return data;
+
+    return [...data].sort((a, b) => {
+      const valA = a[key as keyof TickerWithSparkline];
+      const valB = b[key as keyof TickerWithSparkline];
+      const compare = (valA ?? 0) > (valB ?? 0) ? 1 : -1;
+      return direction === 'asc' ? compare : -compare;
+    });
+  }, [data, sortedDataBy]);
 
   return (
-    <div>
+    <Paper shadow="lg" radius="lg">
       <ScrollArea>
         <Table
           highlightOnHover
-          highlightOnHoverColor="rgba(255, 255, 255, 0.1)"
           withRowBorders
           verticalSpacing="md"
           horizontalSpacing="lg"
@@ -102,55 +159,49 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
         >
           <Table.Thead>
             <Table.Tr>
-              <Table.Th className={classes.tableCell}>#</Table.Th>
-              <Table.Th className={classes.tableCell}>Name</Table.Th>
-              <Table.Th className={classes.tableCell}>Price</Table.Th>
-              <Table.Th className={classes.tableCell}>1h %</Table.Th>
-              <Table.Th className={classes.tableCell}>24h %</Table.Th>
-              <Table.Th className={classes.tableCell}>7d %</Table.Th>
-              <Table.Th className={classes.tableCell}>Market Cap</Table.Th>
-              <Table.Th className={classes.tableCell}>Volume (24H)</Table.Th>
-              <Table.Th className={classes.tableCell}>
-                Circulating Supply
-              </Table.Th>
-              <Table.Th className={classes.tableCell}>Chart 1w</Table.Th>
+              {headers.map(({ label, sortKey }) => (
+                <Table.Th
+                  key={label}
+                  onClick={sortKey ? () => handleSort(sortKey) : undefined} // Disable sort on 'Chart 1w'
+                  className={classes.tableCell}
+                >
+                  <Flex align="center" className={classes.tableHeaderCell}>
+                    {sortedDataBy[sortKey] === 'asc' && (
+                      <IconCaretUpFilled size={14} />
+                    )}
+                    {sortedDataBy[sortKey] === 'desc' && (
+                      <IconCaretDownFilled size={14} />
+                    )}
+                    {label}
+                  </Flex>
+                </Table.Th>
+              ))}
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {data.map((ticker) => (
+            {sortedData.map((ticker) => (
               <Table.Tr
                 key={ticker.id}
                 className={classes.tableCell}
+                onClick={() => handleClick(ticker.id)}
                 style={{ cursor: 'pointer', textAlign: 'left' }}
-                onClick={() => handleClick(ticker.id, ticker.symbol)}
               >
                 <Table.Td>
-                  {ticker.market_cap_rank
-                    ? ticker.market_cap_rank.toLocaleString()
-                    : 'N/A'}
+                  {ticker.market_cap_rank?.toLocaleString() || 'N/A'}
                 </Table.Td>
                 <Table.Td>
                   <Flex w={{ base: '150px', md: '250px' }} align="center">
-                    <Avatar
-                      mr={14}
-                      src={ticker.image}
-                      alt={ticker.name}
-                      size="sm"
-                    />
-                    <Flex
-                      justify="center"
-                      align={{ base: 'start', sm: 'center' }}
-                      gap={{ base: '', sm: 'xs' }}
-                      direction={{ base: 'column', sm: 'row' }}
-                    >
-                      <Text
-                        component="p"
-                        title={ticker.name}
-                        style={{
-                          whiteSpaceCollapse: 'collapse',
-                          textWrap: 'wrap'
-                        }}
-                      >
+                    <PageTransition>
+                      <Avatar
+                        mr={14}
+                        src={ticker.image}
+                        alt={ticker.name}
+                        size="md"
+                        p={6}
+                      />
+                    </PageTransition>
+                    <Flex direction="column">
+                      <Text title={ticker.name} style={{ textWrap: 'wrap' }}>
                         {ticker.name}
                       </Text>
                       <Text
@@ -166,11 +217,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
                 </Table.Td>
                 <Table.Td>
                   <PriceCell
-                    value={
-                      ticker.current_price !== undefined
-                        ? ticker.current_price
-                        : 0
-                    }
+                    value={ticker.current_price || 0}
                     previousValue={previousPrices[ticker.id] || 0}
                     currencySymbol={currencySymbol}
                   />
@@ -189,51 +236,30 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
                   )}
                 </Table.Td>
                 <Table.Td>
-                  {ticker.market_cap ? (
-                    <Text lineClamp={1} fz={14} truncate="end">
-                      {(ticker.market_cap !== undefined
-                        ? ticker.current_price * ticker.circulating_supply
-                        : 0
-                      ).toLocaleString(undefined, {
-                        maximumFractionDigits: 2
-                      })}{' '}
-                      {currencySymbol}
-                    </Text>
-                  ) : (
-                    'N/A'
-                  )}
+                  {(ticker.market_cap || 0).toLocaleString(undefined, {
+                    maximumFractionDigits: 2
+                  })}{' '}
+                  {currencySymbol}
                 </Table.Td>
                 <Table.Td>
-                  {ticker.total_volume ? (
-                    <span>
-                      {(ticker.total_volume !== undefined
-                        ? ticker.total_volume
-                        : 0
-                      ).toLocaleString(undefined, {
-                        maximumFractionDigits: 2
-                      })}{' '}
-                      {currencySymbol}
-                    </span>
-                  ) : (
-                    ''
-                  )}
-                  {ticker.total_volume && ticker.current_price ? (
-                    <Text className={classes.dimmedText}>
-                      {(ticker.total_volume !== undefined
-                        ? Number(
-                            (
-                              ticker.total_volume / ticker.current_price
-                            ).toFixed(2)
-                          ).toLocaleString(undefined, {
-                            maximumFractionDigits: 2
-                          })
-                        : 0
-                      ).toLocaleString()}{' '}
-                      {ticker.symbol.toUpperCase()}
-                    </Text>
-                  ) : (
-                    'N/A'
-                  )}
+                  {(ticker.total_volume || 0).toLocaleString(undefined, {
+                    maximumFractionDigits: 2
+                  })}{' '}
+                  {currencySymbol}
+                  <Text className={classes.dimmedText}>
+                    {ticker.total_volume ? (
+                      <>
+                        {(
+                          ticker.total_volume / ticker.current_price
+                        ).toLocaleString(undefined, {
+                          maximumFractionDigits: 2
+                        })}{' '}
+                        {ticker.symbol.toUpperCase()}
+                      </>
+                    ) : (
+                      ''
+                    )}
+                  </Text>
                 </Table.Td>
                 <Table.Td ta="right">
                   {renderCirculatingSupply(
@@ -255,8 +281,8 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
           </Table.Tbody>
         </Table>
       </ScrollArea>
-    </div>
+    </Paper>
   );
 };
 
-export default TableView;
+export default React.memo(TableView);

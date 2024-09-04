@@ -2,25 +2,23 @@ import { GradientT, MeshT } from 'types/threeGradient';
 
 export const backgroundChartByDelta = (value: string): GradientT & MeshT => {
   const isNeutral = value === 'neutral';
-
-  // Precompute values based on conditions
   const color1 = isNeutral
-    ? '#495057'
+    ? '#495057' // Neutral gray
     : value === 'positive'
-      ? '#12b886' // Vert clair
-      : '#ff6b6b'; // Rouge clair
+      ? '#3ddc97' // Vibrant green (bright, matches the brightness of red)
+      : '#ff6b6b'; // Bright red
 
   const color2 = isNeutral
-    ? '#343a40'
+    ? '#343a40' // Darker neutral gray
     : value === 'positive'
-      ? '#96f2d7' // Vert pastel
-      : '#ff8787'; // Rouge pastel
+      ? '#5ef7b1' // Lighter pastel green
+      : '#ff8787'; // Pastel red
 
   const color3 = isNeutral
-    ? '#424242'
+    ? '#424242' // Neutral dark
     : value === 'positive'
-      ? '#63e6be' // Vert clair pastel
-      : '#ff5c5c'; // Rouge clair pastel
+      ? '#89ffce' // Very light pastel green
+      : '#ff5c5c'; // Light pastel red
 
   // Return the updated properties with the computed values
   return {

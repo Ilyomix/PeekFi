@@ -1,18 +1,24 @@
 .tableContainer {
-    background-color: #1E1E2F;
-    border-radius: 10px;
-    color: #E0E0E0;
+    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-8));
+    border-radius: 15px !important;
+    color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
     padding-top: 16px;
     font-feature-settings: 'tnum' 1, 'cv02';
+    overflow: hidden;
+    border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-gray-8));
 }
 
-.tableCell {
-  border-bottom: 1px solid #333;
+.tableCell:not(:last-child) {
+  border-bottom: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-gray-8));
 }
 
 .percentageText {
   font-weight: 400;
   font-size: 14px;
+}
+
+.tableHeaderCell {
+  cursor: pointer;
 }
 
 .supplyContainer {
