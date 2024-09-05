@@ -3,7 +3,7 @@
 /* CSS */
 :root {
   font-family: Inter, sans-serif;
-  font-feature-settings: 'cv01' 1, 'cv02' 1, 'cv03' 1, 'cv04' 1, 'cv09' 1, 'zero' 1, 'liga' 1, 'calt' 1, 'tnum' 1; /* fix for Chrome */
+  font-feature-settings: 'cv01' 1, 'cv02' 1, 'cv03' 1, 'cv04' 1, 'cv09' 1, 'zero' 0, 'liga' 1, 'calt' 1, 'tnum' 1; /* fix for Chrome */
 }
 @supports (font-variation-settings: normal) {
   :root { font-family: InterVariable, sans-serif; }
@@ -34,6 +34,9 @@ body {
   transition: background 0.5s ease-in-out;
 }
 
+.app-container {
+  padding: 0 2rem;
+}
 
 .mantine-Spotlight-search {
   outline: 0;
@@ -58,6 +61,16 @@ body {
   display: flex;
   justify-content: center;
 }
+
+.mantine-Select-input:focus {
+  border: 1px solid transparent !important;
+}
+
+.mantine-Select-input {
+  user-select: none;
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7)) !important;
+} 
+
 
 .mantine-Spotlight-actionLabel {
   display: none;

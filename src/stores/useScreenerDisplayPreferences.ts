@@ -1,29 +1,19 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
-interface PreferencesState {
+interface ScreenerDisplayPreferencesState {
   itemsPerPage: number;
   filter: string;
-  setItemsPerPage: (value: number) => void;
-  setFilter: (value: string) => void;
+  categoryFilter?: string;
+  categoryName?: string;
+  setItemsPerPage: (items?: number) => void;
+  setCategoryFilter: (category?: string) => void;
 }
 
-/**
- * useScreenerDisplayPreferences - A Zustand store to manage user preferences for the screener display.
- *
- * @returns {PreferencesState} The state and actions to manage screener display preferences.
- */
-export const useScreenerDisplayPreferences = create<PreferencesState>()(
-  persist(
-    (set) => ({
-      itemsPerPage: 25,
-      filter: 'market_cap_desc',
-
-      setItemsPerPage: (value) => set(() => ({ itemsPerPage: value })),
-      setFilter: (value) => set(() => ({ filter: value }))
-    }),
-    {
-      name: 'user-screener-display-preferences'
-    }
-  )
-);
+export const useScreenerDisplayPreferences =
+  create<ScreenerDisplayPreferencesState>((set) => ({
+    itemsPerPage: 20,
+    filter: 'market_cap_desc',
+    categoryFilter: undefined,
+    setItemsPerPage: (items) => set({ itemsPerPage: items }),
+    setCategoryFilter: (category) => set({ categoryFilter: category })
+  }));

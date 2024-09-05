@@ -11,7 +11,7 @@ import 'assets/app/index.css';
 function App() {
   return (
     <MantineProvider theme={appTheme} defaultColorScheme="dark">
-      <Container size="xxl">
+      <Container size="xxl" className="app-container">
         <Header />
         <AppRoutes />
       </Container>

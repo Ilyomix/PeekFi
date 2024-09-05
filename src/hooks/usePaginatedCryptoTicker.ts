@@ -2,17 +2,30 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { CoinGeckoTickerData } from 'types/coinGeckoApi';
 import { getPrivateKey } from 'utils/getCoinGeckoApiKey';
+import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
 
+/**
+ * Extended type for CoinGeckoTickerData, adding sparkline and supply details.
+ */
 export type TickerWithSparkline = CoinGeckoTickerData & {
   sparkline_in_7d?: { price: number[] };
   circulating_supply: number;
-  image: string; // Include image URL for the crypto icon
+  image: string;
   price_change_percentage_1h_in_currency?: number;
   price_change_percentage_24h: number;
   price_change_percentage_7d_in_currency?: number;
-  market_cap_rank: number; // Include rank in the data structure
-  max_supply: number; // Include max supply in the data structure
+  market_cap_rank: number;
+  max_supply: number;
 };
+
+/**
+ * Type for Binance ticker data structure.
+ */
+interface BinanceTickerData {
+  price: number;
+  volume: number;
+  priceChangePercent: number;
+}
 
 type PaginatedCryptoDataResult = {
   tickersData: TickerWithSparkline[];
@@ -24,20 +37,37 @@ type PaginatedCryptoDataResult = {
   vsCurrency: string;
 };
 
+/**
+ * Custom hook to fetch paginated cryptocurrency data from CoinGecko API and merge it with Binance data.
+ *
+ * @param {number} initialPage - The initial page to load
+ * @param {number} limit - Number of items per page
+ * @param {string} initialVsCurrency - The currency to compare cryptocurrencies (default: 'usd')
+ * @param {string} filter - The sorting order for the results (e.g. market_cap_desc)
+ * @returns {PaginatedCryptoDataResult} - Paginated result with loading state, error, and data
+ */
 const usePaginatedCryptoData = (
   initialPage: number = 1,
-  limit: number = 25,
+  limit: number = 20,
   initialVsCurrency: string = 'usd',
   filter: string = 'market_cap_desc'
 ): PaginatedCryptoDataResult => {
   const privateKey = getPrivateKey();
+  const { categoryFilter } = useScreenerDisplayPreferences();
+
+  // State declarations
   const [tickersData, setTickersData] = useState<TickerWithSparkline[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [page, setPage] = useState<number>(initialPage);
-  const [binanceData, setBinanceData] = useState<Record<string, any>>({});
+  const [binanceData, setBinanceData] = useState<
+    Record<string, BinanceTickerData>
+  >({});
 
+  /**
+   * Fetches the total number of pages based on the total count of tickers available.
+   */
   const fetchTotalPages = useCallback(async () => {
     try {
       const totalCountResponse = await axios.get(
@@ -64,6 +94,12 @@ const usePaginatedCryptoData = (
     }
   }, [privateKey, limit, page]);
 
+  /**
+   * Fetches cryptocurrency data for a specific page using CoinGecko API.
+   * Automatically applies the selected filters and currency.
+   *
+   * @param {number} requestedPage - The page number to request
+   */
   const fetchCryptoData = useCallback(
     async (requestedPage: number) => {
       if (requestedPage > totalPages) return;
@@ -81,7 +117,9 @@ const usePaginatedCryptoData = (
               per_page: limit,
               page: requestedPage,
               sparkline: true,
-              price_change_percentage: '1h,24h,7d'
+              status: 'active',
+              price_change_percentage: '1h,24h,7d',
+              category: categoryFilter || undefined
             },
             headers: {
               accept: 'application/json',
@@ -98,18 +136,22 @@ const usePaginatedCryptoData = (
         setLoading(false);
       }
     },
-    [privateKey, initialVsCurrency, limit, totalPages, filter]
+    [totalPages, initialVsCurrency, filter, limit, categoryFilter, privateKey]
   );
 
+  /**
+   * Fetches ticker data from Binance API and merges it with the CoinGecko data.
+   * Used for real-time price updates.
+   */
   const fetchBinanceData = useCallback(async () => {
     try {
-      // Fetch all tickers from Binance
       const response = await axios.get(
-        `https://api.binance.com/api/v3/ticker/24hr`
+        'https://api.binance.com/api/v3/ticker/24hr'
       );
 
-      const data = response.data.reduce(
-        (acc: Record<string, any>, curr: any) => {
+      const data: Record<string, BinanceTickerData> = response.data.reduce(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (acc: Record<string, BinanceTickerData>, curr: any) => {
           acc[curr.symbol.toLowerCase()] = {
             price: parseFloat(curr.lastPrice),
             volume: parseFloat(curr.volume),
@@ -127,34 +169,41 @@ const usePaginatedCryptoData = (
     }
   }, []);
 
+  // Fetch total pages on initial mount
   useEffect(() => {
     fetchTotalPages();
   }, [fetchTotalPages]);
 
+  // Fetch cryptocurrency data when the page or filter changes
   useEffect(() => {
     if (page <= totalPages && page >= 1) {
       fetchCryptoData(page);
     }
   }, [fetchCryptoData, page, totalPages]);
 
+  // Fetch Binance data every 5 seconds
   useEffect(() => {
-    fetchBinanceData(); // Fetch Binance data once when component mounts
-    const intervalId = setInterval(() => {
-      fetchBinanceData();
-    }, 5000); // Refresh Binance data every 5 seconds
+    fetchBinanceData();
+    const intervalId = setInterval(fetchBinanceData, 5000);
 
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+    return () => clearInterval(intervalId);
   }, [fetchBinanceData]);
 
+  // Refresh CoinGecko data every 60 seconds
   useEffect(() => {
     const intervalId = setInterval(() => {
       fetchCryptoData(page);
       setLoading(false);
-    }, 60000); // Update every 60 seconds
+    }, 60000);
 
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+    return () => clearInterval(intervalId);
   }, [fetchCryptoData, page]);
 
+  /**
+   * Go to a specific page, ensuring the page is within the valid range.
+   *
+   * @param {number} newPage - The page number to navigate to
+   */
   const goToPage = (newPage: number): void => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
@@ -165,7 +214,10 @@ const usePaginatedCryptoData = (
     }
   };
 
-  // Merge Binance data with CoinGecko data
+  /**
+   * Merge Binance real-time data with the CoinGecko data.
+   * Binance data overrides the prices from CoinGecko.
+   */
   const mergedData = tickersData.map((ticker) => {
     const symbol = ticker.symbol.toLowerCase() + 'usdt';
     const binanceTicker = binanceData[symbol] || {};
@@ -176,7 +228,6 @@ const usePaginatedCryptoData = (
       total_volume: ticker.total_volume,
       price_change_percentage_24h:
         binanceTicker.priceChangePercent || ticker.price_change_percentage_24h
-      // Other fields like market_cap, circulating_supply etc. remain from CoinGecko
     };
   });
 

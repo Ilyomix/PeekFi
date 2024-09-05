@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Flex, Pagination, rem } from '@mantine/core';
 import usePaginatedCryptoData from 'hooks/usePaginatedCryptoTicker';
-import Filters from 'components/Pages/Screener/Filters';
-import TableSkeleton from 'components/Pages/Screener/TableSkeleton';
 import TableView from 'components/Pages/Screener/ScreenerTable';
 import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -12,10 +10,11 @@ import {
   IconArrowLeft,
   IconArrowRight
 } from '@tabler/icons-react';
+import DisplayPreferences from './DisplayPreferences';
+import FilterComponent from './FilterScreenerTable';
 
 const FinancialMap: React.FC = () => {
-  const { itemsPerPage, setItemsPerPage, setFilter, filter } =
-    useScreenerDisplayPreferences();
+  const { itemsPerPage, filter } = useScreenerDisplayPreferences();
   const params = useParams();
   const navigate = useNavigate();
 
@@ -39,20 +38,19 @@ const FinancialMap: React.FC = () => {
     goToPage(currentPage); // Trigger fetch on filter or itemsPerPage change
   }, [currentPage, filter, goToPage, itemsPerPage]);
 
-  if (loading) {
-    return (
-      <div>
-        <TableSkeleton />
-        {/* Adjust rows/columns as needed */}
-      </div>
-    );
-  }
-
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div>
-      <TableView vsCurrency={vsCurrency} data={tickersData}></TableView>
+      <Flex justify="space-between" align="center" my={rem(14)}>
+        <FilterComponent />
+        <DisplayPreferences />
+      </Flex>
+      <TableView
+        vsCurrency={vsCurrency}
+        data={tickersData}
+        loading={loading}
+      ></TableView>
       <Flex align="center" justify="center" my={rem(14)} mt={rem(28)}>
         <Pagination
           value={currentPage}

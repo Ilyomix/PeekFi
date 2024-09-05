@@ -6,7 +6,8 @@ import {
   Flex,
   Progress,
   ScrollArea,
-  Paper
+  Paper,
+  LoadingOverlay
 } from '@mantine/core';
 import { TickerWithSparkline } from 'hooks/usePaginatedCryptoTicker';
 import SparklineChart from 'components/Pages/Screener/SparklineChart';
@@ -15,8 +16,7 @@ import {
   IconTriangleFilled,
   IconTriangleInvertedFilled,
   IconCaretUpFilled,
-  IconCaretDownFilled,
-  IconMinus
+  IconCaretDownFilled
 } from '@tabler/icons-react';
 import classes from 'assets/app/screener.module.css';
 import PriceCell from './PriceCell';
@@ -37,9 +37,10 @@ const getCurrencySymbol = (currency: string) =>
 interface TableViewProps {
   data: TickerWithSparkline[];
   vsCurrency: string;
+  loading: boolean;
 }
 
-const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
+const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
   const navigate = useNavigate();
   const currencySymbol = getCurrencySymbol(vsCurrency);
 
@@ -157,6 +158,13 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
           horizontalSpacing="lg"
           className={classes.tableContainer}
         >
+          <LoadingOverlay
+            visible={loading}
+            zIndex={2}
+            transitionProps={{ duration: 200, timingFunction: 'ease' }}
+            overlayProps={{ radius: 'lg', blur: 5 }}
+            loaderProps={{ type: '' }}
+          />
           <Table.Thead>
             <Table.Tr>
               {headers.map(({ label, sortKey }) => (
@@ -190,7 +198,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
                   {ticker.market_cap_rank?.toLocaleString() || 'N/A'}
                 </Table.Td>
                 <Table.Td>
-                  <Flex w={{ base: '150px', md: '250px' }} align="center">
+                  <Flex w={{ base: '175px', md: '300px' }} align="center">
                     <PageTransition>
                       <Avatar
                         mr={14}
@@ -200,7 +208,10 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
                         p={6}
                       />
                     </PageTransition>
-                    <Flex direction="column">
+                    <Flex
+                      gap={{ base: 0, md: 4 }}
+                      direction={{ base: 'column', md: 'row' }}
+                    >
                       <Text title={ticker.name} style={{ textWrap: 'wrap' }}>
                         {ticker.name}
                       </Text>
@@ -236,16 +247,19 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency }) => {
                   )}
                 </Table.Td>
                 <Table.Td>
-                  {(ticker.market_cap || 0).toLocaleString(undefined, {
-                    maximumFractionDigits: 2
-                  })}{' '}
-                  {currencySymbol}
+                  <Flex direction="column">
+                    {currencySymbol}
+                    {(ticker.market_cap || 0).toLocaleString(undefined, {
+                      maximumFractionDigits: 2
+                    })}
+                  </Flex>
                 </Table.Td>
                 <Table.Td>
+                  {currencySymbol}
                   {(ticker.total_volume || 0).toLocaleString(undefined, {
                     maximumFractionDigits: 2
-                  })}{' '}
-                  {currencySymbol}
+                  })}
+
                   <Text className={classes.dimmedText}>
                     {ticker.total_volume ? (
                       <>

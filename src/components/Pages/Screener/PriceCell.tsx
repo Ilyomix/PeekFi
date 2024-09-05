@@ -36,10 +36,9 @@ const PriceCell: React.FC<PriceCellProps> = ({
         transition: 'color 1000ms'
       }}
     >
-      <Text lineClamp={1} truncate="end">{`${Number(value).toLocaleString(
-        undefined,
-        { maximumFractionDigits: 16 }
-      )} ${currencySymbol}`}</Text>
+      <Text lineClamp={1} truncate="end">{` ${currencySymbol}${Number(
+        value
+      ).toLocaleString(undefined, { maximumFractionDigits: 16 })}`}</Text>
     </Flex>
   );
 };
