@@ -7,7 +7,7 @@ type SparklineChartProps = {
   sparkline: number[]; // Pass sparkline data here, already reduced if necessary
 };
 
-const SparklineChart: React.FC<SparklineChartProps> = memo(
+export const SparklineChart: React.FC<SparklineChartProps> = memo(
   ({ delta, sparkline }) => {
     // Reduce the number of points if the dataset is large
     const reduceData = (data: number[], maxPoints: number = 25) => {
@@ -42,37 +42,26 @@ const SparklineChart: React.FC<SparklineChartProps> = memo(
     );
 
     return (
-      <PageTransition>
-        <div
-          style={{
-            height: '40px',
-            width: '170px',
-            borderRadius: '0 0 3px 3px',
-            overflow: 'hidden'
-          }}
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart margin={{ bottom: 0 }} data={chartData}>
-              <XAxis dataKey="x" hide />
-              <YAxis
-                // @ts-expect-error domain definition is not available in Recharts 2.x
-                domain={yDomain}
-                hide
-              />
-              <Area
-                type="monotone"
-                dataKey="y"
-                stroke={getColorClass}
-                fillOpacity={0.2}
-                fill={getColorClass}
-                strokeOpacity={1}
-                strokeWidth={1}
-                isAnimationActive={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </PageTransition>
+      <ResponsiveContainer width="100%" height={40}>
+        <AreaChart margin={{ bottom: 0 }} data={chartData}>
+          <XAxis dataKey="x" hide />
+          <YAxis
+            // @ts-expect-error domain definition is not available in Recharts 2.x
+            domain={yDomain}
+            hide
+          />
+          <Area
+            type="monotone"
+            dataKey="y"
+            stroke={getColorClass}
+            fillOpacity={0.2}
+            fill={getColorClass}
+            strokeOpacity={1}
+            strokeWidth={1}
+            isAnimationActive={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     );
   }
 );

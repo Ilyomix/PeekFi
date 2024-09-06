@@ -20,12 +20,11 @@
 }
 
 #root {
-  padding: 5rem 0rem 1rem 0rem;
+  padding: 0rem 0rem 1rem 0rem;
   transition: background 0.25s ease-in-out;
 }
 
 html {
-  scrollbar-gutter: stable;
   width: 100vw;
   overflow-x: hidden;
 }

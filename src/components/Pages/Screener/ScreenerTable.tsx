@@ -172,7 +172,6 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
         highlightOnHover
         withRowBorders
         verticalSpacing="xs"
-        striped
         horizontalSpacing="md"
         className={classes.tableContainer}
       >
@@ -310,7 +309,9 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
                   ticker.max_supply
                 )}
               </Table.Td>
-              <Table.Td style={{ maxWidth: '150px', minWidth: '100px' }}>
+              <Table.Td
+                style={{ width: '150px', height: '40px', minWidth: '120px' }}
+              >
                 <SparklineChart
                   delta={
                     ticker.price_change_percentage_7d_in_currency?.toString() ||

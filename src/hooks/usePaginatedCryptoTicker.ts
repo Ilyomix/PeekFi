@@ -207,9 +207,9 @@ const usePaginatedCryptoData = (
   const goToPage = (newPage: number): void => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
-    } else if (newPage < 1) {
+    } else if (newPage < 1 && !loading) {
       setError('You are trying to access a page below the first page.');
-    } else if (newPage > totalPages) {
+    } else if (newPage > totalPages && !loading) {
       setError('You are trying to access a page beyond the last page.');
     }
   };
