@@ -5,7 +5,6 @@ import {
   Avatar,
   Flex,
   Progress,
-  ScrollArea,
   Paper,
   LoadingOverlay
 } from '@mantine/core';
@@ -123,16 +122,24 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
 
   // Table Headers with sorting indicators
   const headers = [
-    { label: '#', sortKey: 'market_cap_rank' },
-    { label: 'Name', sortKey: 'name' },
-    { label: 'Price', sortKey: 'current_price' },
-    { label: '1h %', sortKey: 'price_change_percentage_1h_in_currency' },
-    { label: '24h %', sortKey: 'price_change_percentage_24h' },
-    { label: '7d %', sortKey: 'price_change_percentage_7d_in_currency' },
-    { label: 'Market Cap', sortKey: 'market_cap' },
-    { label: 'Volume (24H)', sortKey: 'total_volume' },
-    { label: 'Circulating Supply', sortKey: 'circulating_supply' },
-    { label: 'Chart 1w', sortKey: '' } // No sort for Chart
+    { label: '#', sortKey: 'market_cap_rank', ta: 'left' },
+    { label: 'Name', sortKey: 'name', ta: 'left' },
+    { label: 'Price', sortKey: 'current_price', ta: 'right' },
+    {
+      label: '1h %',
+      sortKey: 'price_change_percentage_1h_in_currency',
+      ta: 'right'
+    },
+    { label: '24h %', sortKey: 'price_change_percentage_24h', ta: 'right' },
+    {
+      label: '7d %',
+      sortKey: 'price_change_percentage_7d_in_currency',
+      ta: 'right'
+    },
+    { label: 'Market Cap', sortKey: 'market_cap', ta: 'right' },
+    { label: 'Volume (24H)', sortKey: 'total_volume', ta: 'right' },
+    { label: 'Circulating Supply', sortKey: 'circulating_supply', ta: 'right' },
+    { label: 'Chart 1w', sortKey: '', ta: 'left' } // No sort for Chart
   ];
 
   // Render table rows with memoized and sorted data
@@ -149,152 +156,173 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
   }, [data, sortedDataBy]);
 
   return (
-    <Paper shadow="lg" radius="lg">
-      <ScrollArea>
-        <Table
-          highlightOnHover
-          withRowBorders
-          verticalSpacing="md"
-          horizontalSpacing="lg"
-          className={classes.tableContainer}
-        >
-          <LoadingOverlay
-            visible={loading}
-            zIndex={2}
-            transitionProps={{ duration: 200, timingFunction: 'ease' }}
-            overlayProps={{ radius: 'lg', blur: 5 }}
-            loaderProps={{ type: '' }}
-          />
-          <Table.Thead>
-            <Table.Tr>
-              {headers.map(({ label, sortKey }) => (
-                <Table.Th
-                  key={label}
-                  onClick={sortKey ? () => handleSort(sortKey) : undefined} // Disable sort on 'Chart 1w'
-                  className={classes.tableCell}
-                >
-                  <Flex align="center" className={classes.tableHeaderCell}>
-                    {sortedDataBy[sortKey] === 'asc' && (
-                      <IconCaretUpFilled size={14} />
-                    )}
-                    {sortedDataBy[sortKey] === 'desc' && (
-                      <IconCaretDownFilled size={14} />
-                    )}
-                    {label}
-                  </Flex>
-                </Table.Th>
-              ))}
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {sortedData.map((ticker) => (
-              <Table.Tr
-                key={ticker.id}
+    <Paper
+      shadow="lg"
+      radius="lg"
+      style={{ overflowX: 'auto', position: 'relative' }}
+    >
+      <LoadingOverlay
+        visible={loading}
+        zIndex={2}
+        transitionProps={{ duration: 200, timingFunction: 'ease' }}
+        overlayProps={{ radius: 'lg', blur: 5, w: '100%' }}
+        loaderProps={{ type: '' }}
+      />
+      <Table
+        highlightOnHover
+        withRowBorders
+        verticalSpacing="xs"
+        striped
+        horizontalSpacing="md"
+        className={classes.tableContainer}
+      >
+        <Table.Thead>
+          <Table.Tr>
+            {headers.map(({ label, sortKey, ta }) => (
+              <Table.Th
+                key={label}
+                onClick={sortKey ? () => handleSort(sortKey) : undefined}
                 className={classes.tableCell}
-                onClick={() => handleClick(ticker.id)}
-                style={{ cursor: 'pointer', textAlign: 'left' }}
+                style={{
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor:
+                    'light-dark(var(--mantine-color-white), var(--mantine-color-dark-8))',
+                  zIndex: 10
+                }}
               >
-                <Table.Td>
-                  {ticker.market_cap_rank?.toLocaleString() || 'N/A'}
-                </Table.Td>
-                <Table.Td>
-                  <Flex w={{ base: '175px', md: '300px' }} align="center">
-                    <PageTransition>
-                      <Avatar
-                        mr={14}
-                        src={ticker.image}
-                        alt={ticker.name}
-                        size="md"
-                        p={6}
-                      />
-                    </PageTransition>
-                    <Flex
-                      gap={{ base: 0, md: 4 }}
-                      direction={{ base: 'column', md: 'row' }}
+                <Flex
+                  align="center"
+                  className={classes.tableHeaderCell}
+                  justify={ta}
+                >
+                  {sortedDataBy[sortKey] === 'asc' && (
+                    <IconCaretUpFilled size={14} />
+                  )}
+                  {sortedDataBy[sortKey] === 'desc' && (
+                    <IconCaretDownFilled size={14} />
+                  )}
+                  <Text fw={600} fz={14}>
+                    {label}
+                  </Text>
+                </Flex>
+              </Table.Th>
+            ))}
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {sortedData.map((ticker) => (
+            <Table.Tr
+              key={ticker.id}
+              className={classes.tableCell}
+              onClick={() => handleClick(ticker.id)}
+              style={{ cursor: 'pointer', textAlign: 'left' }}
+            >
+              <Table.Td>
+                {ticker.market_cap_rank?.toLocaleString() || 'N/A'}
+              </Table.Td>
+              <Table.Td>
+                <Flex w={{ base: '175px', md: '250px' }} align="center">
+                  <PageTransition>
+                    <Avatar
+                      mr={14}
+                      src={ticker.image}
+                      alt={ticker.name}
+                      size="md"
+                      p={6}
+                    />
+                  </PageTransition>
+                  <Flex
+                    gap={{ base: 0, md: 4 }}
+                    direction={{ base: 'column', md: 'row' }}
+                    align={{ base: 'start', md: 'center' }}
+                  >
+                    <Text
+                      title={ticker.name}
+                      style={{ textWrap: 'wrap' }}
+                      fw={500}
                     >
-                      <Text title={ticker.name} style={{ textWrap: 'wrap' }}>
-                        {ticker.name}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: '16px',
-                          color: 'var(--mantine-color-gray-text)'
-                        }}
-                      >
-                        {ticker.symbol.toUpperCase()}
-                      </Text>
-                    </Flex>
+                      {ticker.name}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: '16px',
+                        color: 'var(--mantine-color-gray-text)'
+                      }}
+                    >
+                      {ticker.symbol.toUpperCase()}
+                    </Text>
                   </Flex>
-                </Table.Td>
-                <Table.Td>
-                  <PriceCell
-                    value={ticker.current_price || 0}
-                    previousValue={previousPrices[ticker.id] || 0}
-                    currencySymbol={currencySymbol}
-                  />
-                </Table.Td>
-                <Table.Td>
-                  {renderPercentage(
-                    ticker.price_change_percentage_1h_in_currency
-                  )}
-                </Table.Td>
-                <Table.Td>
-                  {renderPercentage(ticker.price_change_percentage_24h)}
-                </Table.Td>
-                <Table.Td>
-                  {renderPercentage(
-                    ticker.price_change_percentage_7d_in_currency
-                  )}
-                </Table.Td>
-                <Table.Td>
-                  <Flex direction="column">
-                    {currencySymbol}
-                    {(ticker.market_cap || 0).toLocaleString(undefined, {
-                      maximumFractionDigits: 2
-                    })}
-                  </Flex>
-                </Table.Td>
-                <Table.Td>
+                </Flex>
+              </Table.Td>
+              <Table.Td>
+                <PriceCell
+                  value={ticker.current_price || 0}
+                  previousValue={previousPrices[ticker.id] || 0}
+                  currencySymbol={currencySymbol}
+                />
+              </Table.Td>
+              <Table.Td ta="right">
+                {renderPercentage(
+                  ticker.price_change_percentage_1h_in_currency
+                )}
+              </Table.Td>
+              <Table.Td ta="right">
+                {renderPercentage(ticker.price_change_percentage_24h)}
+              </Table.Td>
+              <Table.Td ta="right">
+                {renderPercentage(
+                  ticker.price_change_percentage_7d_in_currency
+                )}
+              </Table.Td>
+              <Table.Td ta="right">
+                <Flex direction="column">
                   {currencySymbol}
-                  {(ticker.total_volume || 0).toLocaleString(undefined, {
+                  {(ticker.market_cap || 0).toLocaleString(undefined, {
                     maximumFractionDigits: 2
                   })}
+                </Flex>
+              </Table.Td>
+              <Table.Td ta="right">
+                {currencySymbol}
+                {(ticker.total_volume || 0).toLocaleString(undefined, {
+                  maximumFractionDigits: 2
+                })}
 
-                  <Text className={classes.dimmedText}>
-                    {ticker.total_volume ? (
-                      <>
-                        {(
-                          ticker.total_volume / ticker.current_price
-                        ).toLocaleString(undefined, {
-                          maximumFractionDigits: 2
-                        })}{' '}
-                        {ticker.symbol.toUpperCase()}
-                      </>
-                    ) : (
-                      ''
-                    )}
-                  </Text>
-                </Table.Td>
-                <Table.Td ta="right">
-                  {renderCirculatingSupply(
-                    ticker.circulating_supply,
-                    ticker.max_supply
+                <Text className={classes.dimmedText}>
+                  {ticker.total_volume ? (
+                    <>
+                      {(
+                        ticker.total_volume / ticker.current_price
+                      ).toLocaleString(undefined, {
+                        maximumFractionDigits: 2
+                      })}{' '}
+                      {ticker.symbol.toUpperCase()}
+                    </>
+                  ) : (
+                    ''
                   )}
-                </Table.Td>
-                <Table.Td>
-                  <SparklineChart
-                    delta={
-                      ticker.price_change_percentage_7d_in_currency?.toString() ||
-                      ''
-                    }
-                    sparkline={ticker.sparkline_in_7d?.price ?? []}
-                  />
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </ScrollArea>
+                </Text>
+              </Table.Td>
+              <Table.Td ta="right">
+                {renderCirculatingSupply(
+                  ticker.circulating_supply,
+                  ticker.max_supply
+                )}
+              </Table.Td>
+              <Table.Td style={{ maxWidth: '150px', minWidth: '100px' }}>
+                <SparklineChart
+                  delta={
+                    ticker.price_change_percentage_7d_in_currency?.toString() ||
+                    ''
+                  }
+                  sparkline={ticker.sparkline_in_7d?.price ?? []}
+                />
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
     </Paper>
   );
 };
