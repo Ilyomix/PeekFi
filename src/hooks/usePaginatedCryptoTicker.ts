@@ -30,6 +30,7 @@ interface BinanceTickerData {
 type PaginatedCryptoDataResult = {
   tickersData: TickerWithSparkline[];
   loading: boolean;
+  fetching: boolean;
   error: string | null;
   currentPage: number;
   totalPages: number;
@@ -58,6 +59,7 @@ const usePaginatedCryptoData = (
   // State declarations
   const [tickersData, setTickersData] = useState<TickerWithSparkline[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [fetching, setFetching] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [page, setPage] = useState<number>(initialPage);
@@ -162,6 +164,7 @@ const usePaginatedCryptoData = (
         console.error('Error fetching crypto data:', err);
         setError('Error fetching crypto data');
       } finally {
+        setFetching(false);
         setLoading(false);
       }
     },
@@ -263,10 +266,12 @@ const usePaginatedCryptoData = (
   return {
     tickersData: mergedData,
     loading,
+    fetching,
     error,
     currentPage: page,
     totalPages,
     goToPage,
+
     vsCurrency: initialVsCurrency
   };
 };

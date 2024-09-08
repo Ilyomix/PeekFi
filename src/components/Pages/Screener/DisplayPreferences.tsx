@@ -3,7 +3,7 @@ import { IconList } from '@tabler/icons-react';
 import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
 
 const DisplayPreferences = () => {
-  const itemsPerPages = ['10', '20', '50', '100', '200'];
+  const itemsPerPages = ['10', '20', '50', '100'];
   const { itemsPerPage, setItemsPerPage } = useScreenerDisplayPreferences();
 
   const handleItemsPerPage = (value: string) => {

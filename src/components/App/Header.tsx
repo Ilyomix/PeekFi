@@ -26,7 +26,7 @@ import logo from 'assets/logo.png';
 import CryptoSearch from './CryptoSearch';
 
 const links = [
-  { link: '/', label: 'Screener' }
+  { link: '/screener/page/1', label: 'Screener' }
   // { link: '/portfolio', label: 'Portfolio' },
   // { link: '/settings', label: 'Settings' },
   // { link: '/pair/', label: 'Pair' }
@@ -44,11 +44,17 @@ export function Header() {
   const theme = useMantineTheme();
   const isDarkTheme = computedColorScheme === 'dark';
 
+  const isLinkActive = (link: string) => {
+    return pathname.split('/')[1] === link.split('/')[1];
+  };
+
   const items = links.map((link, index) => (
     <Link
       key={index + 1}
       to={link.link}
-      className={pathname === link.link ? classes['link-active'] : classes.link}
+      className={
+        isLinkActive(link.link) ? classes['link-active'] : classes.link
+      }
       onClick={close}
     >
       {link.label}
@@ -85,8 +91,10 @@ export function Header() {
             <ThemeToggle />
             <Button
               classNames={{ root: classes.search }}
-              variant="light"
               display="flex"
+              bg="transparent"
+              variant="default"
+              size="sm"
               onClick={() => openSpotlight()}
               leftSection={
                 <>
@@ -102,11 +110,6 @@ export function Header() {
                 </>
               }
               fw="500"
-              color={
-                isDarkTheme
-                  ? getThemeColor('white', theme)
-                  : getThemeColor('gray.9', theme)
-              }
               radius="xl"
               visibleFrom="xs"
               rightSection={

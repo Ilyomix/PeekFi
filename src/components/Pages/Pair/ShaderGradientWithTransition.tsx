@@ -24,7 +24,7 @@ const ShaderGradientWithTransition: React.FC<
   const { opacity } = useSpring({
     opacity: 1,
     from: { opacity: 0 },
-    config: { duration: 1000 },
+    config: { duration: 2000 },
     reset: true
   });
 

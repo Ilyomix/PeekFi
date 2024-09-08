@@ -85,6 +85,22 @@ body {
   opacity: 0.8;
 }
 
+.go-to-top-button {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1rem;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.go-to-top-button:hover {
+  background-color: var(--mantine-color-teal-6);
+  opacity: 0.8 !important;
+  transition: all 0.2s ease;
+}
+
+
 ::-webkit-scrollbar {
   width: 14px;
   height: 18px;

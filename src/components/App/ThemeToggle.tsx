@@ -5,7 +5,7 @@ import {
   useComputedColorScheme,
   Group
 } from '@mantine/core';
-import { IconSun, IconMoon } from '@tabler/icons-react';
+import { IconMoonStars, IconSunFilled } from '@tabler/icons-react';
 import classes from 'assets/components/themeToggle/index.module.css';
 
 export function ThemeToggle() {
@@ -22,15 +22,16 @@ export function ThemeToggle() {
         onClick={() =>
           setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')
         }
-        color={computedColorScheme === 'light' ? 'cyan' : 'yellow'}
-        variant="light"
-        radius="xl"
-        size="lg"
         aria-label="Toggle color scheme"
         className={classes.button}
+        variant="default"
+        bg="transparent"
+        color="light-dark(black, yellow)"
+        radius="xl"
+        size="lg"
       >
-        <IconSun className={cx(classes.icon, classes.light)} stroke={1.5} />
-        <IconMoon className={cx(classes.icon, classes.dark)} stroke={1.5} />
+        <IconSunFilled className={cx(classes.icon, classes.light)} />
+        <IconMoonStars className={cx(classes.icon, classes.dark)} />
       </ActionIcon>
     </Group>
   );

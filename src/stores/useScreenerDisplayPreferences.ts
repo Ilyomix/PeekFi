@@ -20,7 +20,7 @@ export const useScreenerDisplayPreferences = create(
       setCategoryFilter: (category) => set({ categoryFilter: category }),
     }),
     {
-      name: 'screener-display-preferences', // Key name in localStorage
+      name: 'screener-display-preferences' // Key name in localStorage
       // Optionally, you can provide additional configurations like versioning, etc.
     }
   )

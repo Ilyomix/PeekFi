@@ -11,6 +11,13 @@
 
 .search {
   justify-content: space-between;
+  transition: all 0.125s ease-in-out;
+  height: 34px;
+}
+
+.search:hover {
+  opacity: 0.7;
+  transition: all 0.125s ease-in-out;
 }
 
 .inner {
@@ -39,9 +46,8 @@
   transition: all 0.125s ease-in-out;
 
   @mixin hover {
-    box-shadow: 0 4px 6px -1px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.1)), 0 2px 4px -2px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.3));
-    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-white));
-    color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-dark-9))
+    background-color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+    color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-9))
   }
 }
 
@@ -54,11 +60,10 @@
     color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-9));
     font-size: var(--mantine-font-size-sm);
     font-weight: 500;
-    background-color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white));
+    background-color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white)) ;
     transition: all 0.125s ease-in-out;
 
     @mixin hover {
-      box-shadow: 0 4px 6px -1px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.1)), 0 2px 4px -2px light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.3));
       background-color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white));
       color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-9))
     }

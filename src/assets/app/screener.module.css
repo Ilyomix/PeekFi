@@ -30,9 +30,55 @@
 
 .supplyProgress {
   width: 100%;
+  display: flex;
+  align-self: flex-end;
 }
 
 .dimmedText {
   color: var(--mantine-color-gray-text);
   font-size: 12px;
+}
+
+/* Add these styles to your .css file */
+.scrollable-container {
+  position: relative;
+}
+
+.table-shadow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 15px;
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: 1; /* Ensure it is above other elements */
+}
+.table-shadow-left {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 20px;
+  background: linear-gradient(
+    to right,
+    light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.2)),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.table-shadow-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 20px;
+  background: linear-gradient(
+    to left,
+    light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.2)),
+    transparent
+  );
+}
+
+.hidden {
+  display: none;
 }

@@ -8,7 +8,6 @@ import classes from 'assets/app/pair.module.css';
 // Constants for commonly used values
 const DEFAULT_PRICE_FONT_SIZE = '100px';
 const DEFAULT_DELTA_FONT_SIZE = '28px';
-const DEFAULT_DELTA_ABSOLUTE_FONT_SIZE = '24px';
 const DEFAULT_DELTA_ICON_FONT_SIZE = '34px';
 
 // Initial conditions (magic numbers replaced with descriptive constants)
@@ -35,7 +34,7 @@ const FLEX_DEFAULTS = {
 
 const FLEX_SMALLS = {
   marginTop: -2,
-  marginLeft: 0
+  marginLeft: 7
 };
 
 const DIFF_ICON_DEFAULTS = {
@@ -53,11 +52,6 @@ const DIFF_ICON_SMALLS = {
 const INNER_FLEX = {
   marginLeft: -7,
   marginTop: 2
-};
-
-const INNER_TEXT = {
-  marginTop: 2,
-  marginLeft: 8
 };
 
 const TEXT_Z_INDEX = 3;
@@ -92,7 +86,7 @@ const renderCounter = (
   };
   return noAnimation ? (
     <Text
-      fw={fontWeight || 300}
+      fw={fontWeight || 400}
       style={{
         fontSize: counterProps.fontSize,
         color: counterProps.color,
@@ -107,6 +101,7 @@ const renderCounter = (
   ) : (
     <AnimatedCounter
       {...counterProps}
+      digitStyles={{ fontWeight: fontWeight || 400, fontSize: fontSize }}
       incrementColor={
         !valueMovementColor || tooltipMode ? color : COLORS.tealText
       }
@@ -160,7 +155,6 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
       priceFontSize = DEFAULT_PRICE_FONT_SIZE,
       deltaFontSize = DEFAULT_DELTA_FONT_SIZE,
       deltaIconFontSize = DEFAULT_DELTA_ICON_FONT_SIZE,
-      deltaAbsoluteFontSize = DEFAULT_DELTA_ABSOLUTE_FONT_SIZE,
       deltaMention,
       darkModeEnabled = false,
       noAnimation = false,
@@ -254,102 +248,74 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
               </Text>
             )}
             <Flex
-              mt={flexMarginTop}
-              ml={{
-                base: !tooltipMode ? 36 : flexMarginLeft,
-                xs: !tooltipMode ? 38 : flexMarginLeft,
-                md: !tooltipMode ? 24 : flexMarginLeft,
-                xl: flexMarginLeft
+              ml={INNER_FLEX.marginLeft}
+              mt={0}
+              fw={noAnimation ? 400 : 500}
+              align="flex-start"
+              justify="flex-start"
+              style={{
+                transition: 'opacity 0.1s ease'
               }}
-              mb={{
-                base: !tooltipMode ? 30 : 0,
-                xs: !tooltipMode ? 30 : 0,
-                md: !tooltipMode ? 24 : 0,
-                xl: 0
-              }}
-              justify="start"
-              align="center"
             >
-              <Text
-                component="div"
-                c={tooltipMode ? colorClassTooltip : colorClass}
-                fz="md"
-                fw={500}
-                className={classes.diff}
-                style={{ zIndex: TEXT_Z_INDEX }}
-              >
-                <Flex>
-                  {renderCounter(
-                    priceChangePercent,
-                    deltaFontSize,
-                    2,
-                    tooltipMode ? colorClassTooltip : colorClass,
-                    tooltipMode,
-                    noAnimation,
-                    400,
-                    false
-                  )}
-                  <Text
-                    size={deltaFontSize}
-                    c={tooltipMode ? colorClassTooltip : colorClass}
-                    mt={noAnimation ? 4 : 0}
-                    fw={noAnimation ? 400 : 500}
-                  >
-                    {'%'}
-                  </Text>
-                </Flex>
-                {
-                  <DiffIcon
-                    style={{
-                      margin: diffIconMargin,
-                      marginTop: diffIconMarginTop,
-                      transform: diffIconTransform,
-                      opacity: Number(priceChangePercent) !== 0 ? '1' : '0'
-                    }}
-                    size={deltaIconFontSize}
-                    stroke={1.5}
-                  />
-                }
-              </Text>
               <Flex
-                ml={INNER_FLEX.marginLeft}
-                mt={1}
-                fw={noAnimation ? 400 : 500}
-                align="flex-start"
-                justify="flex-start"
-                style={{
-                  transition: 'opacity 0.1s ease',
-                  opacity: Number(priceChange) !== 0 ? '1' : '0'
+                ml={{
+                  base: !tooltipMode ? 39 : flexMarginLeft,
+                  xs: !tooltipMode ? 38 : flexMarginLeft,
+                  md: !tooltipMode ? 36 : flexMarginLeft,
+                  xl: tooltipMode ? flexMarginLeft : 14
                 }}
+                mb={{
+                  base: !tooltipMode ? 30 : 0,
+                  xs: !tooltipMode ? 30 : 0,
+                  md: !tooltipMode ? 24 : 0,
+                  xl: 0
+                }}
+                mt={{
+                  base: flexMarginTop,
+                  xl: !tooltipMode ? 22 : flexMarginTop
+                }}
+                justify="start"
+                align="center"
               >
                 <Text
-                  fw={noAnimation ? 400 : 500}
-                  mt={noAnimation ? 3 : -2}
-                  ml={INNER_TEXT.marginLeft}
-                  size={deltaAbsoluteFontSize}
+                  component="div"
                   c={tooltipMode ? colorClassTooltip : colorClass}
+                  fz="md"
+                  fw={500}
+                  className={classes.diff}
                   style={{ zIndex: TEXT_Z_INDEX }}
                 >
-                  {'('}
-                </Text>
-                {renderCounter(
-                  priceChange,
-                  deltaAbsoluteFontSize,
-                  getNumberPrecision(price),
-                  tooltipMode ? colorClassTooltip : colorClass,
-                  tooltipMode,
-                  noAnimation,
-                  400,
-                  false
-                )}
-                <Text
-                  fw={noAnimation ? 400 : 500}
-                  mt={noAnimation ? 3 : -2}
-                  size={deltaAbsoluteFontSize}
-                  c={tooltipMode ? colorClassTooltip : colorClass}
-                  style={{ zIndex: TEXT_Z_INDEX }}
-                >
-                  {')'}
+                  <Flex align="center">
+                    {renderCounter(
+                      priceChangePercent,
+                      deltaFontSize,
+                      2,
+                      tooltipMode ? colorClassTooltip : colorClass,
+                      tooltipMode,
+                      noAnimation,
+                      500,
+                      false
+                    )}
+                    <Text
+                      size={deltaFontSize}
+                      c={tooltipMode ? colorClassTooltip : colorClass}
+                      fw={tooltipMode ? 400 : 500}
+                    >
+                      {'%'}
+                    </Text>
+                  </Flex>
+                  {
+                    <DiffIcon
+                      style={{
+                        margin: diffIconMargin,
+                        marginTop: diffIconMarginTop,
+                        transform: diffIconTransform,
+                        opacity: Number(priceChangePercent) !== 0 ? '1' : '0'
+                      }}
+                      size={deltaIconFontSize}
+                      stroke={1.5}
+                    />
+                  }
                 </Text>
               </Flex>
             </Flex>

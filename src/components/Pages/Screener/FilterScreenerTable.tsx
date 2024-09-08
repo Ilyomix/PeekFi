@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Flex, Pill, rem, Select, Text } from '@mantine/core';
+import { Flex, Pill, Select, Text } from '@mantine/core';
 import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
 import useFetchFilterOptions from 'hooks/useFetchFilterOption';
-import { color } from 'framer-motion';
 import { IconSearch } from '@tabler/icons-react';
 
 // Define the shape of data expected from the hook
@@ -11,9 +10,12 @@ interface FilterOption {
   name: string;
 }
 
-const FilterComponent: React.FC = () => {
-  const { filterOptions } = useFetchFilterOptions(); // Cached after the first fetch
+interface FilterComponentProps {
+  resetPage: () => void; // Function to reset the current page
+}
 
+const FilterComponent: React.FC<FilterComponentProps> = ({ resetPage }) => {
+  const { filterOptions } = useFetchFilterOptions(); // Cached after the first fetch
   const { setCategoryFilter, categoryFilter } = useScreenerDisplayPreferences();
   const [searchValue, setSearchValue] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -27,11 +29,17 @@ const FilterComponent: React.FC = () => {
     );
     return selected?.name || null;
   }, [selectedCategory, filterOptions?.categories]);
+
   // Safely access the data using memoization for better performance
   const categories = useMemo(
     () => filterOptions?.categories ?? [],
     [filterOptions?.categories]
   );
+
+  const resetCategory = () => {
+    setCategoryFilter(undefined);
+    resetPage(); // Reset page
+  };
 
   return (
     <Flex gap="md" align="center" pos="relative" direction="column">
@@ -40,7 +48,8 @@ const FilterComponent: React.FC = () => {
         <Pill
           color={selectedCategory ? 'blue' : 'gray'}
           className="hover-effect"
-          onRemove={() => setCategoryFilter(undefined)}
+          onRemove={resetCategory}
+          onClick={resetCategory}
           style={{ cursor: 'pointer' }}
           withRemoveButton
           size="xl"
@@ -67,7 +76,7 @@ const FilterComponent: React.FC = () => {
           >
             {isDropdownOpen || selectedCategoryName || searchValue
               ? ''
-              : 'Search Category'}
+              : 'Search category'}
           </Text>
           <Select
             radius="md"
@@ -95,8 +104,9 @@ const FilterComponent: React.FC = () => {
             onSearchChange={(value) => setSearchValue(value)}
             value={selectedCategory ? selectedCategory : ''}
             onChange={(value) => {
-              setCategoryFilter(value || undefined);
-              setSearchValue('');
+              setCategoryFilter(value || undefined); // Update the category filter
+              setSearchValue(''); // Clear the search field
+              resetPage(); // Reset the current page to 1
             }}
             clearable
             searchable

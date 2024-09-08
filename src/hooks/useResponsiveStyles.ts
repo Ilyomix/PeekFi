@@ -1,25 +1,34 @@
-// src/hooks/useResponsiveStyles.ts
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const useResponsiveStyles = () => {
-  return useMemo(
-    () => ({
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Update window width on resize
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Return responsive styles based on the current window width
+  return useMemo(() => {
+    return {
       animatedTickerDisplay: {
         fontSize: '100px',
-        ...(window.innerWidth <= 1408 && { fontSize: '80px' }),
-        ...(window.innerWidth <= 768 && { fontSize: '60px' }),
-        ...(window.innerWidth <= 425 && { fontSize: '40px' })
+        ...(windowWidth <= 1408 && { fontSize: '80px' }),
+        ...(windowWidth <= 768 && { fontSize: '60px' }),
+        ...(windowWidth <= 425 && { fontSize: '40px' })
       },
       deltaFontSize: {
-        fontSizeDelta: '30px',
-        ...(window.innerWidth <= 1408 && { fontSize: '20px' }),
-        ...(window.innerWidth <= 768 && { fontSize: '16px' }),
-        ...(window.innerWidth <= 425 && { fontSize: '16px' })
+        fontSize: '34px',
+        ...(windowWidth <= 1408 && { fontSize: '26px' }),
+        ...(windowWidth <= 768 && { fontSize: '27px' }),
+        ...(windowWidth <= 425 && { fontSize: '27px' })
       },
-      animatedTicker: window.innerWidth <= 1408
-    }),
-    []
-  );
+      animatedTicker: windowWidth <= 1408
+    };
+  }, [windowWidth]);
 };
 
 export default useResponsiveStyles;

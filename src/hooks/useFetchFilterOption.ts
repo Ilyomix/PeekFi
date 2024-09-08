@@ -56,6 +56,7 @@ const useFetchFilterOptions = () => {
 
     fetchFilters();
   }, [privateKey, cached]);
+
   return { filterOptions, loading, error };
 };
 

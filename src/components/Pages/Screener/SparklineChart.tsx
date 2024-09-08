@@ -42,26 +42,28 @@ export const SparklineChart: React.FC<SparklineChartProps> = memo(
     );
 
     return (
-      <ResponsiveContainer width="100%" height={40}>
-        <AreaChart margin={{ bottom: 0 }} data={chartData}>
-          <XAxis dataKey="x" hide />
-          <YAxis
-            // @ts-expect-error domain definition is not available in Recharts 2.x
-            domain={yDomain}
-            hide
-          />
-          <Area
-            type="monotone"
-            dataKey="y"
-            stroke={getColorClass}
-            fillOpacity={0.2}
-            fill={getColorClass}
-            strokeOpacity={1}
-            strokeWidth={1}
-            isAnimationActive={false}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+      <PageTransition>
+        <ResponsiveContainer width="100%" height={40}>
+          <AreaChart margin={{ bottom: 0 }} data={chartData}>
+            <XAxis dataKey="x" hide />
+            <YAxis
+              // @ts-expect-error domain definition is not available in Recharts 2.x
+              domain={yDomain}
+              hide
+            />
+            <Area
+              type="monotone"
+              dataKey="y"
+              stroke={getColorClass}
+              fillOpacity={0.2}
+              fill={getColorClass}
+              isAnimationActive={false}
+              strokeOpacity={1}
+              strokeWidth={1}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </PageTransition>
     );
   }
 );
