@@ -12,7 +12,7 @@ interface ScreenerDisplayPreferencesState {
 export const useScreenerDisplayPreferences =
   create<ScreenerDisplayPreferencesState>((set) => ({
     itemsPerPage: 20,
-    filter: 'market_cap_desc',
+    filter: 'market_cap',
     categoryFilter: undefined,
     setItemsPerPage: (items) => set({ itemsPerPage: items }),
     setCategoryFilter: (category) => set({ categoryFilter: category })

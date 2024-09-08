@@ -75,6 +75,16 @@ body {
   display: none;
 }
 
+.hover-effect {
+  transition: opacity 0.1s ease-in-out;
+  opacity: 1;
+}
+
+.hover-effect:hover {
+  transition: opacity 0.1s ease-in-out;
+  opacity: 0.8;
+}
+
 ::-webkit-scrollbar {
   width: 14px;
   height: 18px;

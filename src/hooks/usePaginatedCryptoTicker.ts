@@ -70,29 +70,58 @@ const usePaginatedCryptoData = (
    */
   const fetchTotalPages = useCallback(async () => {
     try {
-      const totalCountResponse = await axios.get(
-        'https://pro-api.coingecko.com/api/v3/coins/list?include_platform=false',
-        {
-          headers: {
-            accept: 'application/json',
-            'x-cg-pro-api-key': privateKey
+      if (categoryFilter) {
+        // If there's a filter, limit the total items to 250 (fallback)
+        const totalCountResponse = await axios.get(
+          'https://pro-api.coingecko.com/api/v3/coins/markets',
+          {
+            params: {
+              vs_currency: initialVsCurrency,
+              category: categoryFilter,
+              per_page: 250, // Limiting to 250 items for filtered category
+              page: 1
+            },
+            headers: {
+              accept: 'application/json',
+              'x-cg-pro-api-key': privateKey
+            }
           }
+        );
+
+        const totalTickers = totalCountResponse.data.length;
+        const calculatedTotalPages = Math.ceil(totalTickers / limit);
+        setTotalPages(calculatedTotalPages);
+
+        if (page > calculatedTotalPages) {
+          setError('Requested page exceeds total available pages.');
+          setPage(1);
         }
-      );
+      } else {
+        // If no filter, proceed with the regular full data count (old system)
+        const totalCountResponse = await axios.get(
+          'https://pro-api.coingecko.com/api/v3/coins/list?include_platform=false',
+          {
+            headers: {
+              accept: 'application/json',
+              'x-cg-pro-api-key': privateKey
+            }
+          }
+        );
 
-      const totalTickers = totalCountResponse.data.length;
-      const calculatedTotalPages = Math.ceil(totalTickers / limit);
-      setTotalPages(calculatedTotalPages);
+        const totalTickers = totalCountResponse.data.length;
+        const calculatedTotalPages = Math.ceil(totalTickers / limit);
+        setTotalPages(calculatedTotalPages);
 
-      if (page > calculatedTotalPages) {
-        setError('Requested page exceeds total available pages.');
-        setPage(1);
+        if (page > calculatedTotalPages) {
+          setError('Requested page exceeds total available pages.');
+          setPage(1);
+        }
       }
     } catch (err) {
       console.error('Error fetching total tickers count:', err);
       setError('Error fetching total tickers count');
     }
-  }, [privateKey, limit, page]);
+  }, [privateKey, limit, page, initialVsCurrency, categoryFilter]);
 
   /**
    * Fetches cryptocurrency data for a specific page using CoinGecko API.

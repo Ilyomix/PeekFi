@@ -90,7 +90,13 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
           : 'var(--mantine-color-gray-text)';
 
     return (
-      <Flex align="center" gap={6} c={color} className={classes.percentageText}>
+      <Flex
+        align="center"
+        justify="end"
+        gap={6}
+        c={color}
+        className={classes.percentageText}
+      >
         {value > 0 && <IconTriangleFilled size={10} />}
         {value < 0 && <IconTriangleInvertedFilled size={10} />} {displayValue}%
       </Flex>
