@@ -3,22 +3,25 @@ import React, { useMemo } from 'react';
 import ShaderGradientWithTransition from 'components/Pages/Pair/ShaderGradientWithTransition';
 
 interface GradientBackgroundProps {
-  priceChangePercent24h: number;
+  priceChangePercent: number;
+  loading: boolean;
 }
 
 const GradientBackground: React.FC<GradientBackgroundProps> = ({
-  priceChangePercent24h
+  priceChangePercent,
+  loading
 }) => {
   const currentSign = useMemo(() => {
-    if (priceChangePercent24h > 0) return 'positive';
-    if (priceChangePercent24h < 0) return 'negative';
+    if (priceChangePercent > 0) return 'positive';
+    if (priceChangePercent < 0) return 'negative';
     return 'neutral';
-  }, [priceChangePercent24h]);
+  }, [priceChangePercent]);
 
   return (
     <ShaderGradientWithTransition
       delta={currentSign}
-      value={priceChangePercent24h}
+      value={priceChangePercent}
+      loading={loading}
     />
   );
 };

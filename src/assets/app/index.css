@@ -61,6 +61,16 @@ body {
   justify-content: center;
 }
 
+.mantine-Spotlight-actionLabel {
+  display: none;
+}
+
+.mantine-Spotlight-root .mantine-UnstyledButton-root:where([data-selected])  {
+  border-radius: 0;
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white)) !important;
+  background-color: light-dark(rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.09)) !important;
+}
+
 .mantine-Select-input:focus {
   border: 1px solid transparent !important;
 }
@@ -69,11 +79,6 @@ body {
   user-select: none;
   background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7)) !important;
 } 
-
-
-.mantine-Spotlight-actionLabel {
-  display: none;
-}
 
 .hover-effect {
   transition: opacity 0.1s ease-in-out;

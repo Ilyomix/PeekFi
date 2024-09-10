@@ -1,6 +1,6 @@
 // src/components/PairContent.tsx
 import React from 'react';
-import { Paper, Flex } from '@mantine/core';
+import { Paper, Flex, Text } from '@mantine/core';
 import { AnimatedTickerDisplay } from 'components/Pages/Pair/AnimatedTickerDisplay';
 import { TickerSymbol } from 'components/Pages/Pair/TickerSymbol';
 import AreaChart from 'components/Pages/Pair/AreaChart';
@@ -9,27 +9,34 @@ import GradientBackground from 'components/Pages/Pair/GradientBackground';
 import useResponsiveStyles from 'hooks/useResponsiveStyles';
 import classes from 'assets/app/pair.module.css';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
+import useCryptoKLine from 'hooks/useCryptoKline';
+import GlowBehindChart from './AreaChartEffects';
 
 interface PairContentProps {
   cryptoName: string;
   image: string;
-  currentPrice: number;
-  priceChangePercent24h: number;
-  priceChange24h: number;
   pair: string;
   selectedInterval: string;
+  priceSource: number;
+  deltaSource: number;
 }
 
 const PairContent: React.FC<PairContentProps> = ({
   cryptoName,
   image,
-  currentPrice,
-  priceChangePercent24h,
-  priceChange24h,
   pair,
-  selectedInterval
+  selectedInterval,
+  priceSource,
+  deltaSource
 }) => {
   const responsiveStyles = useResponsiveStyles();
+  const { data, loading, openPrice } = useCryptoKLine(
+    pair,
+    'usd',
+    selectedInterval
+  );
+
+  const deltaPercent = openPrice ? (priceSource / openPrice - 1) * 100 : 0;
 
   return (
     <Paper
@@ -42,27 +49,37 @@ const PairContent: React.FC<PairContentProps> = ({
       h="100%"
       className={classes['ticker-wrapper']}
     >
-      <GradientBackground priceChangePercent24h={priceChangePercent24h} />
       <Flex align="flex-start" direction="column">
         <TickerSymbol tickerSymbol={cryptoName || ''} imgUrl={image} />
-        <AnimatedTickerDisplay
-          price={currentPrice}
-          priceChangePercent={priceChangePercent24h}
-          priceChange={priceChange24h}
-          deltaFontSize={responsiveStyles.deltaFontSize.fontSize}
-          deltaIconFontSize={responsiveStyles.deltaFontSize.fontSize}
-          deltaAbsoluteFontSize={responsiveStyles.deltaFontSize.fontSize}
-          priceFontSize={responsiveStyles.animatedTickerDisplay.fontSize}
-          noAnimation={responsiveStyles.animatedTicker}
-        />
+        <Flex>
+          <AnimatedTickerDisplay
+            price={priceSource ?? 0}
+            priceChangePercent={
+              selectedInterval === '1D' ? deltaSource : deltaPercent ?? 0
+            }
+            decimalPrecision={getNumberPrecision(priceSource ?? 0)}
+            priceChange={openPrice ?? 0}
+            deltaFontSize={responsiveStyles.deltaFontSize.fontSize}
+            deltaIconFontSize={responsiveStyles.deltaFontSize.fontSize}
+            deltaAbsoluteFontSize={responsiveStyles.deltaFontSize.fontSize}
+            priceFontSize={responsiveStyles.animatedTickerDisplay.fontSize}
+            noAnimation={responsiveStyles.animatedTicker}
+            interval={selectedInterval}
+          />
+        </Flex>
         <IntervalSelector />
+
         <AreaChart
+          data={data}
+          loading={loading}
+          openPrice={openPrice ?? 0}
+          deltaPercent={
+            selectedInterval === '1D' ? deltaSource : deltaPercent ?? 0
+          }
+          deltaPositive={deltaPercent > 0}
           symbol={pair || ''}
           interval={selectedInterval}
-          baseline={currentPrice - priceChange24h}
-          deltaPositive={priceChange24h > 0}
-          priceChangePercent24h={priceChangePercent24h}
-          precision={getNumberPrecision(currentPrice)}
+          precision={getNumberPrecision(priceSource ?? 0)}
         />
       </Flex>
     </Paper>

@@ -93,7 +93,7 @@ const renderCounter = (
         letterSpacing: noAnimation && narrowed ? '-3px' : '0px'
       }}
     >
-      {counterProps.value.toLocaleString('en', {
+      {counterProps.value.toLocaleString(undefined, {
         minimumFractionDigits: counterProps.decimalPrecision,
         maximumFractionDigits: counterProps.decimalPrecision
       })}
@@ -142,8 +142,10 @@ type AnimatedTickerDisplayProps = {
   deltaIconFontSize?: string;
   deltaMention?: string;
   darkModeEnabled?: boolean;
+  decimalPrecision?: number;
   noAnimation?: boolean;
   tooltipMode?: boolean;
+  interval?: string;
 };
 
 export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
@@ -156,9 +158,11 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
       deltaFontSize = DEFAULT_DELTA_FONT_SIZE,
       deltaIconFontSize = DEFAULT_DELTA_ICON_FONT_SIZE,
       deltaMention,
+      decimalPrecision = 2,
       darkModeEnabled = false,
       noAnimation = false,
-      tooltipMode = false
+      tooltipMode = false,
+      interval
     }) => {
       const colorClass = useMemo(
         () => getColorClass(priceChangePercent),
@@ -233,7 +237,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
             {renderCounter(
               price,
               priceFontSize,
-              undefined,
+              decimalPrecision,
               textColor,
               tooltipMode,
               noAnimation,
@@ -272,7 +276,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                 }}
                 mt={{
                   base: flexMarginTop,
-                  xl: !tooltipMode ? 22 : flexMarginTop
+                  xl: !tooltipMode ? 18 : flexMarginTop
                 }}
                 justify="start"
                 align="center"
@@ -317,6 +321,19 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                     />
                   }
                 </Text>
+                {interval ? (
+                  <Flex align="flex-start">
+                    <Text
+                      style={{
+                        fontSize: `calc(${deltaFontSize} - 10px)`,
+                        marginTop: '5px'
+                      }}
+                      c={tooltipMode ? colorClassTooltip : colorClass}
+                    >{`(${interval})`}</Text>
+                  </Flex>
+                ) : (
+                  ''
+                )}
               </Flex>
             </Flex>
           </Flex>

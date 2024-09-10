@@ -7,7 +7,6 @@ const DisplayPreferences = () => {
   const { itemsPerPage, setItemsPerPage } = useScreenerDisplayPreferences();
 
   const handleItemsPerPage = (value: string) => {
-    console.log(value);
     setItemsPerPage(Number(value));
   };
 

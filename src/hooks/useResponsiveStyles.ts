@@ -17,7 +17,7 @@ const useResponsiveStyles = () => {
       animatedTickerDisplay: {
         fontSize: '100px',
         ...(windowWidth <= 1408 && { fontSize: '80px' }),
-        ...(windowWidth <= 768 && { fontSize: '60px' }),
+        ...(windowWidth <= 768 && { fontSize: '50px' }),
         ...(windowWidth <= 425 && { fontSize: '40px' })
       },
       deltaFontSize: {

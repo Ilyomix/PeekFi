@@ -2,21 +2,29 @@ import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { getPrivateKey } from 'utils/getCoinGeckoApiKey';
 
-interface CandleData {
+export interface CandleData {
   x: number; // Timestamp in milliseconds
   open: number;
   high: number;
   low: number;
   y: number; // Close price
-  marketCap?: number; // Optional market cap
-  volume?: number; // Optional 24h volume
+  marketCap?: number;
+  volume?: number;
 }
 
 interface UseCryptoKLineResponse {
   data: CandleData[];
   loading: boolean;
   error: string | null;
+  openPrice: number | null;
+  delta: number | null;
+  deltaPercent: number | null;
+  deltaPositive: boolean;
+  currentPrice: number | null;
 }
+
+// Max number of data points to display
+const MAX_DATA_POINTS = 375;
 
 const rangeMapping: Record<
   string,
@@ -63,6 +71,50 @@ const rangeMapping: Record<
   }
 };
 
+// Function to sample the data and ensure the first and last points are always kept
+const sampleData = (data: CandleData[], maxPoints: number): CandleData[] => {
+  if (data.length <= maxPoints) return data;
+
+  const step = Math.ceil((data.length - 2) / (maxPoints - 2));
+
+  const sampledData = data.filter((_, index) => {
+    return index === 0 || index === data.length - 1 || index % step === 0;
+  });
+
+  return sampledData;
+};
+
+const fetchCoinGeckoMarketChartData = async (
+  id: string,
+  vsCurrency: string,
+  days: string
+): Promise<CandleData[]> => {
+  const privateKey = getPrivateKey();
+  const response = await axios.get(
+    `https://pro-api.coingecko.com/api/v3/coins/${id}/market_chart`,
+    {
+      headers: {
+        accept: 'application/json',
+        'x-cg-pro-api-key': privateKey
+      },
+      params: {
+        vs_currency: vsCurrency,
+        days: days
+      }
+    }
+  );
+
+  return response.data.prices.map((price: [number, number], index: number) => ({
+    x: price[0],
+    open: price[1],
+    high: price[1],
+    low: price[1],
+    y: price[1],
+    marketCap: response.data.market_caps[index]?.[1],
+    volume: response.data.total_volumes[index]?.[1]
+  }));
+};
+
 const fetchCoinGeckoSymbol = async (id: string): Promise<string> => {
   const privateKey = getPrivateKey();
   const response = await axios.get(
@@ -98,6 +150,7 @@ const findBinancePair = (
 ): string | null => {
   const directPair = `${symbol}${vsCurrency}`.toUpperCase();
   const usdtPair = `${symbol}USDT`.toUpperCase();
+
   return binanceSymbols.has(directPair)
     ? directPair
     : binanceSymbols.has(usdtPair)
@@ -105,46 +158,19 @@ const findBinancePair = (
       : null;
 };
 
-const fetchCoinGeckoMarketChartData = async (
-  id: string,
-  vsCurrency: string,
-  days: string
-): Promise<CandleData[]> => {
-  const privateKey = getPrivateKey();
-  const response = await axios.get(
-    `https://pro-api.coingecko.com/api/v3/coins/${id}/market_chart`,
-    {
-      headers: {
-        accept: 'application/json',
-        'x-cg-pro-api-key': privateKey
-      },
-      params: {
-        vs_currency: vsCurrency,
-        days: days
-      }
-    }
-  );
-
-  return response.data.prices.map((price: [number, number], index: number) => ({
-    x: price[0],
-    open: price[1], // Since we're getting only closing prices, we use it for open, high, low, and close
-    high: price[1],
-    low: price[1],
-    y: price[1],
-    marketCap: response.data.market_caps[index]?.[1],
-    volume: response.data.total_volumes[index]?.[1]
-  }));
-};
-
 const useCryptoKLine = (
   id: string,
   vsCurrency: string = 'usd',
-  range: string = '1D', // 'Live', '1D', '1W', '1M', '3M', '1Y', '5Y', 'Max'
-  maxDataPoints: number = 5000
+  range: string = '1D'
 ): UseCryptoKLineResponse => {
   const [data, setData] = useState<CandleData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [openPrice, setOpenPrice] = useState<number | null>(0);
+  const [deltaPercent, setDeltaPercent] = useState<number | null>(0);
+  const [deltaPositive, setDeltaPositive] = useState<boolean>(false);
+  const [currentPrice, setCurrentPrice] = useState<number | null>(0);
+  const [delta, setDelta] = useState<number | null>(0);
   const wsRef = useRef<WebSocket | null>(null);
 
   const fetchHistoricalData = useCallback(async () => {
@@ -157,9 +183,19 @@ const useCryptoKLine = (
         days
       );
 
-      // Check if the fetched data is sufficient
       if (fetchedData.length > 1) {
-        setData(fetchedData.slice(-maxDataPoints));
+        const sampledData = sampleData(fetchedData, MAX_DATA_POINTS);
+        const firstCandleOpenPrice = sampledData[0]?.open ?? null;
+        setOpenPrice(firstCandleOpenPrice);
+        const currentPrice = sampledData[sampledData.length - 1]?.y ?? null;
+        setDeltaPercent((currentPrice / firstCandleOpenPrice - 1) * 100);
+        setDeltaPositive(currentPrice > firstCandleOpenPrice);
+        setCurrentPrice(currentPrice);
+        if (firstCandleOpenPrice !== null && currentPrice !== null) {
+          setDelta(currentPrice - firstCandleOpenPrice);
+        }
+
+        setData(sampledData);
         setError(null);
       } else {
         setError('Insufficient data fetched from CoinGecko.');
@@ -170,7 +206,7 @@ const useCryptoKLine = (
     } finally {
       setLoading(false);
     }
-  }, [id, vsCurrency, range, maxDataPoints]);
+  }, [id, vsCurrency, range]);
 
   const initializeWebSocket = useCallback(
     (pair: string) => {
@@ -201,12 +237,20 @@ const useCryptoKLine = (
           const lastCandle = prevData[prevData.length - 1];
           const { granularity } = rangeMapping[range];
 
-          // Check if the new data point belongs to a new candle based on granularity
           if (newCandle.x - lastCandle.x >= granularity) {
             const updatedData = [...prevData, newCandle];
-            return updatedData.slice(-maxDataPoints);
+            const sampledData = sampleData(updatedData, MAX_DATA_POINTS);
+
+            const firstCandleOpenPrice = sampledData[0]?.open ?? null;
+            setOpenPrice(firstCandleOpenPrice);
+
+            const currentPrice = sampledData[sampledData.length - 1]?.y ?? null;
+            if (firstCandleOpenPrice !== null && currentPrice !== null) {
+              setDelta(currentPrice - firstCandleOpenPrice);
+            }
+
+            return sampledData;
           } else {
-            // Update the existing candle
             lastCandle.high = Math.max(lastCandle.high, newCandle.high);
             lastCandle.low = Math.min(lastCandle.low, newCandle.low);
             lastCandle.y = newCandle.y;
@@ -237,7 +281,7 @@ const useCryptoKLine = (
 
       wsRef.current = ws;
     },
-    [range, maxDataPoints, fetchHistoricalData]
+    [range, fetchHistoricalData]
   );
 
   useEffect(() => {
@@ -252,7 +296,7 @@ const useCryptoKLine = (
 
         if (pair) {
           await fetchHistoricalData();
-          initializeWebSocket(pair);
+          initializeWebSocket(pair); // Now calling WebSocket initialization
         } else {
           console.warn(
             `Trading pair not found on Binance for ${symbol}${vsCurrency}. Fetching from CoinGecko.`
@@ -261,8 +305,7 @@ const useCryptoKLine = (
         }
       } catch (err) {
         console.error('Initialization error:', err);
-        setError('Failed to initialize data. Fetching from CoinGecko only.');
-        await fetchHistoricalData();
+        setError('Failed to initialize data.');
       } finally {
         setLoading(false);
       }
@@ -272,13 +315,34 @@ const useCryptoKLine = (
 
     return () => {
       if (wsRef.current) {
-        wsRef.current.onclose = null; // Prevent onclose from triggering reconnection logic
+        wsRef.current.onclose = null;
         wsRef.current.close();
       }
     };
   }, [id, vsCurrency, range, fetchHistoricalData, initializeWebSocket]);
 
-  return useMemo(() => ({ data, loading, error }), [data, loading, error]);
+  return useMemo(
+    () => ({
+      data,
+      loading,
+      error,
+      openPrice,
+      delta,
+      deltaPercent,
+      deltaPositive,
+      currentPrice
+    }),
+    [
+      data,
+      loading,
+      error,
+      openPrice,
+      delta,
+      deltaPercent,
+      deltaPositive,
+      currentPrice
+    ]
+  );
 };
 
 export default useCryptoKLine;

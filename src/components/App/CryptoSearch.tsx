@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Avatar, Text, rem, Loader, Flex } from '@mantine/core';
 import '@mantine/spotlight/styles.css';
 import { useDebouncedValue } from '@mantine/hooks';
+import { color } from 'framer-motion';
 
 const CryptoSearch: React.FC = () => {
   const [query, setQuery] = useState('');

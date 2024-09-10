@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Flex, Pill, Select, Text } from '@mantine/core';
+import { Button, Flex, Pill, Select, Text } from '@mantine/core';
 import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
 import useFetchFilterOptions from 'hooks/useFetchFilterOption';
-import { IconSearch } from '@tabler/icons-react';
+import { IconSearch, IconX } from '@tabler/icons-react';
 
 // Define the shape of data expected from the hook
 interface FilterOption {
@@ -45,23 +45,21 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ resetPage }) => {
     <Flex gap="md" align="center" pos="relative" direction="column">
       {/* Category Filter */}
       {selectedCategoryName ? (
-        <Pill
-          color={selectedCategory ? 'blue' : 'gray'}
+        <Button
+          color={selectedCategory ? 'teal' : 'gray'}
           className="hover-effect"
-          onRemove={resetCategory}
           onClick={resetCategory}
           style={{ cursor: 'pointer' }}
-          withRemoveButton
-          size="xl"
           radius="md"
           c="teal.6"
-          variant="contrast"
+          variant="light"
           fz={14}
           py={2}
           fw={700}
+          rightSection={<IconX size={14} />}
         >
           {selectedCategoryName}
-        </Pill>
+        </Button>
       ) : (
         <>
           <Text

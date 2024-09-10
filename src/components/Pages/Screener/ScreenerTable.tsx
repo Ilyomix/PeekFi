@@ -209,7 +209,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
         visible={loading}
         zIndex={2}
         transitionProps={{ duration: 200, timingFunction: 'ease' }}
-        overlayProps={{ radius: 'lg' }}
+        overlayProps={{ radius: 'lg', blur: '2' }}
         loaderProps={{ type: '' }}
       />
 
