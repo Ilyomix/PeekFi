@@ -66,7 +66,7 @@ const DotMatrix: React.FC<DotMatrixProps> = React.memo(
   ({
     colors = [[0, 0, 0]],
     opacities = [0.04, 0.04, 0.04, 0.04, 0.04, 0.08, 0.08, 0.08, 0.08, 0.14],
-    totalSize = 10,
+    totalSize = 16,
     shader = '',
     center = ['x', 'y'],
     deltaPercent
@@ -119,7 +119,7 @@ const DotMatrix: React.FC<DotMatrixProps> = React.memo(
           type: 'uniform1f'
         },
         u_dot_size: {
-          value: 1,
+          value: 1.75,
           type: 'uniform1f'
         }
       };
