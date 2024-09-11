@@ -92,8 +92,10 @@ const useCryptoKLine = (
   const [deltaPositive, setDeltaPositive] = useState<boolean>(false);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [delta, setDelta] = useState<number | null>(null);
+  const [initialFetch, setInitialFetch] = useState<boolean>(true); // To track if it's the first request or a range change
+
   const fetchHistoricalData = useCallback(async () => {
-    setLoading(true);
+    setLoading(true); // Now, loading triggers again if the range changes
     try {
       const fetchedData = await fetchCoinGeckoMarketChartData(
         id,
@@ -118,18 +120,24 @@ const useCryptoKLine = (
       console.error('Failed to fetch historical data from CoinGecko:', err);
       setError('Failed to fetch historical data from CoinGecko.');
     } finally {
-      setLoading(false); // Now it only triggers on the initial fetch
+      setLoading(false); // Loading always ends when the data is fetched
+      setInitialFetch(false); // Turn off the first fetch flag after initial or range change
     }
   }, [id, vsCurrency, range]);
 
   useEffect(() => {
     const intervalDuration = rangeMapping[range].granularity;
+
+    // Trigger fetch and loading state when the range changes
     fetchHistoricalData();
 
     const interval = setInterval(
-      () => fetchHistoricalData(), // Not updating the loading state on these subsequent calls
+      () => {
+        fetchHistoricalData(); // For long-polling, don't trigger loading here
+      },
       intervalDuration > 3600000 ? 3600000 : intervalDuration
     );
+
     return () => clearInterval(interval);
   }, [fetchHistoricalData, range]);
 
