@@ -39,7 +39,7 @@ const FLEX_SMALLS = {
 
 const DIFF_ICON_DEFAULTS = {
   margin: '0rem 0.25rem 0 0',
-  marginTop: '0rem',
+  marginTop: '0.35rem',
   transform: 'translateY(1px)'
 };
 
@@ -199,13 +199,10 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
       const { marginTop: flexMarginTop, marginLeft: flexMarginLeft } =
         deltaFontSize === DEFAULT_DELTA_FONT_SIZE ? FLEX_DEFAULTS : FLEX_SMALLS;
 
-      const {
-        margin: diffIconMargin,
-        marginTop: diffIconMarginTop,
-        transform: diffIconTransform
-      } = deltaIconFontSize === DEFAULT_DELTA_ICON_FONT_SIZE
-        ? DIFF_ICON_DEFAULTS
-        : DIFF_ICON_SMALLS;
+      const { marginTop: diffIconMarginTop, transform: diffIconTransform } =
+        deltaIconFontSize === DEFAULT_DELTA_ICON_FONT_SIZE
+          ? DIFF_ICON_DEFAULTS
+          : DIFF_ICON_SMALLS;
       return (
         <Flex
           align={tooltipMode ? 'baseline' : 'flex-start'}
@@ -311,7 +308,6 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                   {
                     <DiffIcon
                       style={{
-                        margin: diffIconMargin,
                         marginRight: '-4px',
                         marginTop: diffIconMarginTop,
                         transform: diffIconTransform,
@@ -330,7 +326,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                       style={{
                         fontSize: `calc(${deltaFontSize} - 10px)`,
                         marginTop: '5px',
-                        marginLeft: priceChangePercent ? '0px' : '5px'
+                        marginLeft: priceChangePercent ? '4px' : '5px'
                       }}
                       c={tooltipMode ? colorClassTooltip : colorClass}
                     >{`(${interval})`}</Text>

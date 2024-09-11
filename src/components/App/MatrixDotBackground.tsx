@@ -66,7 +66,7 @@ const DotMatrix: React.FC<DotMatrixProps> = React.memo(
   ({
     colors = [[0, 0, 0]],
     opacities = [0.04, 0.04, 0.04, 0.04, 0.04, 0.08, 0.08, 0.08, 0.08, 0.14],
-    totalSize = 16,
+    totalSize = 10,
     shader = '',
     center = ['x', 'y'],
     deltaPercent
@@ -119,13 +119,13 @@ const DotMatrix: React.FC<DotMatrixProps> = React.memo(
           type: 'uniform1f'
         },
         u_dot_size: {
-          value: 1.75,
+          value: 2,
           type: 'uniform1f'
         }
       };
     }, [colors, opacities, totalSize]); // Ensure colors is a dependency
     const rawFrequency =
-      deltaPercent === 0 ? 3600 : Math.abs(30 / Math.ceil(deltaPercent));
+      deltaPercent === 0 ? 3600 : Math.ceil(Math.abs(30 / deltaPercent));
 
     const frequency = Number(
       rawFrequency < 0.125 ? 0.125 : rawFrequency

@@ -56,13 +56,6 @@ const Chart: React.FC<ChartProps> = ({
   deltaPercent,
   deltaPositive
 }) => {
-  const [tooltipVisibility, setTooltipVisibility] = useState(false);
-  const [hoveredData, setHoveredData] = useState<DataPoint>({
-    x: 0,
-    y: -1,
-    volume: 0
-  });
-
   const hoveredDataRef = useRef<DataPoint>({ x: 0, y: -1, volume: 0 });
 
   const yValues = data.map((d) => d.y);
@@ -75,22 +68,6 @@ const Chart: React.FC<ChartProps> = ({
     () => Math.max(openPrice, Math.max(...yValues)),
     [openPrice, yValues]
   );
-
-  const handleMouseEnter = useCallback(() => setTooltipVisibility(true), []);
-  const handleMouseLeave = useCallback(() => {
-    setTooltipVisibility(false);
-    setHoveredData({ x: 0, y: -1, volume: 0 });
-  }, []);
-
-  useEffect(() => {
-    if (
-      hoveredDataRef.current &&
-      (hoveredDataRef.current.x !== hoveredData.x ||
-        hoveredDataRef.current.y !== hoveredData.y)
-    ) {
-      setHoveredData(hoveredDataRef.current);
-    }
-  }, [hoveredData.x, hoveredData.y]);
 
   const handleTooltipUpdate = useCallback((payload: DataPoint[]) => {
     if (payload.length > 0) {
@@ -107,13 +84,6 @@ const Chart: React.FC<ChartProps> = ({
     const intervalToShowDateOnly = ['3M', '1Y', '5Y', 'Max'];
     const showDateTime = intervalToShowTimeOnly.includes(interval);
     const showDate = intervalToShowDateOnly.includes(interval);
-
-    if (
-      hoveredDataRef.current.x === undefined ||
-      hoveredDataRef.current.y === undefined
-    ) {
-      return null;
-    }
 
     const priceChange = hoveredDataRef.current.y - yValues[yValues.length - 1];
     const priceChangePercent = yValues[yValues.length - 1]
@@ -146,7 +116,7 @@ const Chart: React.FC<ChartProps> = ({
               darkModeEnabled
               priceFontSize={window.innerWidth <= 768 ? '30px' : '40px'}
               deltaAbsoluteFontSize="15px"
-              deltaFontSize="14px"
+              deltaFontSize="18px"
               deltaIconFontSize="22px"
               noAnimation
               tooltipMode
@@ -181,7 +151,7 @@ const Chart: React.FC<ChartProps> = ({
         handleTooltipUpdate(payload);
       }, [payload]);
 
-      return getTooltipContent();
+      return payload.length ? getTooltipContent() : <></>;
     }
   );
 
@@ -232,15 +202,12 @@ const Chart: React.FC<ChartProps> = ({
   );
 
   RenderTrendlineLabel.displayName = 'RenderTrendlineLabel';
-
   return (
     <>
       <Flex
         className="area-chart-wrapper"
         justify="space-between"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        style={{ zIndex: 2 }}
+        style={{ zIndex: 2, paddingTop: '14px' }}
         h={{
           base: 'calc(100vh - 470px)',
           sm: 'calc(100vh - 470px)',
@@ -266,8 +233,12 @@ const Chart: React.FC<ChartProps> = ({
             color: 'rgba(255, 255, 255, 0.8)'
           }}
         />
-        <ResponsiveContainer width="100%" height="90%">
-          <AreaChart data={data} margin={{ top: 40, bottom: 10 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart
+            syncId="syncCharts"
+            data={data}
+            margin={{ top: 20, bottom: 80 }}
+          >
             <YAxis domain={[minYFromData, maxYFromData]} width={0} />
             <XAxis dataKey="x" hide />
             <defs>
@@ -285,7 +256,7 @@ const Chart: React.FC<ChartProps> = ({
             <Area
               type="monotoneX"
               dataKey="y"
-              isAnimationActive={false}
+              animationDuration={0}
               animateNewValues
               strokeWidth={2}
               activeDot={{
@@ -305,15 +276,8 @@ const Chart: React.FC<ChartProps> = ({
                 'rgba(0, 0, 0, 0)' // No fill when there's no change
               }
               dot={{ r: 0 }}
-              style={{ marginLeft: '-2px' }}
             />
-            <Tooltip
-              content={loading ? <></> : <RenderTooltip />}
-              allowEscapeViewBox={{ x: false, y: false }}
-              cursor={{ strokeWidth: 1, strokeOpacity: 0.8, stroke: 'white' }}
-              animationDuration={100}
-              active={loading ? false : tooltipVisibility}
-            />
+
             {!openPrice ? (
               <></>
             ) : (
@@ -328,19 +292,41 @@ const Chart: React.FC<ChartProps> = ({
                 }}
               />
             )}
+            <Tooltip
+              content={loading ? <></> : <RenderTooltip />}
+              allowEscapeViewBox={{ x: false, y: false }}
+              cursor={{
+                strokeDasharray: '2 2',
+                strokeWidth: 1,
+                strokeOpacity: 0.6,
+                stroke: 'white'
+              }}
+              isAnimationActive={false}
+            />
           </AreaChart>
         </ResponsiveContainer>
 
         {/* Volume Bar Chart */}
-        <ResponsiveContainer width="100%" height="10%">
-          <BarChart data={data} margin={{ bottom: 0 }}>
+        <ResponsiveContainer
+          width="100%"
+          height="10%"
+          style={{
+            pointerEvents: 'none',
+            position: 'absolute',
+            bottom: 0
+          }}
+        >
+          <BarChart
+            syncId="syncCharts"
+            data={data}
+            margin={{ bottom: 0, left: -8, right: -8 }}
+          >
             <XAxis dataKey="x" hide />
             <YAxis width={30} hide />
             <Bar
               isAnimationActive={false}
               dataKey="volume"
-              fill="#ffffff"
-              fillOpacity={0.5}
+              fill="rgba(255, 255, 255, 0.3)"
               radius={[5, 5, 0, 0]}
             />
           </BarChart>

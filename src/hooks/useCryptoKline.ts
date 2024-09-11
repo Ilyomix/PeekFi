@@ -85,60 +85,68 @@ const useCryptoKLine = (
   range: string = '1D'
 ): UseCryptoKLineResponse => {
   const [data, setData] = useState<CandleData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true); // Initial loading state
   const [error, setError] = useState<string | null>(null);
   const [openPrice, setOpenPrice] = useState<number | null>(null);
   const [deltaPercent, setDeltaPercent] = useState<number | null>(null);
   const [deltaPositive, setDeltaPositive] = useState<boolean>(false);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [delta, setDelta] = useState<number | null>(null);
-  const [initialFetch, setInitialFetch] = useState<boolean>(true); // To track if it's the first request or a range change
 
-  const fetchHistoricalData = useCallback(async () => {
-    setLoading(true); // Now, loading triggers again if the range changes
-    try {
-      const fetchedData = await fetchCoinGeckoMarketChartData(
-        id,
-        vsCurrency,
-        rangeMapping[range].days
-      );
-      const sampledData = sampleData(fetchedData, MAX_DATA_POINTS);
-      setData(sampledData);
-      if (sampledData.length > 0) {
-        const firstCandle = sampledData[0];
-        const lastCandle = sampledData[sampledData.length - 1];
-        setOpenPrice(firstCandle.open);
-        setCurrentPrice(lastCandle.y);
-        setDelta(lastCandle.y - firstCandle.open);
-        setDeltaPercent(
-          ((lastCandle.y - firstCandle.open) / firstCandle.open) * 100
-        );
-        setDeltaPositive(lastCandle.y > firstCandle.open);
+  const fetchHistoricalData = useCallback(
+    async (isInitialFetch: boolean) => {
+      if (isInitialFetch) {
+        setLoading(true); // Trigger loading only for initial fetch or range change
       }
-      setError(null);
-    } catch (err) {
-      console.error('Failed to fetch historical data from CoinGecko:', err);
-      setError('Failed to fetch historical data from CoinGecko.');
-    } finally {
-      setLoading(false); // Loading always ends when the data is fetched
-      setInitialFetch(false); // Turn off the first fetch flag after initial or range change
-    }
-  }, [id, vsCurrency, range]);
+
+      try {
+        const fetchedData = await fetchCoinGeckoMarketChartData(
+          id,
+          vsCurrency,
+          rangeMapping[range].days
+        );
+        const sampledData = sampleData(fetchedData, MAX_DATA_POINTS);
+        setData(sampledData); // Replace old data with new fetched data
+
+        if (sampledData.length > 0) {
+          const firstCandle = sampledData[0];
+          const lastCandle = sampledData[sampledData.length - 1];
+          setOpenPrice(firstCandle.open);
+          setCurrentPrice(lastCandle.y);
+          setDelta(lastCandle.y - firstCandle.open);
+          setDeltaPercent(
+            ((lastCandle.y - firstCandle.open) / firstCandle.open) * 100
+          );
+          setDeltaPositive(lastCandle.y > firstCandle.open);
+        }
+
+        setError(null); // Reset error on success
+      } catch (err) {
+        console.error('Failed to fetch historical data:', err);
+        setError('Failed to fetch historical data.');
+      } finally {
+        if (isInitialFetch) {
+          setLoading(false); // Stop loading after initial fetch or range change
+        }
+      }
+    },
+    [id, vsCurrency, range]
+  );
 
   useEffect(() => {
-    const intervalDuration = rangeMapping[range].granularity;
+    fetchHistoricalData(true); // Initial fetch with loading set
 
-    // Trigger fetch and loading state when the range changes
-    fetchHistoricalData();
+    const intervalDuration =
+      rangeMapping[range].granularity > 3600000
+        ? 3600000
+        : rangeMapping[range].granularity; // Set up long-polling
 
-    const interval = setInterval(
-      () => {
-        fetchHistoricalData(); // For long-polling, don't trigger loading here
-      },
-      intervalDuration > 3600000 ? 3600000 : intervalDuration
-    );
+    // Set up long-polling
+    const interval = setInterval(() => {
+      fetchHistoricalData(false); // Fetch data during polling without setting loading
+    }, intervalDuration);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); // Clean up the interval on unmount
   }, [fetchHistoricalData, range]);
 
   return {

@@ -69,7 +69,9 @@ const PairContent: React.FC<PairContentProps> = ({
       <Flex align="flex-start" direction="column">
         <DotMatrixWallEffect
           colors={[deltaColor]}
-          deltaPercent={Math.floor(deltaPercent)}
+          deltaPercent={
+            deltaPercent !== 0 ? Math.ceil(Math.abs(deltaPercent)) : 0
+          }
         />
         <TickerSymbol tickerSymbol={cryptoName || ''} imgUrl={image} />
         <Flex>
