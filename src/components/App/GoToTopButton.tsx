@@ -11,8 +11,8 @@ const GoToTopButton: React.FC = () => {
   const handleScrollToTop = () => {
     // Smoothly animate the scroll.y position to 0
     animate(scroll.y, 0, {
-      duration: 0.6, // Adjust the duration for the easing effect
-      ease: [0.25, 0.1, 0.25, 1], // Custom easing for smooth scrolling
+      duration: 0.2, // Adjust the duration for the easing effect
+      ease: 'easeInOut',
       onUpdate: (latest) => {
         scrollTo({ y: latest });
       }

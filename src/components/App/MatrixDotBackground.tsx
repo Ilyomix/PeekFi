@@ -119,7 +119,7 @@ const DotMatrix: React.FC<DotMatrixProps> = React.memo(
           type: 'uniform1f'
         },
         u_dot_size: {
-          value: 2.5,
+          value: 1,
           type: 'uniform1f'
         }
       };

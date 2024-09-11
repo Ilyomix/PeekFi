@@ -29,16 +29,26 @@ const IntervalSelector: React.FC<IntervalSelectorProps> = ({ style }) => {
           <Button
             fullWidth
             radius="xl"
-            variant={selectedInterval === interval ? 'filled' : 'light'}
+            variant={selectedInterval !== interval ? 'filled' : 'light'}
             color={
-              selectedInterval === interval
+              selectedInterval !== interval
                 ? 'rgba(0, 0, 0, 0.5)'
-                : 'rgba(255, 255, 255, 0.8)'
+                : 'rgba(255, 255, 255, 1)'
+            }
+            bg={
+              selectedInterval !== interval
+                ? 'rgba(0, 0, 0, 0.5)'
+                : 'rgba(255, 255, 255, 0.9)'
+            }
+            c={
+              selectedInterval === interval
+                ? 'rgba(0, 0, 0, 1)'
+                : 'rgba(255, 255, 255, 1)'
             }
             style={{
               border:
-                selectedInterval === interval
-                  ? '1px solid rgba(255, 255, 255, 0.2)'
+                selectedInterval !== interval
+                  ? '1px solid rgba(255, 255, 255, 0.1)'
                   : 'none'
             }}
             onClick={() => setSelectedInterval(interval)}
