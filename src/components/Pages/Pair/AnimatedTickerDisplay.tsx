@@ -284,6 +284,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                   fz="md"
                   fw={500}
                   className={classes.diff}
+                  mt={tooltipMode ? 4 : 0}
                   style={{ zIndex: TEXT_Z_INDEX }}
                 >
                   <Flex align="center">
