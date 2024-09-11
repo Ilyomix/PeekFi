@@ -33,7 +33,7 @@ const FLEX_DEFAULTS = {
 };
 
 const FLEX_SMALLS = {
-  marginTop: -2,
+  marginTop: -0.5,
   marginLeft: 7
 };
 
@@ -59,7 +59,7 @@ const TEXT_Z_INDEX = 3;
 const FLEX_GAP = 4;
 
 const COLORS = {
-  tealText: 'var(--mantine-color-teal-text)',
+  tealText: 'var(--mantine-color-teal-5)',
   redText: 'var(--mantine-color-red-5)',
   dark: 'var(--mantine-color-dark)',
   white: 'var(--mantine-color-white)'
@@ -117,7 +117,7 @@ const getColorClass = (value: number | string) => {
   if (numericValue === 0) return 'var(--mantine-color-gray-text)';
   return numericValue > 0
     ? 'var(--mantine-color-teal-5)'
-    : 'var(--mantine-color-red-4)';
+    : 'var(--mantine-color-red-5)';
 };
 
 const getColorClassTooltip = (value: number | string) => {
@@ -125,7 +125,7 @@ const getColorClassTooltip = (value: number | string) => {
   if (numericValue === 0) return 'var(--mantine-color-gray-text)';
   return numericValue > 0
     ? 'var(--mantine-color-teal-5)'
-    : 'var(--mantine-color-red-4)';
+    : 'var(--mantine-color-red-6)';
 };
 
 const getDiffIcon = (value: number | string) => {
@@ -208,7 +208,7 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
         : DIFF_ICON_SMALLS;
       return (
         <Flex
-          align="flex-start"
+          align={tooltipMode ? 'baseline' : 'flex-start'}
           justify="flex-start"
           gap={FLEX_GAP}
           direction={{ xl: 'row', base: 'column' }}
@@ -245,9 +245,9 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
               true
             )}
           </Text>
-          <Flex direction={tooltipMode ? 'column' : 'row'}>
+          <Flex>
             {deltaMention && (
-              <Text component="div" size="sm" mt={{ base: 7, md: 0 }}>
+              <Text component="div" size="sm" mr={6}>
                 {deltaMention}
               </Text>
             )}
@@ -312,8 +312,11 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                     <DiffIcon
                       style={{
                         margin: diffIconMargin,
+                        marginRight: '-4px',
                         marginTop: diffIconMarginTop,
                         transform: diffIconTransform,
+                        display:
+                          Number(priceChangePercent) !== 0 ? 'block' : 'none',
                         opacity: Number(priceChangePercent) !== 0 ? '1' : '0'
                       }}
                       size={deltaIconFontSize}
@@ -326,7 +329,8 @@ export const AnimatedTickerDisplay: React.FC<AnimatedTickerDisplayProps> =
                     <Text
                       style={{
                         fontSize: `calc(${deltaFontSize} - 10px)`,
-                        marginTop: '5px'
+                        marginTop: '5px',
+                        marginLeft: priceChangePercent ? '0px' : '5px'
                       }}
                       c={tooltipMode ? colorClassTooltip : colorClass}
                     >{`(${interval})`}</Text>

@@ -40,6 +40,9 @@ export default defineConfig({
       },
       mangle: true
     },
+    css: {
+      postcss: './postcss.config.cjs' // Ensure this points to the PostCSS config
+    },
     sourcemap: false,
     rollupOptions: {
       output: {

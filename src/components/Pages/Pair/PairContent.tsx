@@ -1,16 +1,15 @@
 // src/components/PairContent.tsx
-import React from 'react';
-import { Paper, Flex, Text } from '@mantine/core';
+import React, { useMemo } from 'react';
+import { Paper, Flex } from '@mantine/core';
 import { AnimatedTickerDisplay } from 'components/Pages/Pair/AnimatedTickerDisplay';
 import { TickerSymbol } from 'components/Pages/Pair/TickerSymbol';
 import AreaChart from 'components/Pages/Pair/AreaChart';
 import IntervalSelector from 'components/Pages/Pair/IntervalSelector';
-import GradientBackground from 'components/Pages/Pair/GradientBackground';
 import useResponsiveStyles from 'hooks/useResponsiveStyles';
 import classes from 'assets/app/pair.module.css';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
 import useCryptoKLine from 'hooks/useCryptoKline';
-import GlowBehindChart from './AreaChartEffects';
+import { DotMatrixWallEffect } from 'components/App/MatrixDotBackground';
 
 interface PairContentProps {
   cryptoName: string;
@@ -36,28 +35,56 @@ const PairContent: React.FC<PairContentProps> = ({
     selectedInterval
   );
 
+  if (data?.length) {
+    data[data.length - 1].y = priceSource;
+  }
+
   const deltaPercent = openPrice ? (priceSource / openPrice - 1) * 100 : 0;
 
+  // Define colors for different conditions
+  const getDeltaColor = (deltaPercent: number): [number, number, number] => {
+    if (deltaPercent > 0) {
+      return [22, 133, 100]; // Positive (green)
+    } else if (deltaPercent < 0) {
+      return [192, 21, 98]; // Negative (red)
+    } else {
+      return [128, 128, 128]; // Neutral (gray)
+    }
+  };
+
+  // Dynamically update the color based on deltaPercent
+  const deltaColor = useMemo(() => getDeltaColor(deltaPercent), [deltaPercent]);
   return (
     <Paper
       shadow="xl"
       radius="xl"
       style={{
         position: 'relative',
-        transition: 'all 0.5s ease-in-out'
+        transition: 'all 0.5s ease-in-out',
+        overflow: 'hidden'
       }}
       h="100%"
       className={classes['ticker-wrapper']}
     >
       <Flex align="flex-start" direction="column">
+        <DotMatrixWallEffect
+          colors={[deltaColor]}
+          deltaPercent={Math.floor(deltaPercent)}
+        />
         <TickerSymbol tickerSymbol={cryptoName || ''} imgUrl={image} />
         <Flex>
           <AnimatedTickerDisplay
             price={priceSource ?? 0}
             priceChangePercent={
-              selectedInterval === '1D' ? deltaSource : deltaPercent ?? 0
+              selectedInterval === '1D' && deltaSource
+                ? deltaSource
+                : deltaPercent
             }
-            decimalPrecision={getNumberPrecision(priceSource ?? 0)}
+            decimalPrecision={
+              getNumberPrecision(priceSource ?? 0) < 2
+                ? 2
+                : getNumberPrecision(priceSource ?? 0)
+            }
             priceChange={openPrice ?? 0}
             deltaFontSize={responsiveStyles.deltaFontSize.fontSize}
             deltaIconFontSize={responsiveStyles.deltaFontSize.fontSize}
@@ -68,15 +95,20 @@ const PairContent: React.FC<PairContentProps> = ({
           />
         </Flex>
         <IntervalSelector />
-
         <AreaChart
           data={data}
           loading={loading}
           openPrice={openPrice ?? 0}
           deltaPercent={
-            selectedInterval === '1D' ? deltaSource : deltaPercent ?? 0
+            selectedInterval === '1D' && deltaSource
+              ? deltaSource
+              : deltaPercent
           }
-          deltaPositive={deltaPercent > 0}
+          deltaPositive={
+            selectedInterval === '1D' && deltaSource
+              ? deltaSource > 0
+              : deltaPercent > 0
+          }
           symbol={pair || ''}
           interval={selectedInterval}
           precision={getNumberPrecision(priceSource ?? 0)}

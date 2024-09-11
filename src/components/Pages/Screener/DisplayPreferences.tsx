@@ -1,4 +1,4 @@
-import { Flex, rem, Select } from '@mantine/core';
+import { Flex, Select } from '@mantine/core';
 import { IconList } from '@tabler/icons-react';
 import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
 

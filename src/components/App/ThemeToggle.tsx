@@ -30,8 +30,11 @@ export function ThemeToggle() {
         radius="xl"
         size="lg"
       >
-        <IconSunFilled className={cx(classes.icon, classes.light)} />
-        <IconMoonStars className={cx(classes.icon, classes.dark)} />
+        {computedColorScheme === 'dark' ? (
+          <IconSunFilled className={cx(classes.icon, classes.light)} />
+        ) : (
+          <IconMoonStars className={cx(classes.icon, classes.dark)} />
+        )}
       </ActionIcon>
     </Group>
   );

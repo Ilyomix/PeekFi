@@ -1,5 +1,5 @@
 .header {
-  height: rem(56px);
+  height: 56px;
   transform: translateX(-2rem);
   display: flex;
   width: 100vw;
@@ -21,7 +21,7 @@
 }
 
 .inner {
-  height: rem(56px);
+  height: 56px;
   background-color: light-dark(rgba(255, 255, 255, 0.8), rgba(31, 31, 31, 0.6));
   padding: 0.5rem 2rem;
   display: flex;
@@ -37,7 +37,7 @@
 .link {
   display: block;
   line-height: 1;
-  padding: rem(8px) rem(12px);
+  padding: 8px 12px;
   border-radius: var(--mantine-radius-xl);
   text-decoration: none;
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-white));
@@ -54,7 +54,7 @@
 .link-active {
     display: block;
     line-height: 1;
-    padding: rem(8px) rem(12px);
+    padding: 8px 12px;
     border-radius: var(--mantine-radius-xl);
     text-decoration: none;
     color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-9));

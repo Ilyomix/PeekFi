@@ -32,9 +32,15 @@ const IntervalSelector: React.FC<IntervalSelectorProps> = ({ style }) => {
             variant={selectedInterval === interval ? 'filled' : 'light'}
             color={
               selectedInterval === interval
-                ? 'rgba(0, 0, 0, 0.3)'
+                ? 'rgba(0, 0, 0, 0.5)'
                 : 'rgba(255, 255, 255, 0.8)'
             }
+            style={{
+              border:
+                selectedInterval === interval
+                  ? '1px solid rgba(255, 255, 255, 0.2)'
+                  : 'none'
+            }}
             onClick={() => setSelectedInterval(interval)}
           >
             {interval}
