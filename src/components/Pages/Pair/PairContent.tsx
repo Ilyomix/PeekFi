@@ -1,5 +1,5 @@
 // src/components/PairContent.tsx
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Paper, Flex } from '@mantine/core';
 import { AnimatedTickerDisplay } from 'components/Pages/Pair/AnimatedTickerDisplay';
 import { TickerSymbol } from 'components/Pages/Pair/TickerSymbol';
@@ -39,21 +39,24 @@ const PairContent: React.FC<PairContentProps> = ({
     data[data.length - 1].y = priceSource;
   }
 
-  const deltaPercent = openPrice ? (priceSource / openPrice - 1) * 100 : 0;
-
-  // Define colors for different conditions
+  // Centralized deltaPercent formula
+  let deltaPercent = openPrice
+    ? Number(((priceSource / openPrice - 1) * 100).toFixed(2))
+    : 0;
+  deltaPercent = deltaPercent === 0 ? Math.abs(deltaPercent) : deltaPercent;
+  deltaPercent = isNaN(deltaPercent) ? 0 : deltaPercent;
+  // Define colors for different conditions based on deltaPercent
   const getDeltaColor = (deltaPercent: number): [number, number, number] => {
     if (deltaPercent > 0) {
-      return [22, 133, 100]; // Positive (green)
+      return [22, 133, 100]; // Green for positive
     } else if (deltaPercent < 0) {
-      return [192, 21, 98]; // Negative (red)
+      return [192, 21, 98]; // Red for negative
     } else {
-      return [128, 128, 128]; // Neutral (gray)
+      return [128, 128, 128]; // Gray for neutral
     }
   };
+  const deltaColor = getDeltaColor(deltaPercent);
 
-  // Dynamically update the color based on deltaPercent
-  const deltaColor = useMemo(() => getDeltaColor(deltaPercent), [deltaPercent]);
   return (
     <Paper
       shadow="xl"
@@ -77,11 +80,7 @@ const PairContent: React.FC<PairContentProps> = ({
         <Flex>
           <AnimatedTickerDisplay
             price={priceSource ?? 0}
-            priceChangePercent={
-              selectedInterval === '1D' && deltaSource
-                ? deltaSource
-                : deltaPercent
-            }
+            priceChangePercent={deltaPercent}
             decimalPrecision={
               getNumberPrecision(priceSource ?? 0) < 2
                 ? 2
@@ -101,16 +100,8 @@ const PairContent: React.FC<PairContentProps> = ({
           data={data}
           loading={loading}
           openPrice={openPrice ?? 0}
-          deltaPercent={
-            selectedInterval === '1D' && deltaSource
-              ? deltaSource
-              : deltaPercent
-          }
-          deltaPositive={
-            selectedInterval === '1D' && deltaSource
-              ? deltaSource > 0
-              : deltaPercent > 0
-          }
+          deltaPercent={deltaPercent}
+          deltaPositive={deltaPercent > 0}
           symbol={pair || ''}
           interval={selectedInterval}
           precision={getNumberPrecision(priceSource ?? 0)}

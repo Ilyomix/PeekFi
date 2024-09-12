@@ -270,7 +270,7 @@ const Chart: React.FC<ChartProps> = ({
                   ? deltaPositive
                     ? 'url(#positiveGradient)'
                     : 'url(#negativeGradient)'
-                  : 'rgba(0, 0, 0, 0)' // No fill when there's no change
+                  : 'rgba(255, 255, 255, 1)' // No fill when there's no change
               }
               fill={
                 'rgba(0, 0, 0, 0)' // No fill when there's no change
