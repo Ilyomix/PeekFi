@@ -25,11 +25,16 @@ export const DotMatrixWallEffect = ({
   colors?: number[][];
   containerClassName?: string;
   dotSize?: number;
-aPercent: number;  showGradient?: boolean;
-  delt
+  deltaPercent: number;
+  showGradient?: boolean;
 }) => {
   return (
-    <div className={cn('h-full absolute bg-black opacity-90 w-full', containerClassName)}>
+    <div
+      className={cn(
+        'h-full absolute bg-black opacity-90 w-full',
+        containerClassName
+      )}
+    >
       <div className="h-full w-full">
         <DotMatrix
           colors={colors ?? [[0, 255, 255]]}
