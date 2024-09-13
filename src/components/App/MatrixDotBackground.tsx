@@ -47,7 +47,7 @@ export const DotMatrixWallEffect = ({
         />
       </div>
       {showGradient && (
-        <div className="absolute inset-0 bg-gradient-to-t from-black to-[84%]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black to-[150%]" />
       )}
     </div>
   );

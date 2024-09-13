@@ -6,7 +6,7 @@ import {
   AreaChart,
   Area,
   XAxis,
-  ReferenceLine,
+  ReferenceLine
 } from 'recharts';
 import { Divider, Flex, LoadingOverlay, Paper, Text } from '@mantine/core';
 import 'assets/components/areaCharts/index.css';
@@ -45,6 +45,7 @@ const Chart: React.FC<ChartProps> = ({
   precision,
   data,
   loading,
+  activeDotColor,
   openPrice,
   deltaPercent,
   deltaPositive
@@ -292,18 +293,18 @@ const Chart: React.FC<ChartProps> = ({
             />
             <defs>
               <linearGradient id="positiveGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(31, 196, 147, 1)" />
-                <stop offset="25%" stopColor="rgba(31, 196, 147, 1)" />
-                <stop offset="100%" stopColor="rgba(31, 196, 147, 1)" />
+                <stop offset="0%" stopColor="rgba(31, 196, 147, 0.8)" />
+                <stop offset="25%" stopColor="rgba(31, 196, 147, 0.4)" />
+                <stop offset="100%" stopColor="rgba(31, 196, 147, 0)" />
               </linearGradient>
               <linearGradient id="negativeGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(255, 71, 71, 1)" />
-                <stop offset="80%" stopColor="rgba(255, 71, 71, 1)" />
-                <stop offset="100%" stopColor="rgba(255, 71, 71, 1)" />
+                <stop offset="0%" stopColor="rgba(255, 71, 71, 0.8)" />
+                <stop offset="25%" stopColor="rgba(255, 71, 71, 0.4)" />
+                <stop offset="100%" stopColor="rgba(255, 71, 71, 0)" />
               </linearGradient>
               <linearGradient id="neutral" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(128, 128, 128, 0.3)" />
-                <stop offset="50%" stopColor="rgba(128, 128, 128, 0.2)" />
+                <stop offset="0%" stopColor="rgba(128, 128, 128, 0.8)" />
+                <stop offset="25%" stopColor="rgba(128, 128, 128, 0.4)" />
                 <stop offset="100%" stopColor="rgba(128, 128, 128, 0)" />
               </linearGradient>
             </defs>
@@ -319,15 +320,13 @@ const Chart: React.FC<ChartProps> = ({
                 strokeOpacity: 0
               }}
               strokeOpacity={0.8}
-              stroke={
+              stroke={activeDotColor}
+              fill={
                 deltaPercent !== 0
                   ? deltaPositive
                     ? 'url(#positiveGradient)'
                     : 'url(#negativeGradient)'
-                  : 'rgba(255, 255, 255, 1)' // No fill when there's no change
-              }
-              fill={
-                'rgba(0, 0, 0, 0)' // No fill when there's no change
+                  : 'url(#neutral)' // No  No fill when there's no change
               }
               dot={{ r: 0 }}
             />

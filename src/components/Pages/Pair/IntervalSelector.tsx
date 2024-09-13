@@ -38,7 +38,7 @@ const IntervalSelector: React.FC<IntervalSelectorProps> = ({ style }) => {
             bg={
               selectedInterval !== interval
                 ? 'rgba(0, 0, 0, 0.5)'
-                : 'rgba(255, 255, 255, 0.9)'
+                : 'rgba(255, 255, 255, 0.8)'
             }
             c={
               selectedInterval === interval

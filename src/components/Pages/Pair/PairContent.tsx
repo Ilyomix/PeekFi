@@ -48,9 +48,9 @@ const PairContent: React.FC<PairContentProps> = ({
   // Define colors for different conditions based on deltaPercent
   const getDeltaColor = (deltaPercent: number): [number, number, number] => {
     if (deltaPercent > 0) {
-      return [22, 133, 100]; // Green for positive
+      return [31, 196, 147]; // Green for positive
     } else if (deltaPercent < 0) {
-      return [192, 21, 98]; // Red for negative
+      return [255, 71, 71]; // Red for negative
     } else {
       return [128, 128, 128]; // Gray for neutral
     }
@@ -103,8 +103,8 @@ const PairContent: React.FC<PairContentProps> = ({
           activeDotColor={
             deltaPercent !== 0
               ? deltaPercent > 0
-                ? 'rgb(32, 201, 151)'
-                : 'rgb(205, 107, 107)'
+                ? 'rgb(31, 196, 147)'
+                : 'rgb(255, 71, 71)'
               : 'rgb(128, 128, 128)'
           }
           currentPrice={priceSource ?? 0}
