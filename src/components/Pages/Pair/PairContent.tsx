@@ -100,6 +100,14 @@ const PairContent: React.FC<PairContentProps> = ({
           data={data}
           loading={loading}
           openPrice={openPrice ?? 0}
+          activeDotColor={
+            deltaPercent !== 0
+              ? deltaPercent > 0
+                ? 'rgb(32, 201, 151)'
+                : 'rgb(205, 107, 107)'
+              : 'rgb(128, 128, 128)'
+          }
+          currentPrice={priceSource ?? 0}
           deltaPercent={deltaPercent}
           deltaPositive={deltaPercent > 0}
           symbol={pair || ''}

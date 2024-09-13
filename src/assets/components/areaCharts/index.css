@@ -3,7 +3,7 @@
     transition: all 1s ease-in-out !important;
     width: calc(100%);
     border-radius: 30px;
-  position: relative;
+    position: relative;
 }
 
 .fade-in {

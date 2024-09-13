@@ -1,20 +1,12 @@
-import React, {
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  useMemo
-} from 'react';
+import React, { useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
   AreaChart,
   Area,
-  BarChart,
-  Bar,
   XAxis,
-  ReferenceLine
+  ReferenceLine,
 } from 'recharts';
 import { Divider, Flex, LoadingOverlay, Paper, Text } from '@mantine/core';
 import 'assets/components/areaCharts/index.css';
@@ -36,6 +28,7 @@ type ChartProps = {
   precision: number;
   currentPrice?: number;
   deltaPercent?: number;
+  activeDotColor: string;
   loading: boolean;
   openPrice: number;
   deltaPositive: boolean;
@@ -57,8 +50,15 @@ const Chart: React.FC<ChartProps> = ({
   deltaPositive
 }) => {
   const hoveredDataRef = useRef<DataPoint>({ x: 0, y: -1, volume: 0 });
-
+  const xValues = data.map((d) => d.x);
   const yValues = data.map((d) => d.y);
+  const intervalToShowTimeOnly = ['1D'];
+  const intervalToShowDateOnly = ['3M', '1Y', '5Y', 'Max'];
+  const showDateTime = intervalToShowTimeOnly.includes(interval);
+  const showDate = intervalToShowDateOnly.includes(interval);
+
+  const minXFromData = useMemo(() => Math.min(...xValues), [xValues]);
+  const maxXFromData = useMemo(() => Math.max(...xValues), [xValues]);
 
   const minYFromData = useMemo(
     () => Math.min(openPrice, Math.min(...yValues)),
@@ -79,12 +79,28 @@ const Chart: React.FC<ChartProps> = ({
     }
   }, []);
 
-  const getTooltipContent = useCallback(() => {
-    const intervalToShowTimeOnly = ['1D'];
-    const intervalToShowDateOnly = ['3M', '1Y', '5Y', 'Max'];
-    const showDateTime = intervalToShowTimeOnly.includes(interval);
-    const showDate = intervalToShowDateOnly.includes(interval);
+  const formatDate = (date: number) => {
+    return showDate
+      ? new Date(date).toLocaleDateString(undefined, {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        })
+      : showDateTime
+        ? new Date(date).toLocaleTimeString(undefined, {
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        : new Date(date).toLocaleString(undefined, {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+  };
 
+  const getTooltipContent = useCallback(() => {
     const priceChange = hoveredDataRef.current.y - yValues[yValues.length - 1];
     const priceChangePercent = yValues[yValues.length - 1]
       ? (priceChange / yValues[yValues.length - 1]) * 100
@@ -95,11 +111,7 @@ const Chart: React.FC<ChartProps> = ({
         <Flex align="center" justify="start" mb={4} mt={6}>
           <IconClock size={18} />
           <Text component="div" ml={4}>
-            {showDate
-              ? new Date(hoveredDataRef.current.x).toLocaleDateString()
-              : showDateTime
-                ? new Date(hoveredDataRef.current.x).toLocaleTimeString()
-                : new Date(hoveredDataRef.current.x).toLocaleString()}
+            {formatDate(hoveredDataRef.current.x)}
           </Text>
         </Flex>
         <Divider
@@ -180,7 +192,7 @@ const Chart: React.FC<ChartProps> = ({
             width={pillWidth} // Width of the pill background
             height={21} // Height of the pill background
             fill={'#FFF'} // Adapt background color for dark/light mode
-            fillOpacity={0.9} // Opacity of the pill background
+            fillOpacity={1} // Opacity of the pill background
             stroke={'#333'} // Border of the pill, opposite color
             strokeOpacity={0.4}
           />
@@ -202,6 +214,7 @@ const Chart: React.FC<ChartProps> = ({
   );
 
   RenderTrendlineLabel.displayName = 'RenderTrendlineLabel';
+
   return (
     <>
       <Flex
@@ -214,6 +227,7 @@ const Chart: React.FC<ChartProps> = ({
           md: 'calc(100vh - 420px)',
           xl: 'calc(100vh - 340px)'
         }}
+        mih={300}
         direction="column"
       >
         <LoadingOverlay
@@ -233,28 +247,68 @@ const Chart: React.FC<ChartProps> = ({
             color: 'rgba(255, 255, 255, 0.8)'
           }}
         />
-        <ResponsiveContainer width="100%" height="100%">
+        <Divider
+          variant="dotted"
+          label="Price"
+          labelPosition="left"
+          pl={28}
+          color="dark.5"
+        />
+        <ResponsiveContainer width="100%" height="85%">
           <AreaChart
             syncId="syncCharts"
             data={data}
-            margin={{ top: 20, bottom: 80 }}
+            margin={{ top: 20, bottom: 20, right: 0 }}
           >
-            <YAxis domain={[minYFromData, maxYFromData]} width={0} />
-            <XAxis dataKey="x" hide />
+            <YAxis
+              domain={[minYFromData, maxYFromData]}
+              width={0}
+              tickSize={0}
+              tickMargin={10}
+              mirror
+              type="number"
+              orientation="right"
+              allowDecimals={false}
+              axisLine={false}
+              tickCount={6}
+              tickFormatter={(v) =>
+                Number(v.toFixed(precision)).toLocaleString(undefined, {
+                  minimumFractionDigits: 2
+                })
+              }
+              tick
+            />
+            <XAxis
+              dataKey="x"
+              height={0}
+              tickSize={0}
+              type="category"
+              padding={{ left: 0 }}
+              domain={[minXFromData, maxXFromData]}
+              tickCount={5}
+              tickMargin={20}
+              axisLine={false}
+              tickFormatter={(v) => formatDate(v)}
+            />
             <defs>
               <linearGradient id="positiveGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="rgba(31, 196, 147, 1)" />
-                <stop offset="25%" stopColor="rgba(124, 234, 201, 1)" />
-                <stop offset="100%" stopColor="rgba(255, 255, 255, 1)" />
+                <stop offset="25%" stopColor="rgba(31, 196, 147, 1)" />
+                <stop offset="100%" stopColor="rgba(31, 196, 147, 1)" />
               </linearGradient>
               <linearGradient id="negativeGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(255, 255, 255, 1)" />
-                <stop offset="80%" stopColor="rgba(255, 89, 89, 1)" />
+                <stop offset="0%" stopColor="rgba(255, 71, 71, 1)" />
+                <stop offset="80%" stopColor="rgba(255, 71, 71, 1)" />
                 <stop offset="100%" stopColor="rgba(255, 71, 71, 1)" />
+              </linearGradient>
+              <linearGradient id="neutral" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgba(128, 128, 128, 0.3)" />
+                <stop offset="50%" stopColor="rgba(128, 128, 128, 0.2)" />
+                <stop offset="100%" stopColor="rgba(128, 128, 128, 0)" />
               </linearGradient>
             </defs>
             <Area
-              type="monotoneX"
+              type="natural"
               dataKey="y"
               animationDuration={0}
               animateNewValues
@@ -284,14 +338,23 @@ const Chart: React.FC<ChartProps> = ({
               <ReferenceLine
                 // @ts-expect-error y definition is not available in Recharts 2.x
                 y={openPrice}
-                strokeDasharray="3 3"
-                stroke="rgba(255, 255, 255, 0.7)"
+                strokeDasharray="1"
+                strokeWidth={1}
+                stroke="rgba(255, 255, 255, 0.4)"
                 label={({ viewBox }: React.SVGProps<SVGRectElement>) => {
                   const { x, y } = viewBox as React.SVGProps<SVGRectElement>;
                   return <RenderTrendlineLabel x={Number(x)} y={Number(y)} />;
                 }}
               />
             )}
+            {/* <ReferenceDot
+              y={currentPrice}
+              x={data[data.length - 1]?.x}
+              stroke="rgba(255, 255, 255, 1)"
+              r={4}
+              opacity={loading ? 0 : 0.9}
+              fill={activeDotColor}
+            /> */}
             <Tooltip
               content={loading ? <></> : <RenderTooltip />}
               allowEscapeViewBox={{ x: false, y: false }}
@@ -305,31 +368,44 @@ const Chart: React.FC<ChartProps> = ({
             />
           </AreaChart>
         </ResponsiveContainer>
-
+        <Divider
+          variant="dotted"
+          label="Volume"
+          labelPosition="left"
+          pl={28}
+          color="dark.5"
+        />
         {/* Volume Bar Chart */}
-        <ResponsiveContainer
-          width="100%"
-          height="10%"
-          style={{
-            pointerEvents: 'none',
-            position: 'absolute',
-            bottom: 0
-          }}
-        >
-          <BarChart
+        <ResponsiveContainer width="100%" height="15%">
+          <AreaChart
             syncId="syncCharts"
             data={data}
-            margin={{ bottom: 0, left: -8, right: -8 }}
+            margin={{ top: 10, bottom: 0, right: 0, left: 0 }}
           >
-            <XAxis dataKey="x" hide />
-            <YAxis width={30} hide />
-            <Bar
+            <XAxis
+              dataKey="x"
+              type="category"
+              domain={[minXFromData, maxXFromData]}
+              hide
+            />
+            <Area
               isAnimationActive={false}
               dataKey="volume"
-              fill="rgba(255, 255, 255, 0.3)"
-              radius={[5, 5, 0, 0]}
+              type="natural"
+              fill="url(#neutral)"
+              stroke="rgba(255, 255, 255, 0.3)"
             />
-          </BarChart>
+            <Tooltip
+              content={<></>}
+              cursor={{
+                strokeDasharray: '2 2',
+                strokeWidth: 1,
+                strokeOpacity: 0.6,
+                stroke: 'white'
+              }}
+              isAnimationActive={false}
+            />
+          </AreaChart>
         </ResponsiveContainer>
       </Flex>
     </>
