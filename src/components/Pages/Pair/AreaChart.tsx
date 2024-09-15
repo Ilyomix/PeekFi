@@ -331,9 +331,9 @@ const Chart: React.FC<ChartProps> = React.memo(
               </linearGradient>
             </defs>
             <Area
+              isAnimationActive={!loading}
               type="linear"
               dataKey="y"
-              isAnimationActive
               animationDuration={500}
               strokeWidth={2}
               activeDot={{
@@ -445,7 +445,7 @@ const Chart: React.FC<ChartProps> = React.memo(
               hide
             />
             <Area
-              isAnimationActive
+              isAnimationActive={!loading}
               animationDuration={500}
               dataKey="volume"
               type="natural"
