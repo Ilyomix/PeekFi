@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useRef } from 'react';
 import {
   YAxis,
   Tooltip,
@@ -6,7 +6,9 @@ import {
   AreaChart,
   Area,
   XAxis,
-  ReferenceLine
+  ReferenceLine,
+  ReferenceDot,
+  Label
 } from 'recharts';
 import { Divider, Flex, LoadingOverlay, Paper, Text } from '@mantine/core';
 import 'assets/components/areaCharts/index.css';
@@ -33,16 +35,107 @@ type ChartProps = {
   data: CandleData[];
 };
 
+const formatValueWithSubscript = (value: number, precision: number): string => {
+  if (value < 1 && value.toFixed(precision).split('.')[1]?.length > 4) {
+    const subscriptMap: { [key: number]: string } = {
+      0: '₀',
+      1: '₁',
+      2: '₂',
+      3: '₃',
+      4: '₄',
+      5: '₅',
+      6: '₆',
+      7: '₇',
+      8: '₈',
+      9: '₉',
+      10: '₁₀',
+      11: '₁₁',
+      12: '₁₂',
+      13: '₁₃',
+      14: '₁₄',
+      15: '₁₅',
+      16: '₁₆'
+    };
+
+    // Split the value into the integer and decimal parts
+    const [integerPart, decimalPart] = value.toFixed(precision).split('.');
+
+    // Find leading zeros in the decimal part
+    const leadingZerosMatch = decimalPart.match(/^0+/);
+    const leadingZeros = leadingZerosMatch ? leadingZerosMatch[0] : '';
+    // Apply subscript formatting to the leading zeros
+    const subscriptLeadingZeros = subscriptMap[leadingZeros.length];
+    // The remaining part of the decimal number after the leading zeros
+    const remainingDecimal = decimalPart.slice(leadingZeros.length);
+
+    // Return the formatted number with the leading zeros as subscripts
+    return `${integerPart}.0${subscriptLeadingZeros}${remainingDecimal}`;
+  }
+
+  // Return the number as is if no special formatting is needed
+  return value.toFixed(precision);
+};
+
 const Chart: React.FC<ChartProps> = React.memo(
   ({ interval, precision, data, loading, activeDotColor, openPrice }) => {
-    const [hoveredData, setHoveredData] = useState<DataPoint | null>(null);
+    const hoveredData = useRef<DataPoint | null>(null);
 
     const xValues = useMemo(() => data.map((d) => d.x), [data]);
     const yValues = useMemo(() => data.map((d) => d.y), [data]);
 
-    const showDateTime = useMemo(() => ['1D'].includes(interval), [interval]);
-    const showDate = useMemo(
-      () => ['3M', '1Y', '5Y', 'Max'].includes(interval),
+    // Find the max and min values and their corresponding data points
+    const maxY = useMemo(() => Math.max(...yValues), [yValues]);
+    const minY = useMemo(() => Math.min(...yValues), [yValues]);
+
+    const maxYDataPoint = useMemo(
+      () => data.find((d) => d.y === maxY),
+      [data, maxY]
+    );
+    const minYDataPoint = useMemo(
+      () => data.find((d) => d.y === minY),
+      [data, minY]
+    );
+
+    // Determine date formatting based on interval
+    const formatDate = useCallback(
+      (date: number) => {
+        const dt = new Date(date);
+        switch (interval) {
+          case '1m':
+          case '5m':
+          case '15m':
+          case '30m':
+          case '1h':
+            // Show time for shorter intervals
+            return dt.toLocaleTimeString(undefined, {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          case '4h':
+          case '1D':
+            // Show date and time
+            return dt.toLocaleString(undefined, {
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          case '1W':
+          case '1M':
+          case '3M':
+          case '1Y':
+          case '5Y':
+          case 'Max':
+            // Show date for longer intervals
+            return dt.toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
+          default:
+            return dt.toLocaleString();
+        }
+      },
       [interval]
     );
 
@@ -50,45 +143,27 @@ const Chart: React.FC<ChartProps> = React.memo(
     const maxXFromData = useMemo(() => Math.max(...xValues), [xValues]);
 
     const minYFromData = useMemo(
-      () => Math.min(openPrice, Math.min(...yValues)),
-      [openPrice, yValues]
+      () => Math.min(openPrice, minY),
+      [openPrice, minY]
     );
     const maxYFromData = useMemo(
-      () => Math.max(openPrice, Math.max(...yValues)),
-      [openPrice, yValues]
+      () => Math.max(openPrice, maxY),
+      [openPrice, maxY]
     );
 
     const handleTooltipUpdate = useCallback((payload: any[]) => {
       if (payload.length > 0) {
         const { x, y, volume } = payload[0].payload as DataPoint;
-        setHoveredData({ x, y, volume });
+        hoveredData.current = { x, y, volume };
       } else {
-        setHoveredData(null);
+        hoveredData.current = null;
       }
     }, []);
 
-    const formatDate = useCallback(
-      (date: number) => {
-        const options: Intl.DateTimeFormatOptions = showDate
-          ? { day: '2-digit', month: 'short', year: 'numeric' }
-          : showDateTime
-            ? { hour: '2-digit', minute: '2-digit' }
-            : {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              };
-        return new Date(date).toLocaleString(undefined, options);
-      },
-      [showDate, showDateTime]
-    );
-
     const getTooltipContent = useCallback(() => {
-      if (!hoveredData) return null;
+      if (!hoveredData.current) return null;
 
-      const priceChange = hoveredData.y - yValues[yValues.length - 1];
+      const priceChange = hoveredData.current.y - yValues[yValues.length - 1];
       const priceChangePercent = yValues[yValues.length - 1]
         ? (priceChange / yValues[yValues.length - 1]) * 100
         : 0;
@@ -98,14 +173,14 @@ const Chart: React.FC<ChartProps> = React.memo(
           <Flex align="center" justify="start" mb={4} mt={6}>
             <IconClock size={18} />
             <Text component="div" ml={4}>
-              {formatDate(hoveredData.x)}
+              {formatDate(hoveredData.current.x)}
             </Text>
           </Flex>
           <Divider mx={-14} color="dark.5" />
           <div style={{ padding: '0.25rem 0' }}>
             <Flex mb={{ base: 7 }} mt={{ md: 4, base: 7 }}>
               <AnimatedTickerDisplay
-                price={hoveredData.y}
+                price={hoveredData.current.y}
                 priceChange={priceChange.toFixed(precision)}
                 decimalPrecision={precision}
                 priceChangePercent={priceChangePercent}
@@ -123,7 +198,7 @@ const Chart: React.FC<ChartProps> = React.memo(
               <IconChartBarPopular size={18} />
               <Text component="div" ml={4}>
                 Volume 24h:{' '}
-                {Number(hoveredData.volume.toFixed(2)).toLocaleString()}
+                {Number(hoveredData.current.volume.toFixed(2)).toLocaleString()}
               </Text>
             </Flex>
           </div>
@@ -140,57 +215,17 @@ const Chart: React.FC<ChartProps> = React.memo(
 
     RenderTooltip.displayName = 'RenderTooltip';
 
-    const RenderTrendlineLabel: React.FC<{ x: number; y: number }> = React.memo(
-      ({ x, y }) => {
-        const text = openPrice
-          ? Number(openPrice.toFixed(precision)).toLocaleString(undefined, {
-              minimumFractionDigits: precision
-            })
-          : '0.00';
-
-        return (
-          <g>
-            <rect
-              x={x + 50 - text.length * 4 - 10}
-              y={y - 11}
-              rx={10}
-              ry={10}
-              width={text.length * 8 + 20}
-              height={21}
-              fill="#FFF"
-              stroke="#333"
-              strokeOpacity={0.4}
-            />
-            <text
-              x={x + 50}
-              y={y + 4}
-              fill="#333"
-              fontSize="12"
-              fillOpacity={0.9}
-              fontWeight="bold"
-              textAnchor="middle"
-            >
-              {text}
-            </text>
-          </g>
-        );
-      }
-    );
-
-    RenderTrendlineLabel.displayName = 'RenderTrendlineLabel';
-
     return (
       <Flex
         className="area-chart-wrapper"
         justify="space-between"
         style={{ zIndex: 2, paddingTop: '14px' }}
         h={{
-          base: 'calc(100vh - 470px)',
-          sm: 'calc(100vh - 470px)',
-          md: 'calc(100vh - 420px)',
-          xl: 'calc(100vh - 340px)'
+          base: '300',
+          sm: '325',
+          md: '350',
+          xl: '400'
         }}
-        mih={300}
         direction="column"
       >
         <LoadingOverlay
@@ -198,7 +233,6 @@ const Chart: React.FC<ChartProps> = React.memo(
           zIndex={2}
           transitionProps={{ duration: 200, timingFunction: 'ease' }}
           overlayProps={{
-            radius: 'lg',
             blur: 0,
             mt: 20,
             bg: 'transparent'
@@ -212,16 +246,23 @@ const Chart: React.FC<ChartProps> = React.memo(
         />
         <Divider
           variant="dotted"
-          label="Price"
+          label={
+            <Flex justify="center">
+              <Text component="div" size="xs" c="dark.1" fw={400}>
+                Open price:{' '}
+                {Number(openPrice?.toFixed(precision)).toLocaleString()}
+              </Text>
+            </Flex>
+          }
           labelPosition="left"
           pl={28}
           color="dark.5"
         />
-        <ResponsiveContainer width="100%" height="85%">
+        <ResponsiveContainer width="100%" height="80%">
           <AreaChart
             syncId="syncCharts"
             data={data}
-            margin={{ top: 20, bottom: 20, right: 0 }}
+            margin={{ top: 20, bottom: 20, right: 28, left: 28 }}
           >
             <YAxis
               domain={[minYFromData, maxYFromData]}
@@ -290,7 +331,7 @@ const Chart: React.FC<ChartProps> = React.memo(
               </linearGradient>
             </defs>
             <Area
-              type="natural"
+              type="linear"
               dataKey="y"
               isAnimationActive
               animationDuration={500}
@@ -305,20 +346,61 @@ const Chart: React.FC<ChartProps> = React.memo(
               fill="url(#lineGradient)"
               dot={{ r: 0 }}
             />
+
             {openPrice && (
               <ReferenceLine
+                // @ts-expect-error - recharts types are incorrect
                 y={openPrice}
-                strokeDasharray="1"
+                strokeDasharray="5 5"
                 strokeWidth={1}
                 stroke="rgba(255, 255, 255, 0.4)"
-                label={({ viewBox }) => {
-                  const { x, y } = viewBox as { x: number; y: number };
-                  return <RenderTrendlineLabel x={x} y={y} />;
-                }}
               />
             )}
+
+            {/* Max Value Reference Dot */}
+            {maxYDataPoint && (
+              <ReferenceDot
+                x={maxYDataPoint.x}
+                y={maxYDataPoint.y}
+                r={0}
+                fill="green"
+                isFront
+              >
+                <Label
+                  value={formatValueWithSubscript(maxY, precision)}
+                  position="insideTop"
+                  fill="#fff"
+                  opacity={0.7}
+                  fontSize={12}
+                  fontWeight="bold"
+                  offset={-15}
+                />
+              </ReferenceDot>
+            )}
+
+            {/* Min Value Reference Dot */}
+            {minYDataPoint && (
+              <ReferenceDot
+                x={minYDataPoint.x}
+                y={minYDataPoint.y}
+                r={0}
+                fill="red"
+                isFront
+              >
+                <Label
+                  value={formatValueWithSubscript(minY, precision)}
+                  position="insideBottom"
+                  fill="#fff"
+                  opacity={0.7}
+                  fontSize={12}
+                  fontWeight="bold"
+                  offset={-14}
+                />
+              </ReferenceDot>
+            )}
+
             <Tooltip
-              content={loading ? null : <RenderTooltip />}
+              content={<RenderTooltip />}
               allowEscapeViewBox={{ x: false, y: false }}
               cursor={{
                 strokeDasharray: '2 2',
@@ -332,17 +414,29 @@ const Chart: React.FC<ChartProps> = React.memo(
         </ResponsiveContainer>
         <Divider
           variant="dotted"
-          label="Volume"
+          mt={14}
+          label={
+            <Flex justify="center">
+              <Text component="div" size="xs" c="dark.1" fw={400}>
+                Volume (24h):{' '}
+                {data.length > 0 && data[data.length - 1].volume !== undefined
+                  ? Number(
+                      (data[data.length - 1].volume ?? 0).toFixed(2)
+                    ).toLocaleString()
+                  : Number('0.00').toLocaleString()}
+              </Text>
+            </Flex>
+          }
           labelPosition="left"
           pl={28}
           color="dark.5"
         />
         {/* Volume Chart */}
-        <ResponsiveContainer width="100%" height="15%">
+        <ResponsiveContainer width="100%" height="20%">
           <AreaChart
             syncId="syncCharts"
             data={data}
-            margin={{ top: 10, bottom: 0, right: 0, left: 0 }}
+            margin={{ top: 10, bottom: 0, right: 28, left: 28 }}
           >
             <XAxis
               dataKey="x"
@@ -359,7 +453,7 @@ const Chart: React.FC<ChartProps> = React.memo(
               stroke="rgba(255, 255, 255, 0.3)"
             />
             <Tooltip
-              content={null}
+              content={<></>}
               cursor={{
                 strokeDasharray: '2 2',
                 strokeWidth: 1,

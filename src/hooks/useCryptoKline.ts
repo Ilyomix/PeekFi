@@ -32,6 +32,11 @@ const rangeMapping: {
   '1W': { days: '7', binanceInterval: '15m', granularity: 15 * 60 * 1000 },
   '1M': { days: '30', binanceInterval: '1h', granularity: 60 * 60 * 1000 },
   '3M': { days: '90', binanceInterval: '4h', granularity: 4 * 60 * 60 * 1000 },
+  '6M': {
+    days: '180',
+    binanceInterval: '12h',
+    granularity: 8 * 60 * 60 * 1000
+  },
   '1Y': {
     days: '365',
     binanceInterval: '1d',

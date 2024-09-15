@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Paper, Flex } from '@mantine/core';
+import { Paper, Flex, Grid, Button } from '@mantine/core';
 import { AnimatedTickerDisplay } from 'components/Pages/Pair/AnimatedTickerDisplay';
 import { TickerSymbol } from 'components/Pages/Pair/TickerSymbol';
 import AreaChart from 'components/Pages/Pair/AreaChart';
@@ -9,6 +9,8 @@ import classes from 'assets/app/pair.module.css';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
 import useCryptoKLine from 'hooks/useCryptoKline';
 import { DotMatrixWallEffect } from 'components/App/MatrixDotBackground/DotMatrixWallEffect';
+import PairDetails from 'components/Pages/Pair/PairDetails';
+import PairHeader from './PairHeader';
 
 interface PairContentProps {
   cryptoName: string;
@@ -17,10 +19,11 @@ interface PairContentProps {
   selectedInterval: string;
   priceSource: number;
   deltaSource: number;
+  coinId: string;
 }
 
 const PairContent: React.FC<PairContentProps> = React.memo(
-  ({ cryptoName, image, pair, selectedInterval, priceSource }) => {
+  ({ pair, selectedInterval, priceSource, coinId }) => {
     const responsiveStyles = useResponsiveStyles();
     const { data, loading, openPrice } = useCryptoKLine(
       pair,
@@ -56,64 +59,75 @@ const PairContent: React.FC<PairContentProps> = React.memo(
     }, [deltaPercent]);
 
     return (
-      <Paper
-        shadow="xl"
-        radius="xl"
-        style={{
-          position: 'relative',
-          transition: 'all 0.5s ease-in-out',
-          overflow: 'hidden'
-        }}
-        h="100%"
-        className={classes['ticker-wrapper']}
-      >
-        <Flex align="flex-start" direction="column">
-          <DotMatrixWallEffect
-            colors={[deltaColor]}
-            deltaPercent={
-              deltaPercent !== 0 ? Math.ceil(Math.abs(deltaPercent)) : 0
-            }
-          />
-          <TickerSymbol tickerSymbol={cryptoName || ''} imgUrl={image} />
-          <Flex>
-            <AnimatedTickerDisplay
-              price={priceSource ?? 0}
-              priceChangePercent={deltaPercent}
-              decimalPrecision={
-                getNumberPrecision(priceSource ?? 0) < 2
-                  ? 2
-                  : getNumberPrecision(priceSource ?? 0)
-              }
-              priceChange={openPrice ?? 0}
-              deltaFontSize={responsiveStyles.deltaFontSize.fontSize}
-              deltaIconFontSize={responsiveStyles.deltaFontSize.fontSize}
-              deltaAbsoluteFontSize={responsiveStyles.deltaFontSize.fontSize}
-              priceFontSize={responsiveStyles.animatedTickerDisplay.fontSize}
-              noAnimation={responsiveStyles.animatedTicker}
-              interval={selectedInterval}
-            />
-          </Flex>
-          <IntervalSelector />
-          <AreaChart
-            data={processedData}
-            loading={loading}
-            openPrice={openPrice ?? 0}
-            activeDotColor={
-              deltaPercent !== 0
-                ? deltaPercent > 0
-                  ? 'rgb(31, 196, 147)'
-                  : 'rgb(255, 71, 71)'
-                : 'rgb(128, 128, 128)'
-            }
-            currentPrice={priceSource ?? 0}
-            deltaPercent={deltaPercent}
-            deltaPositive={deltaPercent > 0}
-            symbol={pair || ''}
-            interval={selectedInterval}
-            precision={getNumberPrecision(priceSource ?? 0)}
-          />
-        </Flex>
-      </Paper>
+      <Grid align="flex-start" style={{ height: '100%' }}>
+        <Grid.Col>
+          <Paper
+            shadow="xl"
+            radius={0}
+            w="calc(100% + 4rem)"
+            ml="-2rem"
+            style={{
+              position: 'relative',
+              transition: 'all 0.5s ease-in-out',
+              overflow: 'hidden'
+            }}
+            h="100%"
+            className={classes['ticker-wrapper']}
+          >
+            <Flex align="flex-start" direction="column">
+              <DotMatrixWallEffect
+                colors={[deltaColor]}
+                deltaPercent={
+                  deltaPercent !== 0 ? Math.ceil(Math.abs(deltaPercent)) : 0
+                }
+              />
+              <PairHeader coinId={coinId} />
+              <Flex>
+                <AnimatedTickerDisplay
+                  price={priceSource ?? 0}
+                  priceChangePercent={deltaPercent}
+                  decimalPrecision={
+                    getNumberPrecision(priceSource ?? 0) < 2
+                      ? 2
+                      : getNumberPrecision(priceSource ?? 0)
+                  }
+                  priceChange={openPrice ?? 0}
+                  deltaFontSize={responsiveStyles.deltaFontSize.fontSize}
+                  deltaIconFontSize={responsiveStyles.deltaFontSize.fontSize}
+                  deltaAbsoluteFontSize={
+                    responsiveStyles.deltaFontSize.fontSize
+                  }
+                  priceFontSize={
+                    responsiveStyles.animatedTickerDisplay.fontSize
+                  }
+                  noAnimation={responsiveStyles.animatedTicker}
+                  interval={selectedInterval}
+                />
+              </Flex>
+              <IntervalSelector />
+              <AreaChart
+                data={processedData}
+                loading={loading}
+                openPrice={openPrice ?? 0}
+                activeDotColor={
+                  deltaPercent !== 0
+                    ? deltaPercent > 0
+                      ? 'rgb(31, 196, 147)'
+                      : 'rgb(255, 71, 71)'
+                    : 'rgb(128, 128, 128)'
+                }
+                currentPrice={priceSource ?? 0}
+                deltaPercent={deltaPercent}
+                deltaPositive={deltaPercent > 0}
+                symbol={pair || ''}
+                interval={selectedInterval}
+                precision={getNumberPrecision(priceSource ?? 0)}
+              />
+            </Flex>
+            <PairDetails id={coinId} vsCurrency="usd" />
+          </Paper>
+        </Grid.Col>
+      </Grid>
     );
   }
 );

@@ -21,7 +21,7 @@ const Pair: React.FC = () => {
     return setSelectedInterval('1D');
   }, [setSelectedInterval]);
 
-  if (infoLoading || !cryptoInfo || infoError) {
+  if (infoLoading || !cryptoInfo || infoError || !coinId) {
     return null;
   }
 
@@ -42,6 +42,7 @@ const Pair: React.FC = () => {
         priceSource={currentPrice}
         deltaSource={priceChangePercent24h}
         pair={pair || ''}
+        coinId={coinId}
         selectedInterval={selectedInterval}
       />
     </PageTransition>
