@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect, useMemo } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import {
   YAxis,
   Tooltip,
@@ -17,9 +17,7 @@ import { CandleData } from 'hooks/useCryptoKline';
 type DataPoint = {
   x: number;
   y: number;
-  openPrice?: number;
-  volume: number; // Added volume for the bar chart
-  payload?: { x: number; y: number };
+  volume: number;
 };
 
 type ChartProps = {
@@ -32,192 +30,156 @@ type ChartProps = {
   loading: boolean;
   openPrice: number;
   deltaPositive: boolean;
-  data: CandleData[]; // Add the 'data' property
+  data: CandleData[];
 };
 
-type RenderTrendlineLabelProps = {
-  x: number;
-  y: number;
-};
+const Chart: React.FC<ChartProps> = React.memo(
+  ({ interval, precision, data, loading, activeDotColor, openPrice }) => {
+    const [hoveredData, setHoveredData] = useState<DataPoint | null>(null);
 
-const Chart: React.FC<ChartProps> = ({
-  interval,
-  precision,
-  data,
-  loading,
-  activeDotColor,
-  openPrice,
-  deltaPercent,
-  deltaPositive
-}) => {
-  const hoveredDataRef = useRef<DataPoint>({ x: 0, y: -1, volume: 0 });
-  const xValues = data.map((d) => d.x);
-  const yValues = data.map((d) => d.y);
-  const intervalToShowTimeOnly = ['1D'];
-  const intervalToShowDateOnly = ['3M', '1Y', '5Y', 'Max'];
-  const showDateTime = intervalToShowTimeOnly.includes(interval);
-  const showDate = intervalToShowDateOnly.includes(interval);
+    const xValues = useMemo(() => data.map((d) => d.x), [data]);
+    const yValues = useMemo(() => data.map((d) => d.y), [data]);
 
-  const minXFromData = useMemo(() => Math.min(...xValues), [xValues]);
-  const maxXFromData = useMemo(() => Math.max(...xValues), [xValues]);
-
-  const minYFromData = useMemo(
-    () => Math.min(openPrice, Math.min(...yValues)),
-    [openPrice, yValues]
-  );
-  const maxYFromData = useMemo(
-    () => Math.max(openPrice, Math.max(...yValues)),
-    [openPrice, yValues]
-  );
-
-  const handleTooltipUpdate = useCallback((payload: DataPoint[]) => {
-    if (payload.length > 0) {
-      const { x, y, volume } = payload[0].payload as DataPoint;
-
-      if (x !== undefined && y !== undefined) {
-        hoveredDataRef.current = { x, y, volume };
-      }
-    }
-  }, []);
-
-  const formatDate = (date: number) => {
-    return showDate
-      ? new Date(date).toLocaleDateString(undefined, {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        })
-      : showDateTime
-        ? new Date(date).toLocaleTimeString(undefined, {
-            hour: '2-digit',
-            minute: '2-digit'
-          })
-        : new Date(date).toLocaleString(undefined, {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-  };
-
-  const getTooltipContent = useCallback(() => {
-    const priceChange = hoveredDataRef.current.y - yValues[yValues.length - 1];
-    const priceChangePercent = yValues[yValues.length - 1]
-      ? (priceChange / yValues[yValues.length - 1]) * 100
-      : 0;
-
-    return hoveredDataRef.current.y > 0 ? (
-      <Paper px={14} py={2} radius="xs" className="tooltip">
-        <Flex align="center" justify="start" mb={4} mt={6}>
-          <IconClock size={18} />
-          <Text component="div" ml={4}>
-            {formatDate(hoveredDataRef.current.x)}
-          </Text>
-        </Flex>
-        <Divider
-          mx={-14}
-          color="light-dark(var(--mantine-color-gray-4), rgba(255, 255, 255, 0.1))"
-        />
-        <div style={{ padding: '0.25rem 0' }}>
-          <Flex mb={{ base: 7 }} mt={{ md: 4, base: 7 }}>
-            <AnimatedTickerDisplay
-              price={hoveredDataRef.current.y}
-              priceChange={priceChange.toFixed(precision)}
-              decimalPrecision={precision}
-              priceChangePercent={priceChangePercent}
-              darkModeEnabled
-              priceFontSize={window.innerWidth <= 768 ? '30px' : '40px'}
-              deltaAbsoluteFontSize="15px"
-              deltaFontSize="18px"
-              deltaIconFontSize="22px"
-              noAnimation
-              tooltipMode
-            />
-          </Flex>
-          <Divider
-            mx={-14}
-            color="light-dark(var(--mantine-color-gray-4), rgba(255, 255, 255, 0.1))"
-          />
-          <Flex align="center" justify="start" mb={2} mt={6}>
-            <IconChartBarPopular size={18} />
-
-            <Text component="div" ml={4}>
-              Volume 24h:{' '}
-              {Number(
-                hoveredDataRef.current.volume
-                  ? hoveredDataRef.current.volume.toFixed(2)
-                  : Number(0).toFixed(2)
-              ).toLocaleString()}
-            </Text>
-          </Flex>
-        </div>
-      </Paper>
-    ) : (
-      <></>
+    const showDateTime = useMemo(() => ['1D'].includes(interval), [interval]);
+    const showDate = useMemo(
+      () => ['3M', '1Y', '5Y', 'Max'].includes(interval),
+      [interval]
     );
-  }, [interval, precision, yValues]);
 
-  const RenderTooltip: React.FC<{ payload?: DataPoint[] }> = React.memo(
-    ({ payload = [] }) => {
-      useEffect(() => {
-        handleTooltipUpdate(payload);
-      }, [payload]);
+    const minXFromData = useMemo(() => Math.min(...xValues), [xValues]);
+    const maxXFromData = useMemo(() => Math.max(...xValues), [xValues]);
 
-      return payload.length ? getTooltipContent() : <></>;
-    }
-  );
+    const minYFromData = useMemo(
+      () => Math.min(openPrice, Math.min(...yValues)),
+      [openPrice, yValues]
+    );
+    const maxYFromData = useMemo(
+      () => Math.max(openPrice, Math.max(...yValues)),
+      [openPrice, yValues]
+    );
 
-  RenderTooltip.displayName = 'RenderTooltip';
+    const handleTooltipUpdate = useCallback((payload: any[]) => {
+      if (payload.length > 0) {
+        const { x, y, volume } = payload[0].payload as DataPoint;
+        setHoveredData({ x, y, volume });
+      } else {
+        setHoveredData(null);
+      }
+    }, []);
 
-  const RenderTrendlineLabel: React.FC<RenderTrendlineLabelProps> = React.memo(
-    ({ x, y }) => {
-      const text = openPrice
-        ? Number(openPrice.toFixed(precision)).toLocaleString(undefined, {
-            minimumFractionDigits: precision
-          })
-        : '0.00';
-      // The openPrice value to display
-      const textWidth = text.length * 8; // Approximate width of each character (adjust for your font)
-      const padding = 5; // Padding on each side of the text inside the pill
-      const pillWidth = textWidth + 2 * padding; // Total width of the pill based on the text length
+    const formatDate = useCallback(
+      (date: number) => {
+        const options: Intl.DateTimeFormatOptions = showDate
+          ? { day: '2-digit', month: 'short', year: 'numeric' }
+          : showDateTime
+            ? { hour: '2-digit', minute: '2-digit' }
+            : {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              };
+        return new Date(date).toLocaleString(undefined, options);
+      },
+      [showDate, showDateTime]
+    );
+
+    const getTooltipContent = useCallback(() => {
+      if (!hoveredData) return null;
+
+      const priceChange = hoveredData.y - yValues[yValues.length - 1];
+      const priceChangePercent = yValues[yValues.length - 1]
+        ? (priceChange / yValues[yValues.length - 1]) * 100
+        : 0;
 
       return (
-        <g>
-          {/* Pill-shaped background */}
-          <rect
-            x={x - pillWidth / 2 + 50} // Center the pill background
-            y={y - 11} // Adjust the y position to place it above the trendline
-            rx={10} // Rounded corners for the pill shape
-            ry={10}
-            width={pillWidth} // Width of the pill background
-            height={21} // Height of the pill background
-            fill={'#FFF'} // Adapt background color for dark/light mode
-            fillOpacity={1} // Opacity of the pill background
-            stroke={'#333'} // Border of the pill, opposite color
-            strokeOpacity={0.4}
-          />
-          {/* Text showing the openPrice value */}
-          <text
-            x={x + 50} // Center the text
-            y={y + 4} // Adjust y position to center text inside the pill
-            fill={'#333'} // Adapt text color for dark/light mode
-            fontSize="12"
-            fillOpacity={0.9}
-            fontWeight="bold"
-            textAnchor="middle" // Center the text horizontally
-          >
-            {text}
-          </text>
-        </g>
+        <Paper px={14} py={2} radius="xs" className="tooltip">
+          <Flex align="center" justify="start" mb={4} mt={6}>
+            <IconClock size={18} />
+            <Text component="div" ml={4}>
+              {formatDate(hoveredData.x)}
+            </Text>
+          </Flex>
+          <Divider mx={-14} color="dark.5" />
+          <div style={{ padding: '0.25rem 0' }}>
+            <Flex mb={{ base: 7 }} mt={{ md: 4, base: 7 }}>
+              <AnimatedTickerDisplay
+                price={hoveredData.y}
+                priceChange={priceChange.toFixed(precision)}
+                decimalPrecision={precision}
+                priceChangePercent={priceChangePercent}
+                darkModeEnabled
+                priceFontSize={window.innerWidth <= 768 ? '30px' : '40px'}
+                deltaAbsoluteFontSize="15px"
+                deltaFontSize="18px"
+                deltaIconFontSize="22px"
+                noAnimation
+                tooltipMode
+              />
+            </Flex>
+            <Divider mx={-14} color="dark.5" />
+            <Flex align="center" justify="start" mb={2} mt={6}>
+              <IconChartBarPopular size={18} />
+              <Text component="div" ml={4}>
+                Volume 24h:{' '}
+                {Number(hoveredData.volume.toFixed(2)).toLocaleString()}
+              </Text>
+            </Flex>
+          </div>
+        </Paper>
       );
-    }
-  );
+    }, [hoveredData, yValues, precision, formatDate]);
 
-  RenderTrendlineLabel.displayName = 'RenderTrendlineLabel';
+    const RenderTooltip: React.FC<{ payload?: any[] }> = React.memo(
+      ({ payload = [] }) => {
+        handleTooltipUpdate(payload);
+        return getTooltipContent();
+      }
+    );
 
-  return (
-    <>
+    RenderTooltip.displayName = 'RenderTooltip';
+
+    const RenderTrendlineLabel: React.FC<{ x: number; y: number }> = React.memo(
+      ({ x, y }) => {
+        const text = openPrice
+          ? Number(openPrice.toFixed(precision)).toLocaleString(undefined, {
+              minimumFractionDigits: precision
+            })
+          : '0.00';
+
+        return (
+          <g>
+            <rect
+              x={x + 50 - text.length * 4 - 10}
+              y={y - 11}
+              rx={10}
+              ry={10}
+              width={text.length * 8 + 20}
+              height={21}
+              fill="#FFF"
+              stroke="#333"
+              strokeOpacity={0.4}
+            />
+            <text
+              x={x + 50}
+              y={y + 4}
+              fill="#333"
+              fontSize="12"
+              fillOpacity={0.9}
+              fontWeight="bold"
+              textAnchor="middle"
+            >
+              {text}
+            </text>
+          </g>
+        );
+      }
+    );
+
+    RenderTrendlineLabel.displayName = 'RenderTrendlineLabel';
+
+    return (
       <Flex
         className="area-chart-wrapper"
         justify="space-between"
@@ -292,27 +254,46 @@ const Chart: React.FC<ChartProps> = ({
               tickFormatter={(v) => formatDate(v)}
             />
             <defs>
-              <linearGradient id="positiveGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(31, 196, 147, 0.8)" />
-                <stop offset="25%" stopColor="rgba(31, 196, 147, 0.4)" />
-                <stop offset="100%" stopColor="rgba(31, 196, 147, 0)" />
+              <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="0%"
+                  stopColor={activeDotColor}
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="25%"
+                  stopColor={activeDotColor}
+                  stopOpacity={0.4}
+                />
+                <stop
+                  offset="100%"
+                  stopColor={activeDotColor}
+                  stopOpacity={0}
+                />
               </linearGradient>
-              <linearGradient id="negativeGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(255, 71, 71, 0.8)" />
-                <stop offset="25%" stopColor="rgba(255, 71, 71, 0.4)" />
-                <stop offset="100%" stopColor="rgba(255, 71, 71, 0)" />
-              </linearGradient>
-              <linearGradient id="neutral" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(128, 128, 128, 0.8)" />
-                <stop offset="25%" stopColor="rgba(128, 128, 128, 0.4)" />
-                <stop offset="100%" stopColor="rgba(128, 128, 128, 0)" />
+              <linearGradient id="volumeGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="0%"
+                  stopColor="rgba(255, 255, 255, 1)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="25%"
+                  stopColor="rgba(255, 255, 255, 1)"
+                  stopOpacity={0.4}
+                />
+                <stop
+                  offset="100%"
+                  stopColor="rgba(255, 255, 255, 1)"
+                  stopOpacity={0}
+                />
               </linearGradient>
             </defs>
             <Area
               type="natural"
               dataKey="y"
-              animationDuration={0}
-              animateNewValues
+              isAnimationActive
+              animationDuration={500}
               strokeWidth={2}
               activeDot={{
                 r: 6,
@@ -321,41 +302,23 @@ const Chart: React.FC<ChartProps> = ({
               }}
               strokeOpacity={0.8}
               stroke={activeDotColor}
-              fill={
-                deltaPercent !== 0
-                  ? deltaPositive
-                    ? 'url(#positiveGradient)'
-                    : 'url(#negativeGradient)'
-                  : 'url(#neutral)' // No  No fill when there's no change
-              }
+              fill="url(#lineGradient)"
               dot={{ r: 0 }}
             />
-
-            {!openPrice ? (
-              <></>
-            ) : (
+            {openPrice && (
               <ReferenceLine
-                // @ts-expect-error y definition is not available in Recharts 2.x
                 y={openPrice}
                 strokeDasharray="1"
                 strokeWidth={1}
                 stroke="rgba(255, 255, 255, 0.4)"
-                label={({ viewBox }: React.SVGProps<SVGRectElement>) => {
-                  const { x, y } = viewBox as React.SVGProps<SVGRectElement>;
-                  return <RenderTrendlineLabel x={Number(x)} y={Number(y)} />;
+                label={({ viewBox }) => {
+                  const { x, y } = viewBox as { x: number; y: number };
+                  return <RenderTrendlineLabel x={x} y={y} />;
                 }}
               />
             )}
-            {/* <ReferenceDot
-              y={currentPrice}
-              x={data[data.length - 1]?.x}
-              stroke="rgba(255, 255, 255, 1)"
-              r={4}
-              opacity={loading ? 0 : 0.9}
-              fill={activeDotColor}
-            /> */}
             <Tooltip
-              content={loading ? <></> : <RenderTooltip />}
+              content={loading ? null : <RenderTooltip />}
               allowEscapeViewBox={{ x: false, y: false }}
               cursor={{
                 strokeDasharray: '2 2',
@@ -374,7 +337,7 @@ const Chart: React.FC<ChartProps> = ({
           pl={28}
           color="dark.5"
         />
-        {/* Volume Bar Chart */}
+        {/* Volume Chart */}
         <ResponsiveContainer width="100%" height="15%">
           <AreaChart
             syncId="syncCharts"
@@ -388,14 +351,15 @@ const Chart: React.FC<ChartProps> = ({
               hide
             />
             <Area
-              isAnimationActive={false}
+              isAnimationActive
+              animationDuration={500}
               dataKey="volume"
               type="natural"
-              fill="url(#neutral)"
+              fill="url(#volumeGradient)"
               stroke="rgba(255, 255, 255, 0.3)"
             />
             <Tooltip
-              content={<></>}
+              content={null}
               cursor={{
                 strokeDasharray: '2 2',
                 strokeWidth: 1,
@@ -407,9 +371,9 @@ const Chart: React.FC<ChartProps> = ({
           </AreaChart>
         </ResponsiveContainer>
       </Flex>
-    </>
-  );
-};
+    );
+  }
+);
 
 Chart.displayName = 'Chart';
 export default Chart;
