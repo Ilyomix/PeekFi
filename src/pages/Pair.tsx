@@ -17,14 +17,6 @@ const Pair: React.FC = () => {
     error: infoError
   } = useCryptoInfo(coinId || '');
 
-  useEffect(() => {
-    return setSelectedInterval('1D');
-  }, [setSelectedInterval]);
-
-  if (infoLoading || !cryptoInfo || infoError || !coinId) {
-    return null;
-  }
-
   const {
     name: cryptoName = '',
     image: { small: image } = { small: '' },
@@ -33,6 +25,26 @@ const Pair: React.FC = () => {
       current_price: { usd: currentPrice } = { usd: 0 }
     } = {}
   } = cryptoInfo || {};
+
+  useEffect(() => {
+    return setSelectedInterval('1D');
+  }, [setSelectedInterval]);
+
+  useEffect(() => {
+    if (pair && !infoLoading) {
+      document.title = `$${currentPrice.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 16
+      })} | ${cryptoName}`;
+    }
+    return () => {
+      document.title = 'Peekfi';
+    };
+  }, [cryptoName, currentPrice, infoLoading, pair]);
+
+  if (infoLoading || !cryptoInfo || infoError || !coinId) {
+    return null;
+  }
 
   return (
     <PageTransition>

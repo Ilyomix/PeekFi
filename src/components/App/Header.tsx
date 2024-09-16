@@ -22,7 +22,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { openSpotlight } from '@mantine/spotlight';
 import classes from 'assets/components/header/index.module.css';
 import { ThemeToggle } from './ThemeToggle';
-import logo from 'assets/logo.png';
+import logo from 'assets/images/logo.svg';
 import CryptoSearch from './CryptoSearch';
 
 const links = [
@@ -75,7 +75,7 @@ export function Header() {
             <Image
               className={classes.logo}
               radius="md"
-              w="100px"
+              h={26}
               src={logo}
               style={{
                 filter: isDarkTheme ? 'invert()' : ''
