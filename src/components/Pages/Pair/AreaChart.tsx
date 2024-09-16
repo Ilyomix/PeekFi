@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   YAxis,
   Tooltip,
@@ -32,53 +32,22 @@ type ChartProps = {
   loading: boolean;
   openPrice: number;
   deltaPositive: boolean;
+  totalVolume: number;
   data: CandleData[];
 };
 
-const formatValueWithSubscript = (value: number, precision: number): string => {
-  if (value < 1 && value.toFixed(precision).split('.')[1]?.length > 4) {
-    const subscriptMap: { [key: number]: string } = {
-      0: '₀',
-      1: '₁',
-      2: '₂',
-      3: '₃',
-      4: '₄',
-      5: '₅',
-      6: '₆',
-      7: '₇',
-      8: '₈',
-      9: '₉',
-      10: '₁₀',
-      11: '₁₁',
-      12: '₁₂',
-      13: '₁₃',
-      14: '₁₄',
-      15: '₁₅',
-      16: '₁₆'
-    };
-
-    // Split the value into the integer and decimal parts
-    const [integerPart, decimalPart] = value.toFixed(precision).split('.');
-
-    // Find leading zeros in the decimal part
-    const leadingZerosMatch = decimalPart.match(/^0+/);
-    const leadingZeros = leadingZerosMatch ? leadingZerosMatch[0] : '';
-    // Apply subscript formatting to the leading zeros
-    const subscriptLeadingZeros = subscriptMap[leadingZeros.length];
-    // The remaining part of the decimal number after the leading zeros
-    const remainingDecimal = decimalPart.slice(leadingZeros.length);
-
-    // Return the formatted number with the leading zeros as subscripts
-    return `${integerPart}.0${subscriptLeadingZeros}${remainingDecimal}`;
-  }
-
-  // Return the number as is if no special formatting is needed
-  return value.toFixed(precision);
-};
-
 const Chart: React.FC<ChartProps> = React.memo(
-  ({ interval, precision, data, loading, activeDotColor, openPrice }) => {
+  ({
+    interval,
+    precision,
+    data,
+    loading,
+    activeDotColor,
+    openPrice,
+    totalVolume
+  }) => {
     const hoveredData = useRef<DataPoint | null>(null);
+    const [chartSize, setChartSize] = useState({ width: 0, height: 0 });
 
     const xValues = useMemo(() => data.map((d) => d.x), [data]);
     const yValues = useMemo(() => data.map((d) => d.y), [data]);
@@ -123,6 +92,7 @@ const Chart: React.FC<ChartProps> = React.memo(
           case '1W':
           case '1M':
           case '3M':
+          case '6M':
           case '1Y':
           case '5Y':
           case 'Max':
@@ -215,6 +185,56 @@ const Chart: React.FC<ChartProps> = React.memo(
 
     RenderTooltip.displayName = 'RenderTooltip';
 
+    const CustomLabel = ({
+      value = '',
+      viewBox = { x: 0, y: 0, width: 300, height: 100 }, // Fallback default for viewBox
+      position = 'insideBottom',
+      fontSize = 14
+    }) => {
+      // Approximate character width ratio (adjust as needed)
+      const characterWidthRatio = 0.8;
+      const labelWidth = value.length * fontSize * characterWidthRatio;
+      const { width } = chartSize;
+      // Ensure the label stays within the left and right boundaries
+      let adjustedX = viewBox.x;
+      const x = Math.ceil(viewBox.x);
+      // Use a fallback width in case viewBox.width is 0
+
+      // Check if the label overflows to the left side
+      if (x - labelWidth / 2 <= 0) {
+        adjustedX = x + labelWidth / 2 - 15; // Shift right to prevent left overflow
+      }
+      // Check if the label overflows to the right side
+      if (x + labelWidth / 2 >= width) {
+        adjustedX = x - labelWidth / 2 + 20; // Shift left to prevent right overflow
+      }
+      // Adjust y position based on the position ('insideTop' or 'insideBottom')
+      let adjustedY = viewBox.y;
+      if (position === 'insideTop') {
+        adjustedY = viewBox.y - 12; // Inside top with padding
+      } else if (position === 'insideBottom') {
+        adjustedY = viewBox.y + 18; // Inside bottom with padding
+      }
+
+      return (
+        <text
+          x={adjustedX}
+          y={adjustedY}
+          fill="#fff"
+          opacity={0.7}
+          fontSize={fontSize}
+          fontWeight="bold"
+          textAnchor="middle"
+        >
+          {value.toLocaleString()}
+        </text>
+      );
+    };
+
+    const handleResize = (width: number, height: number) => {
+      setChartSize({ width, height });
+    };
+
     return (
       <Flex
         className="area-chart-wrapper"
@@ -245,6 +265,7 @@ const Chart: React.FC<ChartProps> = React.memo(
           }}
         />
         <Divider
+          mt={16}
           variant="dotted"
           label={
             <Flex justify="center">
@@ -258,11 +279,16 @@ const Chart: React.FC<ChartProps> = React.memo(
           pl={28}
           color="dark.5"
         />
-        <ResponsiveContainer width="100%" height="80%">
+        <ResponsiveContainer
+          width="100%"
+          height="80%"
+          debounce={200}
+          onResize={(width, height) => handleResize(width, height)}
+        >
           <AreaChart
             syncId="syncCharts"
             data={data}
-            margin={{ top: 20, bottom: 20, right: 28, left: 28 }}
+            margin={{ top: 30, bottom: 20, right: 28, left: 28 }}
           >
             <YAxis
               domain={[minYFromData, maxYFromData]}
@@ -362,18 +388,25 @@ const Chart: React.FC<ChartProps> = React.memo(
               <ReferenceDot
                 x={maxYDataPoint.x}
                 y={maxYDataPoint.y}
-                r={0}
-                fill="green"
+                r={3}
+                fill={activeDotColor}
+                stroke="rgba(255, 255, 255, 0)"
                 isFront
               >
                 <Label
-                  value={formatValueWithSubscript(maxY, precision)}
-                  position="insideTop"
-                  fill="#fff"
-                  opacity={0.7}
-                  fontSize={12}
-                  fontWeight="bold"
-                  offset={-15}
+                  content={({ viewBox }) => (
+                    <CustomLabel
+                      viewBox={viewBox}
+                      x={maxYDataPoint.x}
+                      y={maxYDataPoint.y}
+                      position="insideTop"
+                      fontSize={12}
+                      value={maxY.toLocaleString(undefined, {
+                        minimumFractionDigits: precision,
+                        maximumFractionDigits: precision
+                      })}
+                    />
+                  )}
                 />
               </ReferenceDot>
             )}
@@ -383,18 +416,25 @@ const Chart: React.FC<ChartProps> = React.memo(
               <ReferenceDot
                 x={minYDataPoint.x}
                 y={minYDataPoint.y}
-                r={0}
-                fill="red"
+                r={3}
+                stroke="rgba(255, 255, 255, 0)"
+                fill={activeDotColor}
                 isFront
               >
                 <Label
-                  value={formatValueWithSubscript(minY, precision)}
-                  position="insideBottom"
-                  fill="#fff"
-                  opacity={0.7}
-                  fontSize={12}
-                  fontWeight="bold"
-                  offset={-14}
+                  content={({ viewBox }) => (
+                    <CustomLabel
+                      viewBox={viewBox}
+                      x={minYDataPoint.x}
+                      y={minYDataPoint.y}
+                      position="insideBottom"
+                      fontSize={12}
+                      value={minY.toLocaleString(undefined, {
+                        minimumFractionDigits: precision,
+                        maximumFractionDigits: precision
+                      })}
+                    />
+                  )}
                 />
               </ReferenceDot>
             )}
@@ -418,11 +458,9 @@ const Chart: React.FC<ChartProps> = React.memo(
           label={
             <Flex justify="center">
               <Text component="div" size="xs" c="dark.1" fw={400}>
-                Volume (24h):{' '}
-                {data.length > 0 && data[data.length - 1].volume !== undefined
-                  ? Number(
-                      (data[data.length - 1].volume ?? 0).toFixed(2)
-                    ).toLocaleString()
+                Total volume (24h):{' '}
+                {totalVolume
+                  ? Number(totalVolume.toFixed(2)).toLocaleString()
                   : Number('0.00').toLocaleString()}
               </Text>
             </Flex>

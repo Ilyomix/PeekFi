@@ -283,7 +283,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
                   {ticker.market_cap_rank?.toLocaleString() || 'N/A'}
                 </Table.Td>
                 <Table.Td>
-                  <Flex w={{ base: '175px', md: '250px' }} align="center">
+                  <Flex w={{ base: '125px', md: '250px' }} align="center">
                     <PageTransition>
                       <Avatar
                         mr={14}

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-import { Paper, Flex, Grid, Button } from '@mantine/core';
+import { Paper, Flex, Grid } from '@mantine/core';
 import { AnimatedTickerDisplay } from 'components/Pages/Pair/AnimatedTickerDisplay';
-import { TickerSymbol } from 'components/Pages/Pair/TickerSymbol';
 import AreaChart from 'components/Pages/Pair/AreaChart';
 import IntervalSelector from 'components/Pages/Pair/IntervalSelector';
 import useResponsiveStyles from 'hooks/useResponsiveStyles';
@@ -11,6 +10,7 @@ import useCryptoKLine from 'hooks/useCryptoKline';
 import { DotMatrixWallEffect } from 'components/App/MatrixDotBackground/DotMatrixWallEffect';
 import PairDetails from 'components/Pages/Pair/PairDetails';
 import PairHeader from './PairHeader';
+import GoToTopButton from 'components/App/GoToTopButton';
 
 interface PairContentProps {
   cryptoName: string;
@@ -18,12 +18,13 @@ interface PairContentProps {
   pair: string;
   selectedInterval: string;
   priceSource: number;
+  totalVolume: number;
   deltaSource: number;
   coinId: string;
 }
 
 const PairContent: React.FC<PairContentProps> = React.memo(
-  ({ pair, selectedInterval, priceSource, coinId }) => {
+  ({ pair, selectedInterval, priceSource, coinId, totalVolume }) => {
     const responsiveStyles = useResponsiveStyles();
     const { data, loading, openPrice } = useCryptoKLine(
       pair,
@@ -59,13 +60,14 @@ const PairContent: React.FC<PairContentProps> = React.memo(
     }, [deltaPercent]);
 
     return (
-      <Grid align="flex-start" style={{ height: '100%' }}>
+      <Grid align="flex-start" style={{ height: '100%', margin: '-1.5rem 0' }}>
         <Grid.Col>
           <Paper
             shadow="xl"
             radius={0}
             w="calc(100% + 4rem)"
             ml="-2rem"
+            mb={-14}
             style={{
               position: 'relative',
               transition: 'all 0.5s ease-in-out',
@@ -119,6 +121,7 @@ const PairContent: React.FC<PairContentProps> = React.memo(
                 currentPrice={priceSource ?? 0}
                 deltaPercent={deltaPercent}
                 deltaPositive={deltaPercent > 0}
+                totalVolume={totalVolume}
                 symbol={pair || ''}
                 interval={selectedInterval}
                 precision={getNumberPrecision(priceSource ?? 0)}
@@ -126,6 +129,7 @@ const PairContent: React.FC<PairContentProps> = React.memo(
             </Flex>
             <PairDetails id={coinId} vsCurrency="usd" />
           </Paper>
+          <GoToTopButton color="dark.5" />
         </Grid.Col>
       </Grid>
     );

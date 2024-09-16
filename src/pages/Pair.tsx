@@ -1,10 +1,11 @@
 // src/pages/Pair.tsx
 import React, { useEffect } from 'react';
-import PageTransition from 'components/App/PageTransition';
 import { useParams } from 'react-router-dom';
 import useIntervalStore from 'stores/useIntervalStore';
 import useCryptoInfo from 'hooks/useCryptoInfo';
 import PairContent from 'components/Pages/Pair/PairContent';
+import PageTransition from 'components/App/PageTransition';
+import { Container } from '@mantine/core';
 
 const Pair: React.FC = () => {
   const { pair } = useParams<{ pair: string }>();
@@ -22,6 +23,7 @@ const Pair: React.FC = () => {
     image: { small: image } = { small: '' },
     market_data: {
       price_change_percentage_24h: priceChangePercent24h = 0,
+      total_volume: { usd: totalVolume } = { usd: 0 },
       current_price: { usd: currentPrice } = { usd: 0 }
     } = {}
   } = cryptoInfo || {};
@@ -43,7 +45,7 @@ const Pair: React.FC = () => {
   }, [cryptoName, currentPrice, infoLoading, pair]);
 
   if (infoLoading || !cryptoInfo || infoError || !coinId) {
-    return null;
+    return <></>;
   }
 
   return (
@@ -55,6 +57,7 @@ const Pair: React.FC = () => {
         deltaSource={priceChangePercent24h}
         pair={pair || ''}
         coinId={coinId}
+        totalVolume={totalVolume}
         selectedInterval={selectedInterval}
       />
     </PageTransition>

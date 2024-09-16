@@ -104,8 +104,7 @@ body {
 }
 
 .go-to-top-button:hover {
-  background-color: var(--mantine-color-teal-6);
-  opacity: 0.8 !important;
+  filter: saturate(1.5);
   transition: all 0.2s ease;
 }
 

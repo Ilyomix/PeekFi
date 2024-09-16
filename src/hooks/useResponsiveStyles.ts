@@ -18,13 +18,13 @@ const useResponsiveStyles = () => {
         fontSize: '100px',
         ...(windowWidth <= 1408 && { fontSize: '80px' }),
         ...(windowWidth <= 768 && { fontSize: '50px' }),
-        ...(windowWidth <= 425 && { fontSize: '40px' })
+        ...(windowWidth <= 425 && { fontSize: '35px' })
       },
       deltaFontSize: {
         fontSize: '34px',
-        ...(windowWidth <= 1408 && { fontSize: '26px' }),
+        ...(windowWidth <= 1408 && { fontSize: '24px' }),
         ...(windowWidth <= 768 && { fontSize: '27px' }),
-        ...(windowWidth <= 425 && { fontSize: '27px' })
+        ...(windowWidth <= 425 && { fontSize: '22px' })
       },
       animatedTicker: windowWidth <= 1408
     };

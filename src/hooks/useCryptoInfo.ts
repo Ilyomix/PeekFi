@@ -6,6 +6,7 @@ interface MarketData {
   current_price: Record<string, number>;
   price_change_percentage_24h: number;
   price_change_24h: number;
+  total_volume: Record<string, number>;
 }
 
 interface CryptoInfo {

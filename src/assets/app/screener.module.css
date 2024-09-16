@@ -60,7 +60,7 @@
   width: 20px;
   background: linear-gradient(
     to right,
-    light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.2)),
+    light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
     transparent
   );
   pointer-events: none;
@@ -74,7 +74,7 @@
   width: 20px;
   background: linear-gradient(
     to left,
-    light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.2)),
+    light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
     transparent
   );
 }

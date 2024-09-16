@@ -7,8 +7,6 @@ import React, {
   CSSProperties
 } from 'react';
 import { motion } from 'framer-motion';
-import { formatForDisplay } from './util';
-import { usePrevious } from './hooks';
 import debounce from 'lodash/debounce';
 import './styles.css';
 
@@ -24,6 +22,7 @@ export interface AnimatedCounterProps {
   includeCommas?: boolean;
   containerStyles?: CSSProperties;
   digitStyles?: CSSProperties;
+  locale?: string;
 }
 
 export interface NumberColumnProps {
@@ -35,20 +34,71 @@ export interface NumberColumnProps {
   decrementColor: string;
   animationDuration: string;
   digitStyles: CSSProperties;
+  locale: string;
 }
 
 export interface DecimalColumnProps {
   fontSize: string;
   color: string;
-  isComma: boolean;
+  separator: string;
+  isDecimalPoint: boolean;
   digitStyles: CSSProperties;
+}
+
+// Custom hook to get the previous value
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T>();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
+// Function to get the decimal and group separators for the locale
+function getSeparators(locale: string): {
+  decimalSeparator: string;
+  groupSeparator: string;
+} {
+  const numberWithDecimal = 1.1;
+  const numberWithGroup = 1000;
+
+  const formattedNumberWithDecimal = numberWithDecimal.toLocaleString(locale);
+  const formattedNumberWithGroup = numberWithGroup.toLocaleString(locale);
+
+  const decimalSeparator =
+    formattedNumberWithDecimal.replace(/\d/g, '')[0] || '.';
+  const groupSeparatorMatch = formattedNumberWithGroup.match(/1(.*)000/);
+  const groupSeparator = groupSeparatorMatch ? groupSeparatorMatch[1] : '';
+
+  return {
+    decimalSeparator,
+    groupSeparator
+  };
+}
+
+// Function to format the number for display
+function formatForDisplay(
+  value: number,
+  includeDecimals: boolean,
+  decimalPrecision: number,
+  includeCommas: boolean,
+  locale: string
+): string[] {
+  const options: Intl.NumberFormatOptions = {
+    minimumFractionDigits: includeDecimals ? decimalPrecision : 0,
+    maximumFractionDigits: includeDecimals ? decimalPrecision : 0,
+    useGrouping: includeCommas
+  };
+  const formattedNumber = value.toLocaleString(locale, options);
+  return formattedNumber.split('').reverse();
 }
 
 // Decimal element component
 const DecimalColumn = ({
   fontSize,
   color,
-  isComma,
+  separator,
+  isDecimalPoint,
   digitStyles
 }: DecimalColumnProps) => (
   <span
@@ -56,12 +106,12 @@ const DecimalColumn = ({
       fontSize: fontSize,
       lineHeight: fontSize,
       color: color,
-      width: !isComma ? '0.25em' : 'inherit',
+      width: !isDecimalPoint ? '0.25em' : 'inherit',
       marginLeft: `calc(-${fontSize} / 10)`,
       ...digitStyles
     }}
   >
-    {isComma ? '.' : ','}
+    {separator}
   </span>
 );
 
@@ -75,40 +125,52 @@ const NumberColumn = memo(
     incrementColor,
     decrementColor,
     animationDuration,
-    digitStyles
+    digitStyles,
+    locale
   }: NumberColumnProps) => {
+    const localizedDigits = [...Array(10).keys()]
+      .map((num) => num.toLocaleString(locale))
+      .reverse();
+
+    const currentDigitIndex = localizedDigits.indexOf(digit);
+    const previousDigitIndex = usePrevious(currentDigitIndex);
+
     const [position, setPosition] = useState<number>(0);
     const [animationClass, setAnimationClass] = useState<string | null>(null);
-    const currentDigit = +digit;
-    const previousDigit = usePrevious(+currentDigit);
     const columnContainer = useRef<HTMLDivElement>(null);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const handleAnimationComplete = useCallback(
-      debounce(() => {
-        setAnimationClass('');
-      }, 500),
-      []
-    );
+    // Handle animation completion
+    const handleAnimationComplete = debounce(() => {
+      setAnimationClass('');
+    }, 500);
 
-    const setColumnToNumber = useCallback((number: string) => {
-      if (columnContainer?.current?.clientHeight) {
-        setPosition(
-          columnContainer?.current?.clientHeight * parseInt(number, 10)
-        );
+    const setColumnToNumber = useCallback((digitIndex: number) => {
+      if (columnContainer.current) {
+        const digitHeight = columnContainer.current.clientHeight;
+        setPosition(digitHeight * 9 - digitHeight * digitIndex);
       }
     }, []);
 
     useEffect(() => {
-      setAnimationClass(previousDigit !== currentDigit ? delta : '');
-    }, [digit, delta]);
+      if (
+        currentDigitIndex !== -1 &&
+        previousDigitIndex !== undefined &&
+        previousDigitIndex !== -1
+      ) {
+        setAnimationClass(
+          previousDigitIndex !== currentDigitIndex ? delta : ''
+        );
+      }
+    }, [currentDigitIndex, delta, previousDigitIndex]);
 
     useEffect(() => {
-      setColumnToNumber(digit);
-    }, [digit, setColumnToNumber]);
+      if (currentDigitIndex !== -1) {
+        setColumnToNumber(currentDigitIndex);
+      }
+    }, [currentDigitIndex, setColumnToNumber]);
 
-    // If digit is negative symbol, simply return an unanimated character
-    if (digit === '-') {
+    // If digit is not a number (e.g., negative sign), render it directly
+    if (currentDigitIndex === -1) {
       return (
         <span
           style={{
@@ -147,11 +209,10 @@ const NumberColumn = memo(
             y: position,
             transition: { duration: 0.5, ease: 'backInOut' }
           }}
-          // animate={{ x: 0, y: position }}
           className={`ticker-column ${animationClass}`}
           onAnimationComplete={handleAnimationComplete}
         >
-          {[9, 8, 7, 6, 5, 4, 3, 2, 1, 0].map((num) => (
+          {localizedDigits.map((num) => (
             <div className="ticker-digit" key={num}>
               <span
                 style={{
@@ -187,20 +248,23 @@ const AnimatedCounter = ({
   decimalPrecision = 2,
   includeCommas = false,
   containerStyles = {},
-  digitStyles = {}
+  digitStyles = {},
+  locale = undefined
 }: AnimatedCounterProps) => {
+  const { decimalSeparator, groupSeparator } = getSeparators(locale);
+
   const numArray = formatForDisplay(
-    Math.abs(value),
+    value,
     includeDecimals,
     decimalPrecision,
-    includeCommas
+    includeCommas,
+    locale
   );
   const previousNumber = usePrevious(value);
-  const isNegative = value < 0;
 
   let delta: string | null = null;
 
-  if (previousNumber !== null) {
+  if (previousNumber !== undefined) {
     if (value > previousNumber) {
       delta = 'increase';
     } else if (value < previousNumber) {
@@ -215,19 +279,20 @@ const AnimatedCounter = ({
     incrementColor,
     decrementColor,
     animationDuration,
-    digitStyles
+    digitStyles,
+    locale
   };
 
   return (
     <motion.div layout className="ticker-view" style={{ ...containerStyles }}>
-      {/* Format integer to NumberColumn components */}
       {numArray.map((number: string, index: number) =>
-        number === '.' || number === ',' ? (
+        number === decimalSeparator || number === groupSeparator ? (
           <DecimalColumn
             key={index}
             fontSize={fontSize}
             color={color}
-            isComma={number === '.'}
+            separator={number}
+            isDecimalPoint={number === decimalSeparator}
             digitStyles={digitStyles}
           />
         ) : (
@@ -237,14 +302,6 @@ const AnimatedCounter = ({
             {...numberColumnCommonProps}
           />
         )
-      )}
-      {/* If number is negative, render '-' feedback */}
-      {isNegative && (
-        <NumberColumn
-          key={'negative-feedback'}
-          digit={'-'}
-          {...numberColumnCommonProps}
-        />
       )}
     </motion.div>
   );

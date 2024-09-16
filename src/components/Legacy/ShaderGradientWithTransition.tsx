@@ -17,7 +17,6 @@ const ShaderGradientWithTransition: React.FC<
   ShaderGradientWithTransitionProps
 > = ({ delta, value, loading }) => {
   const glRef = useRef<THREE.WebGLRenderer | null>(null);
-  console.log('passed', delta);
 
   // Memoize the shader properties based on the delta value
   const shaderProps = useMemo(() => {

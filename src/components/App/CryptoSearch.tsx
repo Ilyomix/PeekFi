@@ -91,7 +91,7 @@ const CryptoSearch: React.FC = () => {
                 }}
               >
                 <Text component="div" size={rem(15)} fw={500} lh={0} mt={0}>
-                  ${coin.current_price?.toFixed(2) ?? 'N/A'}
+                  ${coin.current_price ?? 'N/A'}
                 </Text>
                 <Text
                   lineClamp={1}

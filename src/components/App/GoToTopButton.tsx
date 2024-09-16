@@ -5,7 +5,11 @@ import { IconArrowUp } from '@tabler/icons-react';
 import { animate } from 'framer-motion';
 import PageTransition from './PageTransition';
 
-const GoToTopButton: React.FC = () => {
+interface GoToTopButtonProps {
+  color?: string;
+}
+
+const GoToTopButton: React.FC<GoToTopButtonProps> = ({ color }) => {
   const [scroll, scrollTo] = useWindowScroll();
 
   const handleScrollToTop = () => {
@@ -36,7 +40,7 @@ const GoToTopButton: React.FC = () => {
             size="xl"
             radius="xl"
             variant="filled"
-            color="teal"
+            color={color || 'teal'}
             style={{
               ...styles
             }}
