@@ -249,7 +249,7 @@ const AnimatedCounter = ({
   includeCommas = false,
   containerStyles = {},
   digitStyles = {},
-  locale = undefined
+  locale = 'en-US' // Provide a default value for the locale parameter
 }: AnimatedCounterProps) => {
   const { decimalSeparator, groupSeparator } = getSeparators(locale);
 

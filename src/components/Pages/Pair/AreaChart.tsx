@@ -396,6 +396,7 @@ const Chart: React.FC<ChartProps> = React.memo(
                 <Label
                   content={({ viewBox }) => (
                     <CustomLabel
+                      // @ts-expect-error - recharts types are incorrect
                       viewBox={viewBox}
                       x={maxYDataPoint.x}
                       y={maxYDataPoint.y}
@@ -424,6 +425,7 @@ const Chart: React.FC<ChartProps> = React.memo(
                 <Label
                   content={({ viewBox }) => (
                     <CustomLabel
+                      // @ts-expect-error - recharts types are incorrect
                       viewBox={viewBox}
                       x={minYDataPoint.x}
                       y={minYDataPoint.y}
