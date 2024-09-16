@@ -10,7 +10,8 @@ import {
   Button,
   Stack,
   Title,
-  Space
+  Space,
+  TypographyStylesProvider
 } from '@mantine/core';
 import {
   IconArrowUpRight,
@@ -84,7 +85,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
       >
         {/* Market Data Section */}
         <Stack gap="md">
-          <Title order={3} c="white">Market Data</Title>
+          <Title order={3} c="white">
+            Market Data
+          </Title>
           <Grid>
             {/* Circulating Supply */}
             <Grid.Col span={6}>
@@ -224,7 +227,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
 
         {/* Price Changes Section */}
         <Stack gap="md">
-          <Title order={3} c="white">Price Changes</Title>
+          <Title order={3} c="white">
+            Price Changes
+          </Title>
           <Grid>
             {/* Price Change Timeframes */}
             {[
@@ -274,7 +279,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
 
         {/* Developer Data Section */}
         <Stack gap="md">
-          <Title order={3} c="white">Developer Data</Title>
+          <Title order={3} c="white">
+            Developer Data
+          </Title>
           <Grid>
             {/* GitHub Stats */}
             <Grid.Col span={6}>
@@ -332,7 +339,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
 
         {/* Community Data Section */}
         <Stack gap="md">
-          <Title order={3} c="white">Community Data</Title>
+          <Title order={3} c="white">
+            Community Data
+          </Title>
           <Grid>
             {/* Twitter Followers */}
             {community_data.twitter_followers !== null && (
@@ -386,10 +395,20 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
 
         {/* About Section */}
         <Stack gap="md">
-          <Title order={3} c="white">About</Title>
-          <Text size="sm" c="white" style={{ textAlign: 'justify' }}>
-            {description.en && description.en.split('. ')[0] + '.'}
-          </Text>
+          <Title order={3} c="white">
+            About
+          </Title>
+          <TypographyStylesProvider
+            fz="sm"
+            c="white"
+            style={{ textAlign: 'justify' }}
+          >
+            <div
+              dangerouslySetInnerHTML={{
+                __html: description.en && description.en.split('. ')[0] + '.'
+              }}
+            />
+          </TypographyStylesProvider>
         </Stack>
 
         <Space h="md" />
