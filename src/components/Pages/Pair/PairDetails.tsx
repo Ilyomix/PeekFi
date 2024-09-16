@@ -84,14 +84,14 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
       >
         {/* Market Data Section */}
         <Stack gap="md">
-          <Title order={3}>Market Data</Title>
+          <Title order={3} c="white">Market Data</Title>
           <Grid>
             {/* Circulating Supply */}
             <Grid.Col span={6}>
-              <Text size="sm" color="dimmed">
+              <Text size="sm" c="dimmed">
                 Circulating Supply
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {formatNumber(market_data.circulating_supply)}
               </Text>
               {market_data.total_supply && (
@@ -113,7 +113,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" color="dimmed">
                 Total Supply
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {market_data.total_supply
                   ? formatNumber(market_data.total_supply)
                   : '∞'}
@@ -121,10 +121,10 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
             </Grid.Col>
             {/* Max Supply */}
             <Grid.Col span={6}>
-              <Text size="sm" color="dimmed">
+              <Text size="sm" c="dimmed">
                 Max Supply
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {market_data.max_supply
                   ? formatNumber(market_data.max_supply)
                   : '∞'}
@@ -132,10 +132,10 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
             </Grid.Col>
             {/* Market Cap */}
             <Grid.Col span={6}>
-              <Text size="sm" color="dimmed">
+              <Text size="sm" c="dimmed">
                 Market Cap
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {market_data.market_cap[vsCurrency]?.toLocaleString(undefined, {
                   style: 'currency',
                   currency: vsCurrency.toUpperCase()
@@ -144,10 +144,10 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
             </Grid.Col>
             {/* All-Time High */}
             <Grid.Col span={6}>
-              <Text size="sm" color="dimmed">
+              <Text size="sm" c="dimmed">
                 All-Time High
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {market_data.ath[vsCurrency]?.toLocaleString(undefined, {
                   style: 'currency',
                   currency: vsCurrency.toUpperCase(),
@@ -184,7 +184,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 All-Time Low
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {market_data.atl[vsCurrency]?.toLocaleString(undefined, {
                   style: 'currency',
                   currency: vsCurrency.toUpperCase(),
@@ -208,7 +208,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                       {IconComponent && (
                         <IconComponent size={16} color={color} />
                       )}
-                      <Text size="sm" color={color}>
+                      <Text size="sm" c={color}>
                         {formatPercentage(change)} from ATL
                       </Text>
                     </>
@@ -224,7 +224,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
 
         {/* Price Changes Section */}
         <Stack gap="md">
-          <Title order={3}>Price Changes</Title>
+          <Title order={3} c="white">Price Changes</Title>
           <Grid>
             {/* Price Change Timeframes */}
             {[
@@ -274,14 +274,14 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
 
         {/* Developer Data Section */}
         <Stack gap="md">
-          <Title order={3}>Developer Data</Title>
+          <Title order={3} c="white">Developer Data</Title>
           <Grid>
             {/* GitHub Stats */}
             <Grid.Col span={6}>
               <Text size="sm" color="dimmed">
                 Stars
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {formatNumber(developer_data.stars, 0) || 'N/A'}
               </Text>
             </Grid.Col>
@@ -289,7 +289,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" color="dimmed">
                 Forks
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {formatNumber(developer_data.fork, 0) || 'N/A'}
               </Text>
             </Grid.Col>
@@ -297,7 +297,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" color="dimmed">
                 Open Issues
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {formatNumber(developer_data.total_issues, 0) || 'N/A'}
               </Text>
             </Grid.Col>
@@ -305,7 +305,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" color="dimmed">
                 Contributors
               </Text>
-              <Text size="md" fw={500}>
+              <Text size="md" fw={500} c="white">
                 {formatNumber(developer_data.pull_request_contributors, 0) ||
                   'N/A'}
               </Text>
@@ -332,7 +332,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
 
         {/* Community Data Section */}
         <Stack gap="md">
-          <Title order={3}>Community Data</Title>
+          <Title order={3} c="white">Community Data</Title>
           <Grid>
             {/* Twitter Followers */}
             {community_data.twitter_followers !== null && (
@@ -342,7 +342,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 </Text>
                 <Group gap={4}>
                   <IconBrandX size={16} color="#FAFAFA" />
-                  <Text size="md" fw={500}>
+                  <Text size="md" fw={500} c="white">
                     {formatNumber(community_data.twitter_followers, 0)}
                   </Text>
                 </Group>
@@ -356,7 +356,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 </Text>
                 <Group gap={4}>
                   <IconBrandReddit size={16} color="#FF4500" />
-                  <Text size="md" fw={500}>
+                  <Text size="md" fw={500} c="white">
                     {formatNumber(community_data.reddit_subscribers, 0)}
                   </Text>
                 </Group>
@@ -370,7 +370,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 </Text>
                 <Group gap={4}>
                   <IconBrandTelegram size={16} color="#0088CC" />
-                  <Text size="md" fw={500}>
+                  <Text size="md" fw={500} c="white">
                     {formatNumber(
                       community_data.telegram_channel_user_count,
                       0
@@ -386,8 +386,8 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
 
         {/* About Section */}
         <Stack gap="md">
-          <Title order={3}>About</Title>
-          <Text size="sm" style={{ textAlign: 'justify' }}>
+          <Title order={3} c="white">About</Title>
+          <Text size="sm" c="white" style={{ textAlign: 'justify' }}>
             {description.en && description.en.split('. ')[0] + '.'}
           </Text>
         </Stack>

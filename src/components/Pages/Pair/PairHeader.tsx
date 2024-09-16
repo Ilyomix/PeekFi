@@ -31,7 +31,7 @@ const PairHeader: React.FC<PairHeaderProps> = React.memo(
           <Group gap="sm">
             <Avatar src={image.large} alt={name} size={48} radius="xl" />
             <Flex direction="column" gap={0}>
-              <Title order={3}>
+              <Title order={3} c="white">
                 {name} ({symbol.toUpperCase()})
               </Title>
               <Group gap={4}>

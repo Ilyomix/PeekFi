@@ -176,7 +176,7 @@ const Chart: React.FC<ChartProps> = React.memo(
               {formatDate(hoveredData.current.x)}
             </Text>
           </Flex>
-          <Divider mx={-14} color="dark.5" />
+          <Divider mx={-14} color="dark.5" opacity={0.4} />
           <div style={{ padding: '0.25rem 0' }}>
             <Flex mb={{ base: 7 }} mt={{ md: 4, base: 7 }}>
               <AnimatedTickerDisplay
@@ -193,7 +193,7 @@ const Chart: React.FC<ChartProps> = React.memo(
                 tooltipMode
               />
             </Flex>
-            <Divider mx={-14} color="dark.5" />
+            <Divider mx={-14} color="dark.5" opacity={0.4} />
             <Flex align="center" justify="start" mb={2} mt={6}>
               <IconChartBarPopular size={18} />
               <Text component="div" ml={4}>
