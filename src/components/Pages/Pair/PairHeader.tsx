@@ -49,7 +49,7 @@ const PairHeader: React.FC<PairHeaderProps> = React.memo(
             </Skeleton>
             <Flex direction="column" gap={0}>
               <Skeleton visible={loading} miw={200}>
-                <Title order={1} c="white">
+                <Title order={2} c="white">
                   {name} ({symbol.toUpperCase()})
                 </Title>
               </Skeleton>

@@ -195,7 +195,6 @@ const NumberColumn = memo(
             fontSize: fontSize,
             lineHeight: fontSize,
             height: 'auto',
-            color: color,
             '--increment-color': `${incrementColor}`,
             '--decrement-color': `${decrementColor}`,
             '--animation-duration': `${animationDuration}`,
@@ -216,9 +215,9 @@ const NumberColumn = memo(
             <div className="ticker-digit" key={num}>
               <span
                 style={{
+                  ...digitStyles,
                   fontSize: fontSize,
                   lineHeight: fontSize,
-                  ...digitStyles
                 }}
               >
                 {num}
@@ -249,7 +248,7 @@ const AnimatedCounter = ({
   includeCommas = false,
   containerStyles = {},
   digitStyles = {},
-  locale = 'en-US' // Provide a default value for the locale parameter
+  locale = navigator.language // Provide a default value for the locale parameter
 }: AnimatedCounterProps) => {
   const { decimalSeparator, groupSeparator } = getSeparators(locale);
 

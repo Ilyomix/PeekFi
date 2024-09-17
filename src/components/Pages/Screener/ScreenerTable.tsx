@@ -108,7 +108,11 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
         className={classes.percentageText}
       >
         {value > 0 && <IconTriangleFilled size={10} />}
-        {value < 0 && <IconTriangleInvertedFilled size={10} />} {displayValue}%
+        {value < 0 && <IconTriangleInvertedFilled size={10} />}{' '}
+        {Number(displayValue).toLocaleString(undefined, {
+          minimumFractionDigits: 2
+        })}
+        %
       </Flex>
     );
   }, []);
@@ -122,7 +126,11 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
       const percentage = (circulatingSupply / maxSupply) * 100;
       return (
         <Flex direction="column" justify="right" maw={200}>
-          <Text fz={14}>{circulatingSupply.toLocaleString()}</Text>
+          <Text fz={14}>
+            {circulatingSupply.toLocaleString(undefined, {
+              maximumFractionDigits: 2
+            })}
+          </Text>
           <Progress
             value={percentage}
             color="teal"

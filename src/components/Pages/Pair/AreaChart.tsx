@@ -176,7 +176,7 @@ const Chart: React.FC<ChartProps> = React.memo(
       );
     }, [hoveredData, yValues, precision, formatDate]);
 
-    const RenderTooltip: React.FC<{ payload?: any[] }> = React.memo(
+    const RenderTooltip: React.FC<{ payload?: unknown[] }> = React.memo(
       ({ payload = [] }) => {
         handleTooltipUpdate(payload);
         return getTooltipContent();
@@ -213,7 +213,7 @@ const Chart: React.FC<ChartProps> = React.memo(
       if (position === 'insideTop') {
         adjustedY = viewBox.y - 12; // Inside top with padding
       } else if (position === 'insideBottom') {
-        adjustedY = viewBox.y + 18; // Inside bottom with padding
+        adjustedY = viewBox.y + 25; // Inside bottom with padding
       }
 
       return (
@@ -288,7 +288,7 @@ const Chart: React.FC<ChartProps> = React.memo(
           <AreaChart
             syncId="syncCharts"
             data={data}
-            margin={{ top: 30, bottom: 20, right: 28, left: 28 }}
+            margin={{ top: 30, bottom: 26, right: 28, left: 28 }}
           >
             <YAxis
               domain={[minYFromData, maxYFromData]}
