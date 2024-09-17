@@ -6,6 +6,8 @@
 [![React Version](https://img.shields.io/badge/react-18.3.1-blue.svg)](https://reactjs.org/)
 [![Coverage Status](https://coveralls.io/repos/github/username/repository/badge.svg?branch=main)](https://coveralls.io/github/username/repository?branch=main)
 
+Alpha Preview website : https://peekfi.netlify.app
+
 PeekFi is a cutting-edge cryptocurrency tracking application designed to provide users with real-time data on market trends, price changes, and trading volumes of various cryptocurrencies. With its sleek interface and powerful search functionality, PeekFi makes it easier than ever to monitor the volatile world of crypto markets.
 
 ## Features
