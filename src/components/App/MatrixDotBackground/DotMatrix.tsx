@@ -24,7 +24,7 @@ export const DotMatrix: React.FC<DotMatrixProps> = React.memo(
   }) => {
     const frequency = useMemo(() => {
       const dp = Math.abs(deltaPercent);
-      return dp === 0 ? 3600 : Math.max(60 / dp, 0.2);
+      return dp === 0 ? 3600 : Math.max(30 - dp, 0.2);
     }, [deltaPercent]);
     const uniforms = useMemo(() => {
       let colorsArray = new Array(6).fill(colors[0]);
