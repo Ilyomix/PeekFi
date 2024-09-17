@@ -79,9 +79,7 @@ const PairContent: React.FC<PairContentProps> = React.memo(
             <Flex align="flex-start" direction="column">
               <DotMatrixWallEffect
                 colors={[deltaColor]}
-                deltaPercent={
-                  deltaPercent !== 0 ? Math.ceil(Math.abs(deltaPercent)) : 0
-                }
+                deltaPercent={deltaPercent !== 0 ? deltaPercent : 0}
               />
               <PairHeader coinId={coinId} />
               <Flex>

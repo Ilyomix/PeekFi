@@ -140,9 +140,9 @@ const NumberColumn = memo(
     const columnContainer = useRef<HTMLDivElement>(null);
 
     // Handle animation completion
-    const handleAnimationComplete = debounce(() => {
+    const handleAnimationComplete = () => {
       setAnimationClass('');
-    }, 500);
+    };
 
     const setColumnToNumber = useCallback((digitIndex: number) => {
       if (columnContainer.current) {
@@ -161,7 +161,7 @@ const NumberColumn = memo(
           previousDigitIndex !== currentDigitIndex ? delta : ''
         );
       }
-    }, [currentDigitIndex, delta, previousDigitIndex]);
+    }, [delta, digit]);
 
     useEffect(() => {
       if (currentDigitIndex !== -1) {
@@ -206,7 +206,7 @@ const NumberColumn = memo(
           animate={{
             x: 0,
             y: position,
-            transition: { duration: 0.5, ease: 'backInOut' }
+            transition: { duration: 0.6, ease: 'backInOut' }
           }}
           className={`ticker-column ${animationClass}`}
           onAnimationComplete={handleAnimationComplete}
@@ -217,7 +217,7 @@ const NumberColumn = memo(
                 style={{
                   ...digitStyles,
                   fontSize: fontSize,
-                  lineHeight: fontSize,
+                  lineHeight: fontSize
                 }}
               >
                 {num}
@@ -242,7 +242,7 @@ const AnimatedCounter = ({
   color = 'black',
   incrementColor = '#32cd32',
   decrementColor = '#fe6862',
-  animationDuration = '1000ms',
+  animationDuration = '500ms',
   includeDecimals = true,
   decimalPrecision = 2,
   includeCommas = false,

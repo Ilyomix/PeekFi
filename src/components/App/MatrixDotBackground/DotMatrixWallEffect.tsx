@@ -6,7 +6,7 @@ import { DotMatrix } from './DotMatrix';
 
 const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
-}
+};
 
 interface DotMatrixWallEffectProps {
   animationSpeed?: number;
@@ -16,6 +16,7 @@ interface DotMatrixWallEffectProps {
   dotSize?: number;
   deltaPercent: number;
   showGradient?: boolean;
+  interval?: string;
 }
 
 export const DotMatrixWallEffect: React.FC<DotMatrixWallEffectProps> =
@@ -26,6 +27,7 @@ export const DotMatrixWallEffect: React.FC<DotMatrixWallEffectProps> =
       containerClassName,
       dotSize,
       showGradient = true,
+      interval = '1d',
       deltaPercent
     }) => {
       const center: ('x' | 'y')[] = useMemo(() => ['x', 'y'], []);
@@ -49,6 +51,7 @@ export const DotMatrixWallEffect: React.FC<DotMatrixWallEffectProps> =
               deltaPercent={deltaPercent}
               opacities={opacities ?? defaultOpacities}
               center={center}
+              interval={interval}
             />
           </div>
           {showGradient && (

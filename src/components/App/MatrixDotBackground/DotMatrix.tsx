@@ -7,6 +7,7 @@ interface DotMatrixProps {
   totalSize?: number;
   dotSize?: number;
   shader?: string;
+  interval?: string;
   deltaPercent: number;
   center?: ('x' | 'y')[];
 }
@@ -22,10 +23,9 @@ export const DotMatrix: React.FC<DotMatrixProps> = React.memo(
     center = ['x', 'y']
   }) => {
     const frequency = useMemo(() => {
-      const dp = parseInt(deltaPercent.toString());
-      return dp === 0 ? 3600 : Math.max(360 / dp, 1);
+      const dp = Math.abs(deltaPercent);
+      return dp === 0 ? 3600 : Math.max(60 / dp, 0.2);
     }, [deltaPercent]);
-
     const uniforms = useMemo(() => {
       let colorsArray = new Array(6).fill(colors[0]);
 
@@ -65,9 +65,13 @@ export const DotMatrix: React.FC<DotMatrixProps> = React.memo(
         u_dot_size: {
           value: dotSize,
           type: 'uniform1f'
+        },
+        u_frequency: {
+          value: frequency,
+          type: 'uniform1f'
         }
       };
-    }, [colors, opacities, totalSize, dotSize]);
+    }, [colors, opacities, totalSize, dotSize, frequency]);
 
     const shaderSource = useMemo(() => {
       const centerX = center.includes('x')
@@ -86,6 +90,7 @@ export const DotMatrix: React.FC<DotMatrixProps> = React.memo(
         uniform vec3 u_colors[6];
         uniform float u_total_size;
         uniform float u_dot_size;
+        uniform float u_frequency;
         uniform vec2 u_resolution;
         out vec4 fragColor;
         float PHI = 1.61803398874989484820459;
@@ -101,7 +106,7 @@ export const DotMatrix: React.FC<DotMatrixProps> = React.memo(
 
             vec2 st2 = vec2(int(st.x / u_total_size), int(st.y / u_total_size));
 
-            float frequency = ${frequency.toFixed(2)};
+            float frequency = u_frequency;
             float show_offset = random(st2);
             float rand = random(st2 * floor((u_time / frequency) + show_offset + frequency) + 1.0);
             opacity *= u_opacities[int(rand * 10.0)];
@@ -116,13 +121,13 @@ export const DotMatrix: React.FC<DotMatrixProps> = React.memo(
             fragColor.rgb *= fragColor.a;
         }
       `;
-    }, [center, frequency, shader]);
+    }, []);
 
     return (
       <Shader
         source={shaderSource}
         uniforms={uniforms}
-        maxFps={60}
+        maxFps={600}
         colors={colors}
       />
     );

@@ -127,7 +127,8 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
       return (
         <Flex direction="column" justify="right" maw={200}>
           <Text fz={14}>
-            {circulatingSupply.toLocaleString(undefined, {
+            {Number(circulatingSupply.toFixed(2)).toLocaleString(undefined, {
+              minimumFractionDigits: 0,
               maximumFractionDigits: 2
             })}
           </Text>
