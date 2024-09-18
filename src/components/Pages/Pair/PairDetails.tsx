@@ -45,7 +45,6 @@ const formatNumber = (number: number, precision: number = 2) => {
     maximumFractionDigits: precision
   });
 };
-
 const formatPercentage = (value: number) => {
   if (value === undefined || value === null) return 'N/A';
   const formatted = value.toFixed(2);
@@ -65,6 +64,8 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         </Text>
       );
     }
+
+    console.log(coinData?.description.en);
 
     // Helper function to determine color based on value
     const getColor = (value: number) =>
@@ -502,7 +503,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   overflow: 'hidden'
                 }}
                 dangerouslySetInnerHTML={{
-                  __html: coinData?.description.en ?? ''
+                  __html: !coinData?.description.en
+                    ? 'No description available'
+                    : coinData?.description.en
                 }}
               />
             </TypographyStylesProvider>
