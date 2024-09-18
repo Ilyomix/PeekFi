@@ -192,7 +192,7 @@ const Chart: React.FC<ChartProps> = React.memo(
       fontSize = 14
     }) => {
       // Approximate character width ratio (adjust as needed)
-      const characterWidthRatio = 0.8;
+      const characterWidthRatio = 0.9;
       const labelWidth = value.length * fontSize * characterWidthRatio;
       const { width } = chartSize;
       // Ensure the label stays within the left and right boundaries
