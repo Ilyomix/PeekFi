@@ -134,7 +134,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Skeleton visible={loading} height={20} width={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.market_data.total_supply
-                    ? formatNumber(coinData.market_data.total_supply)
+                    ? formatNumber(coinData.market_data.total_supply, 0)
                     : '∞'}
                 </Text>
               </Skeleton>
@@ -147,7 +147,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Skeleton visible={loading} height={20} width={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.market_data.max_supply
-                    ? formatNumber(coinData.market_data.max_supply)
+                    ? formatNumber(coinData.market_data.max_supply, 0)
                     : '∞'}
                 </Text>
               </Skeleton>

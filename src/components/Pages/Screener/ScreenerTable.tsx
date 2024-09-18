@@ -121,14 +121,16 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
   const renderCirculatingSupply = useCallback(
     (circulatingSupply: number, maxSupply: number | null) => {
       if (!circulatingSupply) return '';
-      if (!maxSupply) return circulatingSupply.toLocaleString();
+      if (!maxSupply)
+        return circulatingSupply.toLocaleString(undefined, {
+          maximumFractionDigits: 2
+        });
 
       const percentage = (circulatingSupply / maxSupply) * 100;
       return (
         <Flex direction="column" justify="right" maw={200}>
           <Text fz={14}>
-            {Number(circulatingSupply.toFixed(2)).toLocaleString(undefined, {
-              minimumFractionDigits: 0,
+            {circulatingSupply.toLocaleString(undefined, {
               maximumFractionDigits: 2
             })}
           </Text>
