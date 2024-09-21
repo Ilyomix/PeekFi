@@ -44,7 +44,11 @@ export const SparklineChart: React.FC<SparklineChartProps> = memo(
     return (
       <PageTransition>
         <ResponsiveContainer width="100%" height={40}>
-          <AreaChart margin={{ bottom: 0 }} data={chartData}>
+          <AreaChart
+            margin={{ bottom: 0 }}
+            data={chartData}
+            style={{ borderRadius: '0 0 2px 2px', overflow: 'hidden' }}
+          >
             <XAxis dataKey="x" hide />
             <YAxis
               // @ts-expect-error domain definition is not available in Recharts 2.x

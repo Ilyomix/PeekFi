@@ -128,7 +128,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
 
       const percentage = (circulatingSupply / maxSupply) * 100;
       return (
-        <Flex direction="column" justify="right" maw={200}>
+        <Flex direction="column" justify="right">
           <Text fz={14}>
             {circulatingSupply.toLocaleString(undefined, {
               maximumFractionDigits: 2
@@ -138,7 +138,9 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
             value={percentage}
             color="teal"
             mt={4}
-            maw={175}
+            maw={150}
+            h={2}
+            radius="xl"
             size="xs"
             className={classes.supplyProgress}
           />
@@ -213,8 +215,9 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
   return (
     <Paper
       shadow="lg"
-      radius="lg"
+      mx={{ base: -32, sm: 0 }}
       style={{ overflowX: 'auto', position: 'relative' }}
+      radius={0}
     >
       <LoadingOverlay
         visible={loading}
@@ -244,8 +247,8 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
         <Table
           highlightOnHover
           withRowBorders
-          verticalSpacing="xs"
-          horizontalSpacing="md"
+          verticalSpacing="sm"
+          horizontalSpacing="sm"
           className={classes.tableContainer}
         >
           <Table.Thead>
@@ -294,7 +297,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
                   {ticker.market_cap_rank?.toLocaleString() || 'N/A'}
                 </Table.Td>
                 <Table.Td>
-                  <Flex w={{ base: '125px', md: '250px' }} align="center">
+                  <Flex align="center">
                     <PageTransition>
                       <Avatar
                         mr={14}
@@ -383,7 +386,11 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
                   )}
                 </Table.Td>
                 <Table.Td
-                  style={{ width: '150px', height: '40px', minWidth: '120px' }}
+                  style={{
+                    maxWidth: '60px',
+                    height: '40px',
+                    minWidth: '100px'
+                  }}
                 >
                   <SparklineChart
                     delta={

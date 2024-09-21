@@ -20,7 +20,6 @@ import {
 import {
   IconArrowUpRight,
   IconArrowDownRight,
-  IconBrandReddit,
   IconBrandTelegram,
   IconGlobe,
   IconBrandGithub,
@@ -35,7 +34,8 @@ import {
   IconNews,
   IconListDetails,
   IconThumbUpFilled,
-  IconThumbDownFilled
+  IconThumbDownFilled,
+  IconBrandReddit
 } from '@tabler/icons-react';
 import ReactCountryFlag from 'react-country-flag';
 import useCoinGeckoCoinData from 'hooks/useCryptoCoinData';
@@ -222,13 +222,14 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 </Text>
               </Skeleton>
               {coinData?.market_data.total_supply && (
-                <Skeleton visible={loading} height={10} w="50%" mt={5}>
+                <Skeleton visible={loading} height={10} w="50%" mt={8}>
                   <Progress
                     value={
                       (coinData.market_data.circulating_supply /
                         coinData.market_data.total_supply) *
                         100 || 0
                     }
+                    h={2}
                     color="white"
                     styles={{
                       root: { backgroundColor: 'rgba(255, 255, 255, 0.3)' }
@@ -616,25 +617,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     <Text size="md" fw={500} c="white">
                       {formatNumber(
                         coinData?.community_data?.twitter_followers ?? 0,
-                        0
-                      )}
-                    </Text>
-                  </Group>
-                </Skeleton>
-              </Grid.Col>
-            )}
-            {/* Reddit Subscribers */}
-            {coinData?.community_data.reddit_subscribers !== null && (
-              <Grid.Col span={{ base: 6, md: 6, lg: 3 }}>
-                <Text size="sm" c="dimmed">
-                  Reddit Subscribers
-                </Text>
-                <Skeleton visible={loading} height={20} w={200}>
-                  <Group gap={4}>
-                    <IconBrandReddit size={16} color="#FF4500" />
-                    <Text size="md" fw={500} c="white">
-                      {formatNumber(
-                        coinData?.community_data?.reddit_subscribers ?? 0,
                         0
                       )}
                     </Text>

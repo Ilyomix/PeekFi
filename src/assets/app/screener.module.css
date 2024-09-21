@@ -1,12 +1,19 @@
 .tableContainer {
     background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-8));
-    border-radius: 15px !important;
+    @media screen and (max-width: 768px) {
+      border-radius: 0px !important;
+    }
+  
+    @media screen and (min-width: 768px) {
+      border-radius: 16px !important;
+    }
+  
     color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
     padding-top: 16px;
     font-feature-settings: 'tnum' 1, 'cv02';
     filter: blur(0px);
     overflow: hidden;
-    border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-gray-8));
+    border: 0px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-gray-8));
 }
 
 .tableCell:not(:last-child) {
@@ -57,7 +64,7 @@
   left: 0;
   top: 0;
   height: 100%;
-  width: 20px;
+  width: 40px;
   background: linear-gradient(
     to right,
     light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
@@ -71,7 +78,7 @@
   right: 0;
   top: 0;
   height: 100%;
-  width: 20px;
+  width: 40px;
   background: linear-gradient(
     to left,
     light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
