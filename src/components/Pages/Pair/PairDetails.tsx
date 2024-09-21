@@ -1,3 +1,5 @@
+// PairDetails.tsx
+
 import React from 'react';
 import {
   Text,
@@ -11,9 +13,9 @@ import {
   Space,
   TypographyStylesProvider,
   Skeleton,
-  Divider,
   Pill,
-  ActionIcon
+  Timeline,
+  TimelineItem
 } from '@mantine/core';
 import {
   IconArrowUpRight,
@@ -28,9 +30,15 @@ import {
   IconUser,
   IconCode,
   IconInfoCircle,
-  IconLink
+  IconLink,
+  IconHeart,
+  IconNews,
+  IconListDetails,
+  IconThumbUpFilled,
+  IconThumbDownFilled
 } from '@tabler/icons-react';
-import useCryptoCoinData from 'hooks/useCryptoCoinData';
+import ReactCountryFlag from 'react-country-flag';
+import useCoinGeckoCoinData from 'hooks/useCryptoCoinData';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
 
 interface PairDetailsProps {
@@ -39,14 +47,15 @@ interface PairDetailsProps {
 }
 
 const formatNumber = (number: number, precision: number = 2) => {
-  if (number === undefined || number === null) return 'N/A';
+  if (number === undefined || number === null) return '-';
   return number.toLocaleString(undefined, {
     minimumFractionDigits: precision,
     maximumFractionDigits: precision
   });
 };
+
 const formatPercentage = (value: number) => {
-  if (value === undefined || value === null) return 'N/A';
+  if (value === undefined || value === null) return '-';
   const formatted = value.toFixed(2);
   return value >= 0
     ? `+${Number(formatted).toLocaleString()}%`
@@ -55,8 +64,7 @@ const formatPercentage = (value: number) => {
 
 const PairDetails: React.FC<PairDetailsProps> = React.memo(
   ({ id, vsCurrency }) => {
-    const { coinData, loading, error } = useCryptoCoinData(id, vsCurrency);
-
+    const { coinData, loading, error } = useCoinGeckoCoinData(id, vsCurrency);
     if (error) {
       return (
         <Text c="red" ta="center">
@@ -64,8 +72,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         </Text>
       );
     }
-
-    console.log(coinData?.description.en);
 
     // Helper function to determine color based on value
     const getColor = (value: number) =>
@@ -75,6 +81,10 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
       ? getNumberPrecision(coinData.market_data.current_price[vsCurrency])
       : 2; // Default precision if coinData is not available
 
+    const regionNames = new Intl.DisplayNames([navigator.language], {
+      type: 'region'
+    });
+
     return (
       <Flex
         direction="column"
@@ -82,11 +92,117 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         w="100%"
         p={28}
         pt={0}
-        mt={-14}
         style={{ zIndex: 3, position: 'relative' }}
       >
-        {/* Market Data Section */}
-        <Divider my={14} mb={42} color="dark.5" />
+        {/* General Information Section */}
+        <Stack gap="md" mt={68}>
+          <Flex align="center">
+            <IconListDetails size={22} color="white" />
+            <Title order={2} c="white" ml={14}>
+              General Information
+            </Title>
+          </Flex>
+          <Grid gutter="xl">
+            {/* Country of Origin */}
+            <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+              <Text size="sm" c="dimmed">
+                Country of Origin
+              </Text>
+              <Skeleton visible={loading} height={20} w={200}>
+                <Flex align="center" gap={6}>
+                  {coinData?.country_origin ? (
+                    <>
+                      <div
+                        style={{
+                          borderRadius: '100%',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          position: 'relative',
+                          width: '1.25em',
+                          height: '1.25em',
+                          backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                        }}
+                      >
+                        <ReactCountryFlag
+                          svg
+                          style={{
+                            width: '1.25em',
+                            height: '1.25em',
+                            objectFit: 'cover',
+                            transform: 'translate(0%, -20%)'
+                          }}
+                          countryCode={coinData?.country_origin || ''}
+                          title={regionNames.of(coinData?.country_origin)}
+                        />
+                      </div>
+                      <Text size="md" fw={500} c="white" ml={4}>
+                        {coinData?.country_origin
+                          ? regionNames.of(coinData?.country_origin)
+                          : '-'}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text size="md" fw={500} c="white">
+                      -
+                    </Text>
+                  )}
+                </Flex>
+              </Skeleton>
+            </Grid.Col>
+            {/* Genesis Date */}
+            <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+              <Text size="sm" c="dimmed">
+                Genesis Date
+              </Text>
+              <Skeleton visible={loading} height={20} w={200}>
+                <Text size="md" fw={500} c="white">
+                  {coinData?.genesis_date || '-'}
+                </Text>
+              </Skeleton>
+            </Grid.Col>
+            {/* Hashing Algorithm */}
+            <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+              <Text size="sm" c="dimmed">
+                Hashing Algorithm
+              </Text>
+              <Skeleton visible={loading} height={20} w={200}>
+                <Text size="md" fw={500} c="white">
+                  {coinData?.hashing_algorithm || '-'}
+                </Text>
+              </Skeleton>
+            </Grid.Col>
+            {/* Block Time in Minutes */}
+            <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+              <Text size="sm" c="dimmed">
+                Block Time (minutes)
+              </Text>
+              <Skeleton visible={loading} height={20} w={200}>
+                <Text size="md" fw={500} c="white">
+                  {coinData?.block_time_in_minutes
+                    ? `${coinData.block_time_in_minutes} minutes`
+                    : '-'}
+                </Text>
+              </Skeleton>
+            </Grid.Col>
+            {/* Categories */}
+            <Grid.Col span={12}>
+              <Text size="sm" c="dimmed">
+                Categories
+              </Text>
+              <Skeleton visible={loading} mih={20} miw={200} mt={7}>
+                <Group gap="xs">
+                  {coinData?.categories && coinData.categories.length > 0
+                    ? coinData.categories.map((category, index) => (
+                        <Pill key={index}>{category}</Pill>
+                      ))
+                    : '-'}
+                </Group>
+              </Skeleton>
+            </Grid.Col>
+          </Grid>
+        </Stack>
+
+        <Space h="xl" />
 
         <Stack gap="md">
           <Flex align="center">
@@ -101,7 +217,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Circulating Supply
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
                   {formatNumber(
                     coinData?.market_data?.circulating_supply ?? 0,
@@ -132,7 +248,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Total Supply
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.market_data.total_supply
                     ? formatNumber(coinData.market_data.total_supply, 0)
@@ -145,7 +261,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Max Supply
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.market_data.max_supply
                     ? formatNumber(coinData.market_data.max_supply, 0)
@@ -158,7 +274,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Market Cap
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.market_data.market_cap[vsCurrency]?.toLocaleString(
                     undefined,
@@ -175,7 +291,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 All-Time High
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.market_data.ath[vsCurrency]?.toLocaleString(
                     undefined,
@@ -188,7 +304,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   )}
                 </Text>
               </Skeleton>
-              <Skeleton visible={loading} height={20} width={250} mt={5}>
+              <Skeleton visible={loading} height={20} w={250} mt={5}>
                 <Group gap={4}>
                   {(() => {
                     const change =
@@ -221,7 +337,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 All-Time Low
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.market_data.atl[vsCurrency]?.toLocaleString(
                     undefined,
@@ -234,7 +350,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   )}
                 </Text>
               </Skeleton>
-              <Skeleton visible={loading} height={20} width={250} mt={5}>
+              <Skeleton visible={loading} height={20} w={250} mt={5}>
                 <Group gap={4}>
                   {(() => {
                     const change =
@@ -253,7 +369,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                         {IconComponent && (
                           <IconComponent size={16} color={color} />
                         )}
-                        <Text size="sm" c={color}>
+                        <Text size="sm" color={color}>
                           {formatPercentage(change)} from ATL
                         </Text>
                       </>
@@ -262,10 +378,86 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 </Group>
               </Skeleton>
             </Grid.Col>
+            {/* Market Cap Rank */}
+            <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+              <Text size="sm" c="dimmed">
+                Market Cap Rank
+              </Text>
+              <Skeleton visible={loading} height={20} w={100}>
+                <Text size="md" fw={500} c="white">
+                  #{coinData?.market_cap_rank ?? '-'}
+                </Text>
+              </Skeleton>
+            </Grid.Col>
+            {/* Total Volume */}
+            <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+              <Text size="sm" c="dimmed">
+                Total Volume
+              </Text>
+              <Skeleton visible={loading} height={20} w={200}>
+                <Text size="md" fw={500} c="white">
+                  {coinData?.market_data.total_volume[
+                    vsCurrency
+                  ]?.toLocaleString(undefined, {
+                    style: 'currency',
+                    currency: vsCurrency.toUpperCase()
+                  })}
+                </Text>
+              </Skeleton>
+            </Grid.Col>
           </Grid>
         </Stack>
 
         <Space h="xl" />
+
+        {/* Sentiment Votes Section */}
+        <Stack gap="md">
+          <Flex align="center">
+            <IconHeart size={22} color="white" />
+            <Title order={2} c="white" ml={14}>
+              Sentiment Votes
+            </Title>
+          </Flex>
+          <Grid gutter="xl">
+            {/* Sentiment Votes Up */}
+            <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+              <Text size="sm" c="dimmed">
+                Votes Up Percentage
+              </Text>
+              <Skeleton visible={loading} height={20} w={100}>
+                <Flex align="center" fw={500} c="white">
+                  <IconThumbUpFilled size={16} color="#16c784" />
+                  <Text size="md" fw={500} c="white" ml={6}>
+                    {coinData?.sentiment_votes_up_percentage !== null
+                      ? `${coinData?.sentiment_votes_up_percentage.toFixed(2)}%`
+                      : '-'}
+                  </Text>
+                </Flex>
+              </Skeleton>
+            </Grid.Col>
+            {/* Sentiment Votes Down */}
+            <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+              <Text size="sm" c="dimmed">
+                Votes Down Percentage
+              </Text>
+              <Skeleton visible={loading} height={20} w={100}>
+                <Flex align="center" fw={500} c="white">
+                  <IconThumbDownFilled size={16} color="#ea3943" />
+                  <Text size="md" fw={500} c="white" ml={6}>
+                    {coinData?.sentiment_votes_down_percentage !== null
+                      ? `${coinData?.sentiment_votes_down_percentage.toFixed(
+                          2
+                        )}%`
+                      : '-'}
+                  </Text>
+                </Flex>
+              </Skeleton>
+            </Grid.Col>
+          </Grid>
+        </Stack>
+
+        <Space h="xl" />
+
         {/* Price Changes Section */}
         <Stack gap="md">
           <Flex align="center">
@@ -308,7 +500,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   <Text size="sm" c="dimmed">
                     {timeframe.label} Change
                   </Text>
-                  <Skeleton visible={loading} height={20} width={200}>
+                  <Skeleton visible={loading} height={20} w={200}>
                     <Group gap={4}>
                       {IconComponent && (
                         <IconComponent size={16} color={color} />
@@ -325,6 +517,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         </Stack>
 
         <Space h="xl" />
+
         {/* Developer Data Section */}
         <Stack gap="md">
           <Flex align="center">
@@ -340,10 +533,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Stars
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
-                  {formatNumber(coinData?.developer_data.stars ?? 0, 0) ||
-                    'N/A'}
+                  {formatNumber(coinData?.developer_data.stars ?? 0, 0) || '-'}
                 </Text>
               </Skeleton>
             </Grid.Col>
@@ -351,9 +543,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Forks
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
-                  {formatNumber(coinData?.developer_data.fork ?? 0, 0) || 'N/A'}
+                  {formatNumber(coinData?.developer_data.forks ?? 0, 0) || '-'}
                 </Text>
               </Skeleton>
             </Grid.Col>
@@ -361,12 +553,12 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Open Issues
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
                   {formatNumber(
                     coinData?.developer_data.total_issues ?? 0,
                     0
-                  ) || 'N/A'}
+                  ) || '-'}
                 </Text>
               </Skeleton>
             </Grid.Col>
@@ -374,24 +566,19 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Contributors
               </Text>
-              <Skeleton visible={loading} height={20} width={200}>
+              <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
                   {formatNumber(
                     coinData?.developer_data.pull_request_contributors ?? 0,
                     0
-                  ) || 'N/A'}
+                  ) || '-'}
                 </Text>
               </Skeleton>
             </Grid.Col>
             {coinData?.links.repos_url.github &&
               coinData.links.repos_url.github[0] && (
                 <Grid.Col span={12}>
-                  <Skeleton
-                    visible={loading}
-                    height={36}
-                    width={170}
-                    radius="xl"
-                  >
+                  <Skeleton visible={loading} height={36} w={170} radius="xl">
                     <Button
                       variant="light"
                       color="dark.1"
@@ -410,6 +597,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         </Stack>
 
         <Space h="xl" />
+
         {/* Community Data Section */}
         <Stack gap="md">
           <Flex align="center">
@@ -426,7 +614,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 <Text size="sm" c="dimmed">
                   X Followers
                 </Text>
-                <Skeleton visible={loading} height={20} width={200}>
+                <Skeleton visible={loading} height={20} w={200}>
                   <Group gap={4}>
                     <IconBrandX size={16} color="#FAFAFA" />
                     <Text size="md" fw={500} c="white">
@@ -445,7 +633,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 <Text size="sm" c="dimmed">
                   Reddit Subscribers
                 </Text>
-                <Skeleton visible={loading} height={20} width={200}>
+                <Skeleton visible={loading} height={20} w={200}>
                   <Group gap={4}>
                     <IconBrandReddit size={16} color="#FF4500" />
                     <Text size="md" fw={500} c="white">
@@ -482,6 +670,51 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         </Stack>
 
         <Space h="xl" />
+
+        {/* Status Updates Section */}
+        {coinData?.status_updates && coinData.status_updates.length > 0 && (
+          <>
+            <Stack gap="md">
+              <Flex align="center">
+                <IconNews size={22} color="white" />
+                <Title order={2} c="white" ml={14}>
+                  Status Updates
+                </Title>
+              </Flex>
+              <Skeleton visible={loading}>
+                <Stack gap="sm">
+                  <Timeline bulletSize={12}>
+                    {coinData.status_updates.map((update, index) => (
+                      <TimelineItem key={index} bullet={<></>}>
+                        <Text
+                          size="sm"
+                          c="dimmed"
+                          style={{ transform: 'translateY(-3px)' }}
+                        >
+                          {new Date(update.created_at).toLocaleString()}
+                        </Text>
+                        <TypographyStylesProvider
+                          fz="sm"
+                          c="white"
+                          mt={7}
+                          style={{ textAlign: 'left', display: 'block' }}
+                        >
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: update.description
+                            }}
+                          />
+                        </TypographyStylesProvider>
+                      </TimelineItem>
+                    ))}
+                  </Timeline>
+                </Stack>
+              </Skeleton>
+            </Stack>
+            <Space h="xl" />
+          </>
+        )}
+
         {/* About Section */}
         <Stack gap="md">
           <Flex align="center">
@@ -513,6 +746,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         </Stack>
 
         <Space h="xl" />
+
         {/* Social Links */}
         <Stack gap="md">
           <Flex align="center">

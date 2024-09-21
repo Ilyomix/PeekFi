@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+// useCryptoTicker.tsx
+
+import { useState, useEffect, useRef } from 'react';
 
 interface TickerData {
   name: string;
@@ -17,116 +18,103 @@ interface TickerData {
   cryptoId: string;
   currencyPair: string;
   timestamp: Date;
-  loading: boolean;
+}
+
+interface UseCryptoTickerReturn {
+  tickersData: Record<string, TickerData>;
   error: string | null;
 }
 
-interface RawTickerData {
-  symbol: string;
-  lastPrice: number;
-  priceChange: number;
-  priceChangePercent: number;
-  highPrice: number;
-  lowPrice: number;
-  openPrice: number;
-  prevClosePrice: number;
-  quoteVolume: number;
-  volume: number;
-}
-
 /**
- * Custom hook to fetch and manage cryptocurrency ticker data.
- * @param {string[]} symbols - Array of cryptocurrency symbols to fetch data for.
- * @returns {object} - An object containing ticker data, loading state, error state, and a refetch function.
+ * Custom hook to fetch and manage real-time cryptocurrency ticker data using WebSocket streams.
+ * @param {string[]} symbols - Array of cryptocurrency symbols to fetch data for (e.g., ['BTCUSDT', 'ETHUSDT']).
+ * @returns {object} - An object containing ticker data and an error state.
  */
-const useCryptoTicker = (symbols: string[]) => {
+const useCryptoTicker = (symbols: string[]): UseCryptoTickerReturn => {
   const [tickersData, setTickersData] = useState<Record<string, TickerData>>(
     {}
   );
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasFetched, setHasFetched] = useState<boolean>(false);
-
-  /**
-   * Formats the raw ticker data from the API response.
-   * @param {RawTickerData[]} data - Raw data from the API response.
-   * @returns {Record<string, TickerData>} - Formatted ticker data.
-   */
-  const formatTickerData = (
-    data: RawTickerData[]
-  ): Record<string, TickerData> => {
-    return data.reduce(
-      (acc, ticker) => {
-        const {
-          symbol,
-          lastPrice,
-          priceChange,
-          priceChangePercent,
-          highPrice,
-          lowPrice,
-          openPrice,
-          prevClosePrice,
-          quoteVolume,
-          volume
-        } = ticker;
-
-        acc[symbol.toLowerCase()] = {
-          name: symbol.replace(/USDT|USD|EUR|GBP|AUD|JPY|TRY/g, ''),
-          price: lastPrice,
-          priceChange,
-          priceChangePercent,
-          highPrice,
-          lowPrice,
-          openPrice,
-          prevClosePrice,
-          lastPrice,
-          symbol,
-          quoteVolume,
-          volume,
-          cryptoId: symbol,
-          currencyPair:
-            symbol.match(/USDT|USD|EUR|GBP|AUD|JPY|TRY/)?.[0] || 'UNKNOWN',
-          timestamp: new Date(),
-          loading: false,
-          error: null
-        };
-        return acc;
-      },
-      {} as Record<string, TickerData>
-    );
-  };
-
-  /**
-   * Fetches cryptocurrency data from the API.
-   */
-  const fetchCryptoData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=[${symbols
-        .map((s) => `"${s.toUpperCase()}"`)
-        .join(',')}]`;
-      const { data } = await axios.get<RawTickerData[]>(url);
-
-      setTickersData(formatTickerData(data));
-      setHasFetched(true);
-    } catch {
-      setError('Error fetching crypto data');
-      setTickersData({});
-      setHasFetched(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [symbols]);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!hasFetched) {
-      fetchCryptoData();
-    }
-  }, [fetchCryptoData, hasFetched]);
+    // If no symbols are provided, do nothing
+    if (symbols.length === 0) return;
 
-  return { tickersData, loading, error, refetch: fetchCryptoData };
+    // Build the stream query parameter by joining all symbols
+    const streams = symbols
+      .map((symbol) => `${symbol.toLowerCase()}@ticker`)
+      .join('/');
+
+    // Construct the WebSocket URL
+    const wsUrl = `wss://stream.binance.com:9443/stream?streams=${streams}`;
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    // Handle incoming messages from the WebSocket
+    ws.onmessage = (event) => {
+      try {
+        const response = JSON.parse(event.data);
+        const data = response.data;
+
+        if (data && data.e === '24hrTicker') {
+          const {
+            s: symbol,
+            c: lastPrice,
+            p: priceChange,
+            P: priceChangePercent,
+            h: highPrice,
+            l: lowPrice,
+            o: openPrice,
+            x: prevClosePrice,
+            q: quoteVolume,
+            v: volume
+          } = data;
+
+          const tickerData: TickerData = {
+            name: symbol.replace(/USDT|USD|EUR|GBP|AUD|JPY|TRY/g, ''),
+            price: parseFloat(lastPrice),
+            priceChange: parseFloat(priceChange),
+            priceChangePercent: parseFloat(priceChangePercent),
+            highPrice: parseFloat(highPrice),
+            lowPrice: parseFloat(lowPrice),
+            openPrice: parseFloat(openPrice),
+            prevClosePrice: parseFloat(prevClosePrice),
+            lastPrice: parseFloat(lastPrice),
+            symbol,
+            quoteVolume: parseFloat(quoteVolume),
+            volume: parseFloat(volume),
+            cryptoId: symbol,
+            currencyPair:
+              symbol.match(/USDT|USD|EUR|GBP|AUD|JPY|TRY/)?.[0] || 'UNKNOWN',
+            timestamp: new Date()
+          };
+
+          // Update the state with the new ticker data
+          setTickersData((prevData) => ({
+            ...prevData,
+            [symbol.toLowerCase()]: tickerData
+          }));
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
+        setError('Error parsing data from WebSocket.');
+      }
+    };
+
+    // Handle WebSocket errors
+    ws.onerror = (err) => {
+      console.error('WebSocket error:', err);
+      setError('WebSocket encountered an error.');
+    };
+
+    // Clean up the WebSocket connection when the component unmounts or symbols change
+    return () => {
+      ws.close();
+    };
+  }, [symbols]);
+
+  return { tickersData, error };
 };
 
 export default useCryptoTicker;

@@ -5,7 +5,7 @@ import useIntervalStore from 'stores/useIntervalStore';
 import useCryptoInfo from 'hooks/useCryptoInfo';
 import PairContent from 'components/Pages/Pair/PairContent';
 import PageTransition from 'components/App/PageTransition';
-import { Container } from '@mantine/core';
+import { Center, Flex, Loader } from '@mantine/core';
 
 const Pair: React.FC = () => {
   const { pair } = useParams<{ pair: string }>();
@@ -45,18 +45,24 @@ const Pair: React.FC = () => {
   }, [cryptoName, currentPrice, infoLoading, pair]);
 
   if (infoLoading || !cryptoInfo || infoError || !coinId) {
-    return <></>;
+    return (
+      <Center style={{ width: '100%', height: 'calc(100vh - 88px)' }}>
+        <Flex direction="column" align="center" justify="center">
+          <Loader size="md" type="bars" color="dark.5" />
+        </Flex>
+      </Center>
+    );
   }
 
   return (
-    <PageTransition>
+    <PageTransition duration={0.1}>
       <PairContent
         cryptoName={cryptoName}
         image={image}
         priceSource={currentPrice}
         deltaSource={priceChangePercent24h}
+        coinId={pair || ''}
         pair={pair || ''}
-        coinId={coinId}
         totalVolume={totalVolume}
         selectedInterval={selectedInterval}
       />

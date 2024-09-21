@@ -1,6 +1,7 @@
+import { Center, Flex, Loader } from '@mantine/core';
+import PageTransition from 'components/App/PageTransition';
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-
 // Lazy load the Screener and Pair components
 const Screener = lazy(() => import('pages/Screener'));
 const Pair = lazy(() => import('pages/Pair'));
@@ -12,7 +13,17 @@ const Pair = lazy(() => import('pages/Pair'));
 export function AppRoutes() {
   return (
     // Suspense component is used to show a fallback UI while the lazy-loaded components are being fetched.
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <PageTransition duration={0.1}>
+          <Center style={{ width: '100%', height: 'calc(100vh - 88px)' }}>
+            <Flex direction="column" align="center" justify="center">
+              <Loader size="md" type="bars" color="dark.5" />
+            </Flex>
+          </Center>
+        </PageTransition>
+      }
+    >
       <Routes>
         {/* Redirect the root path to the Screener component with page 1 */}
         <Route path="/" element={<Navigate to="screener/page/1" replace />} />

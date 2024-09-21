@@ -21,7 +21,7 @@ const PairHeader: React.FC<PairHeaderProps> = React.memo(
 
     if (error) {
       return (
-        <Text c="red" ta="center">
+        <Text c="red" ta="center" component="div" mih={62}>
           {error}
         </Text>
       );

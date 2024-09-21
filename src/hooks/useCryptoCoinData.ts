@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { getPrivateKey } from 'utils/getCoinGeckoApiKey'; // Ensure this utility handles API key fetching correctly
-import { L } from 'vitest/dist/reporters-yx5ZTtEV.js';
+import { getPrivateKey } from 'utils/getCoinGeckoApiKey';
 
 interface MarketData {
   current_price: { [key: string]: number };
@@ -11,6 +10,14 @@ interface MarketData {
   low_24h: { [key: string]: number };
   price_change_24h: number;
   price_change_percentage_24h: number;
+  price_change_percentage_1h_in_currency: { [key: string]: number };
+  price_change_percentage_24h_in_currency: { [key: string]: number };
+  price_change_percentage_7d_in_currency: { [key: string]: number };
+  price_change_percentage_14d_in_currency: { [key: string]: number };
+  price_change_percentage_30d_in_currency: { [key: string]: number };
+  price_change_percentage_60d_in_currency: { [key: string]: number };
+  price_change_percentage_200d_in_currency: { [key: string]: number };
+  price_change_percentage_1y_in_currency: { [key: string]: number };
   circulating_supply: number;
   total_supply: number | null;
   max_supply: number | null;
@@ -19,6 +26,9 @@ interface MarketData {
   atl: { [key: string]: number };
   atl_change_percentage: { [key: string]: number };
   market_cap_rank: number;
+  sparkline_7d?: {
+    price: number[];
+  };
   // Add other fields as needed
 }
 
@@ -40,7 +50,7 @@ interface CoinLinks {
 }
 
 interface DeveloperData {
-  fork: number;
+  forks: number;
   stars: number;
   subscribers: number;
   total_issues: number;
@@ -65,18 +75,67 @@ interface CommunityData {
   telegram_channel_user_count: number | null;
 }
 
+interface PublicInterestStats {
+  alexa_rank: number | null;
+  bing_matches: number | null;
+}
+
+interface StatusUpdate {
+  description: string;
+  category: string;
+  created_at: string;
+  user: string;
+  user_title: string;
+  pin: boolean;
+  project: {
+    type: string;
+    id: string;
+    name: string;
+    symbol: string;
+    image: {
+      thumb: string;
+      small: string;
+      large: string;
+    };
+  };
+}
+
+interface Ticker {
+  // Define ticker fields if needed
+}
+
 interface CoinData {
   id: string;
   symbol: string;
   name: string;
+  asset_platform_id: string | null;
+  platforms: { [key: string]: string };
+  block_time_in_minutes: number;
+  hashing_algorithm: string | null;
+  categories: string[];
+  public_notice: string | null;
+  additional_notices: string[];
   description: { [key: string]: string };
-  image: { thumb: string; small: string; large: string };
-  market_data: MarketData;
-  market_cap_rank: number;
   links: CoinLinks;
-  developer_data: DeveloperData;
+  image: { thumb: string; small: string; large: string };
+  country_origin: string;
+  genesis_date: string | null;
+  sentiment_votes_up_percentage: number | null;
+  sentiment_votes_down_percentage: number | null;
+  market_cap_rank: number;
+  coingecko_rank: number;
+  coingecko_score: number;
+  developer_score: number;
+  community_score: number;
+  liquidity_score: number;
+  public_interest_score: number;
+  market_data: MarketData;
   community_data: CommunityData;
-  // Add other fields as needed
+  developer_data: DeveloperData;
+  public_interest_stats: PublicInterestStats;
+  status_updates: StatusUpdate[];
+  last_updated: string;
+  tickers: Ticker[];
 }
 
 interface UseCoinGeckoCoinDataResponse {
@@ -121,7 +180,7 @@ const useCoinGeckoCoinData = (
     };
 
     fetchCoinData();
-  }, []);
+  }, [id, vsCurrency]);
 
   return { coinData, loading, error };
 };

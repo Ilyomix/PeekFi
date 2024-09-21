@@ -1,6 +1,5 @@
-import { Container, MantineProvider } from '@mantine/core';
+import { Container } from '@mantine/core';
 import { AppRoutes } from 'routes/Router';
-import { appTheme } from 'themes/app';
 import { Header } from 'components/App/Header';
 import 'assets/app/index.css';
 
@@ -10,12 +9,10 @@ import 'assets/app/index.css';
  */
 function App() {
   return (
-    <MantineProvider theme={appTheme} defaultColorScheme="dark">
-      <Container size="xxl" className="app-container">
-        <Header />
-        <AppRoutes />
-      </Container>
-    </MantineProvider>
+    <Container size="xxl" className="app-container">
+      <Header />
+      <AppRoutes />
+    </Container>
   );
 }
 

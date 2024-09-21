@@ -12,7 +12,7 @@ import PageTransition from 'components/App/PageTransition';
  */
 const Screener: React.FC = React.memo(() => {
   return (
-    <PageTransition>
+    <PageTransition duration={0.05}>
       <FinancialMap />
     </PageTransition>
   );
