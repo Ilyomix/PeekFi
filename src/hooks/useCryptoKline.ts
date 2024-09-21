@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import { getPrivateKey } from 'utils/getCoinGeckoApiKey';
 
 interface CandleData {
   x: number; // Timestamp in milliseconds
@@ -36,7 +37,7 @@ const rangeMapping: {
   '6M': { days: '180', granularity: 2 * 24 * 60 * 60 * 1000 }, // 2-day granularity
   '1Y': { days: '365', granularity: 4 * 24 * 60 * 60 * 1000 }, // 4-day granularity
   '5Y': { days: '1825', granularity: 1 * 7 * 24 * 60 * 60 * 1000 }, // 1-week granularity
-  Max: { days: 'max', granularity: 30 * 24 * 60 * 60 * 1000 } // 1-month granularity
+  MAX: { days: 'max', granularity: 30 * 24 * 60 * 60 * 1000 } // 1-month granularity
 };
 
 /**
@@ -53,6 +54,8 @@ const sampleData = (data: CandleData[], maxPoints: number): CandleData[] => {
   );
 };
 
+const privateKey = getPrivateKey();
+
 /**
  * Fetches market chart data from the CoinGecko API.
  * @param {string} id - The CoinGecko ID of the cryptocurrency.
@@ -65,9 +68,13 @@ const fetchCoinGeckoMarketChartData = async (
   vsCurrency: string,
   days: string
 ): Promise<CandleData[]> => {
-  const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart`;
+  const url = `https://pro-api.coingecko.com/api/v3/coins/${id}/market_chart`;
   const response = await axios.get(url, {
-    params: { vs_currency: vsCurrency, days: days }
+    params: { vs_currency: vsCurrency, days: days },
+    headers: {
+      accept: 'application/json',
+      'x-cg-pro-api-key': privateKey
+    }
   });
 
   // Combine the data points
@@ -110,61 +117,62 @@ const useCryptoKLine = (
   /**
    * Fetches historical data and updates the state.
    */
-  const fetchHistoricalData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const fetchHistoricalData = useCallback(
+    async (hideLoading?: boolean) => {
+      setLoading(hideLoading ? false : true);
+      setError(null);
 
-    // Normalize the range value to uppercase
-    const normalizedRange = range.toUpperCase();
-
-    // Get the mapping for the given range
-    const mapping = rangeMapping[normalizedRange];
-
-    if (!mapping) {
-      setError(`Invalid range: ${range}`);
-      setLoading(false);
-      return;
-    }
-
-    const { days } = mapping;
-
-    try {
-      const fetchedData = await fetchCoinGeckoMarketChartData(
-        id,
-        vsCurrency,
-        days
-      );
-      const sampledData = sampleData(fetchedData, MAX_DATA_POINTS);
-      setData(sampledData); // Replace old data with new fetched data
-
-      if (sampledData.length > 0) {
-        const firstCandle = sampledData[0];
-        const lastCandle = sampledData[sampledData.length - 1];
-        setOpenPrice(firstCandle.open);
-        setCurrentPrice(lastCandle.y);
-        setDelta(lastCandle.y - firstCandle.open);
-        setDeltaPercent(
-          ((lastCandle.y - firstCandle.open) / firstCandle.open) * 100
-        );
-        setDeltaPositive(lastCandle.y > firstCandle.open);
+      // Normalize the range value to uppercase
+      const normalizedRange = range.toUpperCase();
+      // Get the mapping for the given range
+      const mapping = rangeMapping[normalizedRange];
+      if (!mapping) {
+        setError(`Invalid range: ${range}`);
+        setLoading(false);
+        return;
       }
 
-      setError(null); // Reset error on success
-    } catch (err) {
-      console.error('Failed to fetch historical data:', err);
-      setError('Failed to fetch historical data.');
-    } finally {
-      setLoading(false);
-    }
-  }, [id, vsCurrency, range]);
+      const { days } = mapping;
+
+      try {
+        const fetchedData = await fetchCoinGeckoMarketChartData(
+          id,
+          vsCurrency,
+          days
+        );
+        const sampledData = sampleData(fetchedData, MAX_DATA_POINTS);
+        setData(sampledData); // Replace old data with new fetched data
+
+        if (sampledData.length > 0) {
+          const firstCandle = sampledData[0];
+          const lastCandle = sampledData[sampledData.length - 1];
+          setOpenPrice(firstCandle.open);
+          setCurrentPrice(lastCandle.y);
+          setDelta(lastCandle.y - firstCandle.open);
+          setDeltaPercent(
+            ((lastCandle.y - firstCandle.open) / firstCandle.open) * 100
+          );
+          setDeltaPositive(lastCandle.y > firstCandle.open);
+        }
+
+        setError(null); // Reset error on success
+      } catch (err) {
+        console.error('Failed to fetch historical data:', err);
+        setError('Failed to fetch historical data.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [id, vsCurrency, range]
+  );
 
   useEffect(() => {
     fetchHistoricalData();
 
     // Set up interval for data refresh (e.g., every 60 seconds)
     const interval = setInterval(() => {
-      fetchHistoricalData();
-    }, 60000); // Refresh every 60 seconds
+      fetchHistoricalData(true);
+    }, 5000); // Refresh every 60 seconds
 
     return () => clearInterval(interval); // Clean up the interval on unmount
   }, [fetchHistoricalData]);

@@ -40,6 +40,8 @@ const FinancialMap: React.FC = () => {
     if (totalPages > 0 && currentPage > totalPages) {
       setCurrentPage(1);
       navigate('/screener/page/1', { replace: true });
+    } else {
+      navigate(`/screener/page/${currentPage}`, { replace: true });
     }
   }, [currentPage, totalPages, navigate]);
 
@@ -51,7 +53,7 @@ const FinancialMap: React.FC = () => {
   const setTablePage = (page: number) => {
     setCurrentPage(page);
     goToPage(page);
-    navigate('/screener/page/' + page);
+    navigate('/screener/page/' + page, { replace: true });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
