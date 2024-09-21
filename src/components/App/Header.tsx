@@ -6,15 +6,14 @@ import {
   Burger,
   rem,
   useComputedColorScheme,
-  getThemeColor,
-  useMantineTheme,
   Drawer,
   Flex,
   Divider,
   ScrollArea,
   Title,
   ActionIcon,
-  Kbd
+  Kbd,
+  Text
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { IconSearch, IconX } from '@tabler/icons-react';
@@ -26,8 +25,8 @@ import logo from 'assets/images/logo.svg';
 import CryptoSearch from './CryptoSearch';
 
 const links = [
-  { link: '/screener/page/1', label: 'Screener' }
-  // { link: '/portfolio', label: 'Portfolio' },
+  { link: '/screener/page/1', label: 'Screener' },
+  // { link: '/portfolio', label: 'Portfolio' }
   // { link: '/settings', label: 'Settings' },
   // { link: '/pair/', label: 'Pair' }
   // { link: '/about/', label: 'About' }
@@ -41,7 +40,6 @@ export function Header() {
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const theme = useMantineTheme();
   const isDarkTheme = computedColorScheme === 'dark';
 
   const isLinkActive = (link: string) => {
@@ -61,16 +59,32 @@ export function Header() {
     </Link>
   ));
 
+  const itemsDrawer = links.map((link, index) => (
+    <Link
+      key={index + 1}
+      to={link.link}
+      className={
+        isLinkActive(link.link)
+          ? classes['link-drawer-active']
+          : classes['link-drawer']
+      }
+      onClick={close}
+    >
+      {link.label}
+    </Link>
+  ));
+
   return (
     <>
       <header className={classes.header}>
         <div className={classes.inner}>
-          <Group>
+          <Group gap={5}>
             <Burger
               opened={opened}
               onClick={toggle}
               size="sm"
               hiddenFrom="sm"
+              style={{ transform: 'translateX(-4px)' }}
             />
             <Image
               className={classes.logo}
@@ -89,11 +103,25 @@ export function Header() {
               {items}
             </Group>
             <ThemeToggle />
+            <ActionIcon
+              hiddenFrom="sm"
+              onClick={() => openSpotlight()}
+              aria-label="Search for cryptocurrencies"
+              bg="transparent"
+              variant="default"
+              radius="xl"
+              color="light-dark(var(--mantine-text-color-black), var(--mantine-text-color-white))"
+              size="lg"
+              c="light-dark(var(--mantine-text-color-black), var(--mantine-text-color-white))"
+            >
+              <IconSearch stroke={1} size={22} />
+            </ActionIcon>
             <Button
               classNames={{ root: classes.search }}
               display="flex"
               bg="transparent"
               variant="default"
+              visibleFrom="sm"
               size="sm"
               onClick={() => openSpotlight()}
               leftSection={
@@ -101,17 +129,17 @@ export function Header() {
                   <IconSearch
                     style={{
                       width: rem(16),
-                      height: rem(16),
-                      marginRight: rem(8)
+                      height: rem(16)
                     }}
                     stroke={1.5}
                   />
-                  Search
+                  <Text size={rem(14)} fw={500} lh={0} ml={8} visibleFrom="xs">
+                    Search
+                  </Text>
                 </>
               }
               fw="500"
               radius="xl"
-              visibleFrom="xs"
               rightSection={
                 isDesktop && (
                   <>
@@ -134,14 +162,17 @@ export function Header() {
         size="xl"
         withCloseButton={false}
       >
-        <Flex
-          p="apart"
-          justify="space-between"
-          align="center"
-          style={{ width: '100%' }}
-        >
+        <Flex p="apart" justify="space-between" align="center">
           <Title order={2} fw={700}>
-            Menu
+            <Image
+              src={logo}
+              h={32}
+              radius="md"
+              ml={-4}
+              style={{
+                filter: isDarkTheme ? 'invert()' : ''
+              }}
+            />
           </Title>
           <ActionIcon
             size="md"
@@ -155,40 +186,24 @@ export function Header() {
         <Divider my="md" />
 
         <ScrollArea
-          style={{ height: '70vh', paddingTop: '0rem' }}
+          style={{
+            height: 'calc(100vh - 140px)',
+            padding: '1rem 0',
+            justifyContent: 'center',
+            display: 'flex'
+          }}
           type="scroll"
         >
-          {items}
-          <Button
-            className={classes.link}
-            variant="light"
-            onClick={() => {
-              openSpotlight();
-              close(); // Close the drawer when the search button is clicked
+          <Flex
+            direction="column"
+            justify="center"
+            h="100%"
+            style={{
+              alignSelf: 'center'
             }}
-            leftSection={
-              <>
-                <IconSearch
-                  style={{
-                    width: rem(16),
-                    height: rem(16),
-                    marginRight: rem(8)
-                  }}
-                  stroke={1.5}
-                />
-                Search
-              </>
-            }
-            radius="xl"
-            fullWidth
-            mt="md"
-            fw="500"
-            color={
-              isDarkTheme
-                ? getThemeColor('white', theme)
-                : getThemeColor('gray.9', theme)
-            }
-          ></Button>
+          >
+            {itemsDrawer}
+          </Flex>
         </ScrollArea>
       </Drawer>
     </>
