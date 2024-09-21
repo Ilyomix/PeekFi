@@ -1,6 +1,6 @@
 // useCryptoKLine.tsx
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 
 interface CandleData {
@@ -10,6 +10,7 @@ interface CandleData {
   low: number;
   y: number; // Close price
   volume: number;
+  marketCap?: number;
 }
 
 interface UseCryptoKLineResponse {
@@ -23,31 +24,82 @@ interface UseCryptoKLineResponse {
   currentPrice: number | null;
 }
 
+const MAX_DATA_POINTS = 400;
+
 const rangeMapping: {
-  [key: string]: { interval: string; limit: number };
+  [key: string]: { days: string; granularity: number };
 } = {
-  '1D': { interval: '1m', limit: 1440 }, // 1 day of 1-minute data
-  '1W': { interval: '15m', limit: 672 }, // 1 week of 15-minute data
-  '1M': { interval: '1h', limit: 720 }, // 1 month of 1-hour data
-  '3M': { interval: '4h', limit: 540 }, // 3 months of 4-hour data
-  '6M': { interval: '12h', limit: 360 }, // 6 months of 12-hour data
-  '1Y': { interval: '1d', limit: 365 }, // 1 year of daily data
-  '5Y': { interval: '1w', limit: 260 }, // 5 years of weekly data
-  Max: { interval: '1M', limit: 60 } // Max range (approx 5 years)
+  '1D': { days: '1', granularity: 60 * 60 * 1000 }, // 1-hour granularity
+  '1W': { days: '7', granularity: 4 * 60 * 60 * 1000 }, // 4-hour granularity
+  '1M': { days: '30', granularity: 12 * 60 * 60 * 1000 }, // 12-hour granularity
+  '3M': { days: '90', granularity: 1 * 24 * 60 * 60 * 1000 }, // 1-day granularity
+  '6M': { days: '180', granularity: 2 * 24 * 60 * 60 * 1000 }, // 2-day granularity
+  '1Y': { days: '365', granularity: 4 * 24 * 60 * 60 * 1000 }, // 4-day granularity
+  '5Y': { days: '1825', granularity: 1 * 7 * 24 * 60 * 60 * 1000 }, // 1-week granularity
+  Max: { days: 'max', granularity: 30 * 24 * 60 * 60 * 1000 } // 1-month granularity
 };
 
 /**
- * Custom hook to fetch and manage cryptocurrency KLine data using Binance's API.
- * @param {string} symbol - The trading pair symbol (e.g., 'BTCUSDT').
+ * Samples the data to a maximum number of points to optimize performance.
+ * @param {CandleData[]} data - The full dataset.
+ * @param {number} maxPoints - The maximum number of data points.
+ * @returns {CandleData[]} - The sampled dataset.
+ */
+const sampleData = (data: CandleData[], maxPoints: number): CandleData[] => {
+  if (data.length <= maxPoints) return data;
+  const step = Math.ceil((data.length - 2) / (maxPoints - 2));
+  return data.filter(
+    (_, index) => index === 0 || index === data.length - 1 || index % step === 0
+  );
+};
+
+/**
+ * Fetches market chart data from the CoinGecko API.
+ * @param {string} id - The CoinGecko ID of the cryptocurrency.
+ * @param {string} vsCurrency - The currency to compare against, e.g., 'usd'.
+ * @param {string} days - The number of days for the chart data.
+ * @returns {Promise<CandleData[]>} - An array of CandleData.
+ */
+const fetchCoinGeckoMarketChartData = async (
+  id: string,
+  vsCurrency: string,
+  days: string
+): Promise<CandleData[]> => {
+  const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart`;
+  const response = await axios.get(url, {
+    params: { vs_currency: vsCurrency, days: days }
+  });
+
+  // Combine the data points
+  const prices = response.data.prices;
+  const marketCaps = response.data.market_caps;
+  const totalVolumes = response.data.total_volumes;
+
+  return prices.map((price: [number, number], index: number) => ({
+    x: price[0],
+    open: price[1],
+    high: price[1],
+    low: price[1],
+    y: price[1],
+    volume: totalVolumes[index]?.[1] || 0,
+    marketCap: marketCaps[index]?.[1] || 0
+  }));
+};
+
+/**
+ * Custom hook to fetch and manage cryptocurrency KLine data using CoinGecko API.
+ * @param {string} id - The CoinGecko ID of the cryptocurrency.
+ * @param {string} vsCurrency - The currency to compare against, e.g., 'usd'.
  * @param {string} range - The time range for the data (e.g., '1D', '1W', etc.).
  * @returns {UseCryptoKLineResponse} - An object containing KLine data and related state.
  */
 const useCryptoKLine = (
-  symbol: string,
+  id: string,
+  vsCurrency: string = 'usd',
   range: string = '1D'
 ): UseCryptoKLineResponse => {
   const [data, setData] = useState<CandleData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true); // Initial loading state
   const [error, setError] = useState<string | null>(null);
   const [openPrice, setOpenPrice] = useState<number | null>(null);
   const [deltaPercent, setDeltaPercent] = useState<number | null>(null);
@@ -55,119 +107,67 @@ const useCryptoKLine = (
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [delta, setDelta] = useState<number | null>(null);
 
-  const wsRef = useRef<WebSocket | null>(null);
+  /**
+   * Fetches historical data and updates the state.
+   */
+  const fetchHistoricalData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    // Normalize the range value to uppercase
+    const normalizedRange = range.toUpperCase();
+
+    // Get the mapping for the given range
+    const mapping = rangeMapping[normalizedRange];
+
+    if (!mapping) {
+      setError(`Invalid range: ${range}`);
+      setLoading(false);
+      return;
+    }
+
+    const { days } = mapping;
+
+    try {
+      const fetchedData = await fetchCoinGeckoMarketChartData(
+        id,
+        vsCurrency,
+        days
+      );
+      const sampledData = sampleData(fetchedData, MAX_DATA_POINTS);
+      setData(sampledData); // Replace old data with new fetched data
+
+      if (sampledData.length > 0) {
+        const firstCandle = sampledData[0];
+        const lastCandle = sampledData[sampledData.length - 1];
+        setOpenPrice(firstCandle.open);
+        setCurrentPrice(lastCandle.y);
+        setDelta(lastCandle.y - firstCandle.open);
+        setDeltaPercent(
+          ((lastCandle.y - firstCandle.open) / firstCandle.open) * 100
+        );
+        setDeltaPositive(lastCandle.y > firstCandle.open);
+      }
+
+      setError(null); // Reset error on success
+    } catch (err) {
+      console.error('Failed to fetch historical data:', err);
+      setError('Failed to fetch historical data.');
+    } finally {
+      setLoading(false);
+    }
+  }, [id, vsCurrency, range]);
 
   useEffect(() => {
-    const fetchHistoricalData = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const { interval, limit } = rangeMapping[range];
-        const url = `https://api.binance.com/api/v3/klines`;
-        const params = {
-          symbol: symbol.toUpperCase(),
-          interval,
-          limit
-        };
-
-        const response = await axios.get(url, { params });
-
-        const fetchedData: CandleData[] = response.data.map(
-          (kline: string[]) => ({
-            x: kline[0],
-            open: parseFloat(kline[1]),
-            high: parseFloat(kline[2]),
-            low: parseFloat(kline[3]),
-            y: parseFloat(kline[4]),
-            volume: parseFloat(kline[5])
-          })
-        );
-
-        setData(fetchedData);
-
-        if (fetchedData.length > 0) {
-          const firstCandle = fetchedData[0];
-          const lastCandle = fetchedData[fetchedData.length - 1];
-          setOpenPrice(firstCandle.open);
-          setCurrentPrice(lastCandle.y);
-          setDelta(lastCandle.y - firstCandle.open);
-          setDeltaPercent(
-            ((lastCandle.y - firstCandle.open) / firstCandle.open) * 100
-          );
-          setDeltaPositive(lastCandle.y > firstCandle.open);
-        }
-
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch historical data:', err);
-        setError('Failed to fetch historical data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchHistoricalData();
 
-    // Set up WebSocket for live updates
-    const { interval } = rangeMapping[range];
-    const wsUrl = `wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${interval}`;
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
+    // Set up interval for data refresh (e.g., every 60 seconds)
+    const interval = setInterval(() => {
+      fetchHistoricalData();
+    }, 60000); // Refresh every 60 seconds
 
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        const kline = message.k;
-
-        const updatedCandle: CandleData = {
-          x: kline.t,
-          open: parseFloat(kline.o),
-          high: parseFloat(kline.h),
-          low: parseFloat(kline.l),
-          y: parseFloat(kline.c),
-          volume: parseFloat(kline.v)
-        };
-
-        setData((prevData) => {
-          // Check if the candle already exists in the data
-          const index = prevData.findIndex((c) => c.x === updatedCandle.x);
-
-          if (index !== -1) {
-            // Update the existing candle
-            const newData = [...prevData];
-            newData[index] = updatedCandle;
-            return newData;
-          } else {
-            // Add the new candle
-            return [...prevData.slice(1), updatedCandle]; // Keep the data array size consistent
-          }
-        });
-
-        setCurrentPrice(updatedCandle.y);
-        setDelta(updatedCandle.y - (openPrice || 0));
-        setDeltaPercent(
-          openPrice ? ((updatedCandle.y - openPrice) / openPrice) * 100 : 0
-        );
-        setDeltaPositive(updatedCandle.y > (openPrice || 0));
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-        setError('Error parsing data from WebSocket.');
-      }
-    };
-
-    ws.onerror = (err) => {
-      console.error('WebSocket error:', err);
-      setError('WebSocket encountered an error.');
-    };
-
-    // Clean up the WebSocket connection when the component unmounts or dependencies change
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-    };
-  }, [symbol, range, openPrice]);
+    return () => clearInterval(interval); // Clean up the interval on unmount
+  }, [fetchHistoricalData]);
 
   return {
     data,

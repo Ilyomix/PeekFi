@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Avatar, Text, rem, Loader, Flex } from '@mantine/core';
 import '@mantine/spotlight/styles.css';
 import { useDebouncedValue } from '@mantine/hooks';
-import { color } from 'framer-motion';
+import { lockBodyScroll, unlockBodyScroll } from 'utils/scrollLock';
 
 const CryptoSearch: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -118,8 +118,11 @@ const CryptoSearch: React.FC = () => {
 
   return (
     <Spotlight
+      onSpotlightOpen={lockBodyScroll}
+      onSpotlightClose={unlockBodyScroll}
       actions={actions}
       radius="lg"
+      lockScroll
       style={{ border: 'none' }}
       shortcut={['mod + k']}
       searchProps={{
