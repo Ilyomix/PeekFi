@@ -66,11 +66,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
   ({ id, vsCurrency }) => {
     const { coinData, loading, error } = useCoinGeckoCoinData(id, vsCurrency);
     if (error) {
-      return (
-        <Text c="red" ta="center">
-          {error}
-        </Text>
-      );
+      return <></>;
     }
 
     // Helper function to determine color based on value
@@ -95,7 +91,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         style={{ zIndex: 3, position: 'relative' }}
       >
         {/* General Information Section */}
-        <Stack gap="md" mt={68}>
+        <Stack gap="md">
           <Flex align="center">
             <IconListDetails size={22} color="white" />
             <Title order={2} c="white" ml={14}>

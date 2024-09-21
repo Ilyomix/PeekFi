@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Flex, Pagination, rem } from '@mantine/core';
+import {
+  Button,
+  Center,
+  Code,
+  Flex,
+  Image,
+  Pagination,
+  rem,
+  Text
+} from '@mantine/core';
 import usePaginatedCryptoData from 'hooks/usePaginatedCryptoTicker';
 import TableView from 'components/Pages/Screener/ScreenerTable';
 import { useScreenerDisplayPreferences } from 'stores/useScreenerDisplayPreferences';
@@ -8,13 +17,15 @@ import {
   IconArrowBarToLeft,
   IconArrowBarToRight,
   IconArrowLeft,
-  IconArrowRight
+  IconArrowRight,
+  IconRefresh
 } from '@tabler/icons-react';
 import DisplayPreferences from './DisplayPreferences';
 import FilterComponent from './FilterScreenerTable';
 import TableSkeleton from './TableSkeleton';
 import PageTransition from 'components/App/PageTransition';
 import GoToTopButton from 'components/App/GoToTopButton';
+import disconnect from 'assets/images/disconnect.svg';
 
 const FinancialMap: React.FC = () => {
   const { itemsPerPage, filter } = useScreenerDisplayPreferences();
@@ -57,7 +68,37 @@ const FinancialMap: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (error) return <p>Error: {error}</p>;
+  if (error)
+    return (
+      <PageTransition duration={0.2}>
+        <Center style={{ width: '100%', height: 'calc(100vh - 88px)' }}>
+          <Flex direction="column" align="center" justify="center">
+            <Image src={disconnect} alt="Error" maw={400} mah={300} mb="md" />
+            <Text
+              size="lg"
+              fw={500}
+              c="light-dark(var(--mantine-color-text-dark), var(--mantine-color-text-white))"
+              ta="center"
+              mt={28}
+            >
+              Oops! Something went wrong
+            </Text>
+            <Code c="red.6" ta="center" bg="white" mt="xs" mb="lg">
+              Error message: <b>{error}</b>
+            </Code>
+            <Button
+              leftSection={<IconRefresh size={18} />}
+              mt={28}
+              onClick={() => window.location.reload()}
+              color="teal"
+              radius="xl"
+            >
+              Refresh Page
+            </Button>
+          </Flex>
+        </Center>
+      </PageTransition>
+    );
 
   return (
     <PageTransition duration={0.5}>

@@ -5,7 +5,9 @@ import useIntervalStore from 'stores/useIntervalStore';
 import useCryptoInfo from 'hooks/useCryptoInfo';
 import PairContent from 'components/Pages/Pair/PairContent';
 import PageTransition from 'components/App/PageTransition';
-import { Center, Flex, Loader } from '@mantine/core';
+import { Button, Center, Code, Flex, Image, Loader, Text } from '@mantine/core';
+import { IconRefresh } from '@tabler/icons-react';
+import disconnect from 'assets/images/disconnect.svg';
 
 const Pair: React.FC = () => {
   const { pair } = useParams<{ pair: string }>();
@@ -44,7 +46,39 @@ const Pair: React.FC = () => {
     };
   }, [cryptoName, currentPrice, infoLoading, pair]);
 
-  if (infoLoading || !cryptoInfo || infoError || !coinId) {
+  if (infoError)
+    return (
+      <PageTransition duration={0.2}>
+        <Center style={{ width: '100%', height: 'calc(100vh - 88px)' }}>
+          <Flex direction="column" align="center" justify="center">
+            <Image src={disconnect} alt="Error" maw={400} mah={300} mb="md" />
+            <Text
+              size="lg"
+              fw={500}
+              c="light-dark(var(--mantine-color-text-dark), var(--mantine-color-text-white))"
+              ta="center"
+              mt={28}
+            >
+              Oops! Something went wrong
+            </Text>
+            <Code c="red.6" ta="center" bg="white" mt="xs" mb="lg">
+              Error message: <b>{infoError}</b>
+            </Code>
+            <Button
+              leftSection={<IconRefresh size={18} />}
+              mt={28}
+              onClick={() => window.location.reload()}
+              color="teal"
+              radius="xl"
+            >
+              Refresh Page
+            </Button>
+          </Flex>
+        </Center>
+      </PageTransition>
+    );
+
+  if (infoLoading || !cryptoInfo || !coinId) {
     return (
       <Center style={{ width: '100%', height: 'calc(100vh - 88px)' }}>
         <Flex direction="column" align="center" justify="center">
