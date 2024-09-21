@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { getPrivateKey } from 'utils/getCoinGeckoApiKey';
 
-interface CandleData {
+export interface CandleData {
   x: number; // Timestamp in milliseconds
   open: number;
   high: number;

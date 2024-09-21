@@ -10,11 +10,12 @@ import {
   ReferenceDot,
   Label
 } from 'recharts';
+import { IconChartBarPopular, IconClock } from '@tabler/icons-react';
 import { Divider, Flex, LoadingOverlay, Paper, Text } from '@mantine/core';
 import 'assets/components/areaCharts/index.css';
-import { AnimatedTickerDisplay } from 'components/Pages/Pair/AnimatedTickerDisplay';
-import { IconChartBarPopular, IconClock } from '@tabler/icons-react';
+
 import { CandleData } from 'hooks/useCryptoKline';
+import { AnimatedTickerDisplay } from 'components/Pages/Pair/AnimatedTickerDisplay';
 
 type DataPoint = {
   x: number;
