@@ -14,53 +14,53 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({
       <Table.Td>
         <Skeleton height={20} width={20} />
       </Table.Td>
-      <Table.Td width={200}>
+      <Table.Td>
         <Flex align="center">
           <Skeleton circle height={30} width={30} mr={14} />
-          <Flex direction="column" w={{ base: '150px', md: '250px' }}>
+          <Flex direction="column" w={{ base: '100px', md: '200px' }}>
             <Skeleton height={20} width="60%" />
             <Skeleton height={14} width="40%" mt={5} />
           </Flex>
         </Flex>
       </Table.Td>
       <Table.Td align="right">
-        <Skeleton height={20} width={150} />
+        <Skeleton height={20} width={100} />
       </Table.Td>
       <Table.Td>
-        <Skeleton height={20} width="100%" />
+        <Skeleton height={20} width="100%" miw={60} />
       </Table.Td>
       <Table.Td>
-        <Skeleton height={20} width="100%" />
+        <Skeleton height={20} width="100%" miw={60} />
       </Table.Td>
       <Table.Td>
-        <Skeleton height={20} width="100%" />
+        <Skeleton height={20} width="100%" miw={60} />
       </Table.Td>
       <Table.Td>
-        <Skeleton height={20} width="100%" />
+        <Skeleton height={20} width="100%" miw={120} />
       </Table.Td>
       <Table.Td align="right">
-        <Skeleton height={20} width="100%" />
-        <Skeleton height={12} width="60%" mt={2} />
+        <Skeleton height={20} width="100%" miw={120} />
+        <Skeleton height={12} width="60%" mt={2} maw={40} />
       </Table.Td>
       <Table.Td align="right">
-        <Skeleton height={20} width="30%" />
-        <Skeleton height={8} width="100%" mt={5} />
+        <Skeleton height={20} width="30%" miw={180} />
+        <Skeleton height={8} width="100%" mt={5} maw={80} />
       </Table.Td>
-      <Table.Td width={200}>
-        <Skeleton height={40} width={170} />
+      <Table.Td width={120}>
+        <Skeleton height={40} width={120} />
       </Table.Td>
     </Table.Tr>
   ));
 
   return (
     <div style={{ zIndex: '-1' }}>
-      <ScrollArea>
+      <ScrollArea mx={{ base: -32, sm: 0 }}>
         <Table
           highlightOnHover
           highlightOnHoverColor="rgba(255, 255, 255, 0.1)"
           withRowBorders
-          verticalSpacing="xs"
-          horizontalSpacing="md"
+          verticalSpacing="sm"
+          horizontalSpacing="sm"
           className={classes.tableContainer}
         >
           <Table.Thead>

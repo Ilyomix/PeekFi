@@ -112,7 +112,6 @@ export function Header() {
               radius="xl"
               color="light-dark(var(--mantine-text-color-black), var(--mantine-text-color-white))"
               size="lg"
-              c="light-dark(var(--mantine-text-color-black), var(--mantine-text-color-white))"
             >
               <IconSearch stroke={1} size={22} />
             </ActionIcon>

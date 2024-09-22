@@ -41,7 +41,7 @@ const FinancialMap: React.FC = () => {
     tickersData,
     error,
     loading,
-    fetching: fetched,
+    fetching: unfetchedData,
     totalPages,
     goToPage,
     vsCurrency
@@ -113,7 +113,7 @@ const FinancialMap: React.FC = () => {
           <FilterComponent resetPage={resetPage} />
           <DisplayPreferences />
         </Flex>
-        {fetched ? (
+        {unfetchedData ? (
           <TableSkeleton itemsPerPage={itemsPerPage} />
         ) : (
           <>
