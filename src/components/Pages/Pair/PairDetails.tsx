@@ -15,7 +15,9 @@ import {
   Skeleton,
   Pill,
   Timeline,
-  TimelineItem
+  TimelineItem,
+  Popover,
+  ScrollArea
 } from '@mantine/core';
 import {
   IconArrowUpRight,
@@ -62,15 +64,49 @@ const formatPercentage = (value: number) => {
     : `${Number(formatted).toLocaleString()}%`;
 };
 
-const coinCategories = (coinData: CoinData) => {
-  const categories = coinData.categories;
-  const firstCategories = categories.slice(0, 5);
+type CoinCategoriesProps = {
+  coinData: CoinData;
+};
 
-  coinData?.categories && coinData.categories.length > 0
-    ? firstCategories.map((category: string, index: number) => (
-        <Pill key={index}>{category}</Pill>
-      ))
-    : '-';
+const CoinCategories: React.FC<CoinCategoriesProps> = ({ coinData }) => {
+  if (!(coinData?.categories && coinData.categories.length > 0)) {
+    return <>-</>;
+  }
+
+  const categories = coinData.categories;
+  const [firstCategories, lastCategories] = [
+    categories.slice(0, 5),
+    categories.slice(5)
+  ];
+
+  const [firstCategoriesNodes, lastCategoriesNodes] = [
+    firstCategories.map((category: string, index: number) => (
+      <Pill key={index}>{category}</Pill>
+    )),
+    lastCategories.map((category: string, index: number) => (
+      <Pill key={index + 5}>{category}</Pill>
+    ))
+  ];
+
+  const lastCategoriesLabel = lastCategories.length && (
+    <Popover position="bottom" withArrow shadow="md" key={-1}>
+      <Popover.Target>
+        <Pill style={{ cursor: 'pointer' }}>
+          +{lastCategories.length} more categorie
+          {`${lastCategories.length ? 's' : ''}`}
+        </Pill>
+      </Popover.Target>
+      <Popover.Dropdown>
+        <ScrollArea mah={300}>
+          <Group gap="xs" maw={300} mah={300}>
+            {lastCategoriesNodes}
+          </Group>
+        </ScrollArea>
+      </Popover.Dropdown>
+    </Popover>
+  );
+
+  return [...firstCategoriesNodes, lastCategoriesLabel];
 };
 
 const PairDetails: React.FC<PairDetailsProps> = React.memo(
@@ -174,7 +210,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Hashing Algorithm
               </Text>
-              <Skeleton visible={loading} height={20} w={200}>
+              <Skeleton visible={loading} height={20} miw={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.hashing_algorithm || '-'}
                 </Text>
@@ -185,7 +221,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Text size="sm" c="dimmed">
                 Block Time (minutes)
               </Text>
-              <Skeleton visible={loading} height={20} w={200}>
+              <Skeleton visible={loading} height={20} miw={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.block_time_in_minutes
                     ? `${coinData.block_time_in_minutes} minute${
@@ -201,7 +237,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 Categories
               </Text>
               <Skeleton visible={loading} mih={20} miw={200} mt={7}>
-                <Group gap="xs">{coinCategories}</Group>
+                <Group gap="xs">
+                  <CoinCategories coinData={coinData} />
+                </Group>
               </Skeleton>
             </Grid.Col>
           </Grid>
@@ -288,7 +326,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                       style: 'currency',
                       currency: vsCurrency.toUpperCase()
                     }
-                  )}
+                  ) || '-'}
                 </Text>
               </Skeleton>
             </Grid.Col>
@@ -307,7 +345,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                       minimumFractionDigits: precision,
                       maximumFractionDigits: precision
                     }
-                  )}
+                  ) || '-'}
                 </Text>
               </Skeleton>
               <Skeleton visible={loading} height={20} w={250} mt={5}>
@@ -329,7 +367,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                         {IconComponent && (
                           <IconComponent size={16} color={color} />
                         )}
-                        <Text size="sm" color={color}>
+                        <Text size="sm" c={color}>
                           {formatPercentage(change)} from ATH
                         </Text>
                       </>
@@ -353,7 +391,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                       minimumFractionDigits: precision,
                       maximumFractionDigits: precision
                     }
-                  )}
+                  ) || '-'}
                 </Text>
               </Skeleton>
               <Skeleton visible={loading} height={20} w={250} mt={5}>
@@ -375,7 +413,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                         {IconComponent && (
                           <IconComponent size={16} color={color} />
                         )}
-                        <Text size="sm" color={color}>
+                        <Text size="sm" c={color}>
                           {formatPercentage(change)} from ATL
                         </Text>
                       </>
@@ -391,7 +429,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               </Text>
               <Skeleton visible={loading} height={20} w={100}>
                 <Text size="md" fw={500} c="white">
-                  #{coinData?.market_cap_rank ?? '-'}
+                  {coinData?.market_cap_rank
+                    ? `#${coinData?.market_cap_rank}`
+                    : '-'}
                 </Text>
               </Skeleton>
             </Grid.Col>
@@ -407,7 +447,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   ]?.toLocaleString(undefined, {
                     style: 'currency',
                     currency: vsCurrency.toUpperCase()
-                  })}
+                  }) || '-'}
                 </Text>
               </Skeleton>
             </Grid.Col>
@@ -490,7 +530,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 coinData?.market_data[
                   `price_change_percentage_${timeframe.value}`
                 ]?.[vsCurrency];
-              if (change === undefined || change === null) return null;
 
               const isPositive = change > 0;
               const isZero = change === 0;
@@ -508,7 +547,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
                     <Group gap={4}>
-                      {IconComponent && (
+                      {IconComponent && change && (
                         <IconComponent size={16} color={color} />
                       )}
                       <Text size="md" fw={500} c={color}>
