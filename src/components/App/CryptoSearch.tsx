@@ -63,7 +63,6 @@ const CryptoSearch: React.FC = () => {
                 src={coin.thumb}
                 alt={`${coin.symbol} icon`}
                 size={24}
-                ml={14}
                 my={12}
               />
               <Text
@@ -75,13 +74,7 @@ const CryptoSearch: React.FC = () => {
             </Flex>
           ),
           rightSection: (
-            <Flex
-              gap={3}
-              direction="column"
-              align="end"
-              justify="start"
-              mx={rem(14)}
-            >
+            <Flex gap={3} direction="column" align="end" justify="start">
               <div
                 style={{
                   display: 'flex',
@@ -122,6 +115,11 @@ const CryptoSearch: React.FC = () => {
       onSpotlightClose={unlockBodyScroll}
       actions={actions}
       radius="lg"
+      scrollable
+      maxHeight={600}
+      styles={{
+        actionsList: { overflowX: 'hidden', overflowY: 'auto' },
+      }}
       lockScroll
       style={{ border: 'none' }}
       shortcut={['mod + k']}

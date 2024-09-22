@@ -125,7 +125,7 @@ const useCryptoInfo = (
       };
 
       ws.onerror = (err) => {
-        console.error('WebSocket error:', err);
+        console.warn('WebSocket error:', err);
         setError('WebSocket connection error. Falling back to CoinGecko API.');
         ws.close();
       };
@@ -170,7 +170,7 @@ const useCryptoInfo = (
           setData(cryptoData);
         }
       } catch (err) {
-        console.error('Initialization error:', err);
+        console.warn('Initialization error:', err);
         setError('Failed to initialize data. Using CoinGecko only.');
         await fetchCryptoInfo();
       } finally {

@@ -36,10 +36,12 @@ const Pair: React.FC = () => {
 
   useEffect(() => {
     if (pair && !infoLoading) {
-      document.title = `$${currentPrice.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 16
-      })} | ${cryptoName}`;
+      document.title = currentPrice
+        ? `$${currentPrice.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 16
+          })} | ${cryptoName}`
+        : `N/A | ${cryptoName}`;
     }
     return () => {
       document.title = 'Peekfi';
