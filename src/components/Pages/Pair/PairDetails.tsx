@@ -38,7 +38,7 @@ import {
   IconBrandReddit
 } from '@tabler/icons-react';
 import ReactCountryFlag from 'react-country-flag';
-import useCoinGeckoCoinData from 'hooks/useCryptoCoinData';
+import useCoinGeckoCoinData, { CoinData } from 'hooks/useCryptoCoinData';
 import { getNumberPrecision } from 'utils/getNumberPrecision';
 
 interface PairDetailsProps {
@@ -60,6 +60,17 @@ const formatPercentage = (value: number) => {
   return value >= 0
     ? `+${Number(formatted).toLocaleString()}%`
     : `${Number(formatted).toLocaleString()}%`;
+};
+
+const coinCategories = (coinData: CoinData) => {
+  const categories = coinData.categories;
+  const firstCategories = categories.slice(0, 5);
+
+  coinData?.categories && coinData.categories.length > 0
+    ? firstCategories.map((category: string, index: number) => (
+        <Pill key={index}>{category}</Pill>
+      ))
+    : '-';
 };
 
 const PairDetails: React.FC<PairDetailsProps> = React.memo(
@@ -190,13 +201,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 Categories
               </Text>
               <Skeleton visible={loading} mih={20} miw={200} mt={7}>
-                <Group gap="xs">
-                  {coinData?.categories && coinData.categories.length > 0
-                    ? coinData.categories.map((category, index) => (
-                        <Pill key={index}>{category}</Pill>
-                      ))
-                    : '-'}
-                </Group>
+                <Group gap="xs">{coinCategories}</Group>
               </Skeleton>
             </Grid.Col>
           </Grid>

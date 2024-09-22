@@ -104,7 +104,7 @@ interface Ticker {
   // Define ticker fields if needed
 }
 
-interface CoinData {
+export interface CoinData {
   id: string;
   symbol: string;
   name: string;
