@@ -238,7 +238,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               </Text>
               <Skeleton visible={loading} mih={20} miw={200} mt={7}>
                 <Group gap="xs">
-                  <CoinCategories coinData={coinData} />
+                  <CoinCategories coinData={coinData as CoinData} />
                 </Group>
               </Skeleton>
             </Grid.Col>
