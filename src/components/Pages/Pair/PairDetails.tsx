@@ -105,7 +105,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                 Country of Origin
               </Text>
               <Skeleton visible={loading} height={20} w={200}>
-                <Flex align="center" gap={6}>
+                <Flex align="baseline" gap={6}>
                   {coinData?.country_origin ? (
                     <>
                       <div
@@ -125,7 +125,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                             width: '1.25em',
                             height: '1.25em',
                             objectFit: 'cover',
-                            transform: 'translate(0%, -20%)'
+                            transform: 'translate(0%, -15%)'
                           }}
                           countryCode={coinData?.country_origin || ''}
                           title={regionNames.of(coinData?.country_origin)}
@@ -152,7 +152,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               </Text>
               <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
-                  {coinData?.genesis_date || '-'}
+                  {coinData?.genesis_date
+                    ? new Date(coinData.genesis_date).toLocaleDateString()
+                    : '-'}
                 </Text>
               </Skeleton>
             </Grid.Col>
@@ -175,7 +177,9 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Skeleton visible={loading} height={20} w={200}>
                 <Text size="md" fw={500} c="white">
                   {coinData?.block_time_in_minutes
-                    ? `${coinData.block_time_in_minutes} minutes`
+                    ? `${coinData.block_time_in_minutes} minute${
+                        coinData.block_time_in_minutes > 1 ? 's' : ''
+                      }`
                     : '-'}
                 </Text>
               </Skeleton>
