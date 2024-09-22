@@ -10,7 +10,6 @@
   
     color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
     font-feature-settings: 'tnum' 1, 'cv02';
-    filter: blur(0px);
     overflow: hidden;
     border: 0px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-gray-8));
 }
