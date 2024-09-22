@@ -105,9 +105,9 @@ const FinancialMap: React.FC = () => {
       <div style={{ position: 'relative' }}>
         <Flex
           gap={14}
-          direction={{ base: 'column', md: 'row' }}
-          justify={{ base: 'start', md: 'space-between' }}
-          align={{ base: 'start', md: 'center' }}
+          direction={{ base: 'column', xs: 'row' }}
+          justify={{ base: 'start', xs: 'space-between' }}
+          align={{ base: 'start', xs: 'center' }}
           my={rem(14)}
         >
           <FilterComponent resetPage={resetPage} />
