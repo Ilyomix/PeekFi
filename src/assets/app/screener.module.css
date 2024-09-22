@@ -9,7 +9,6 @@
     }
   
     color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
-    padding-top: 16px;
     font-feature-settings: 'tnum' 1, 'cv02';
     filter: blur(0px);
     overflow: hidden;
