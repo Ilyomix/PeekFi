@@ -64,10 +64,6 @@ const PairContent: React.FC<PairContentProps> = React.memo(
         <Grid.Col>
           <Paper
             shadow="xl"
-            radius={0}
-            w="calc(100% + 4rem)"
-            ml="-2rem"
-            mb={-14}
             style={{
               position: 'relative',
               transition: 'all 0.5s ease-in-out',
@@ -125,8 +121,8 @@ const PairContent: React.FC<PairContentProps> = React.memo(
                 precision={getNumberPrecision(priceSource ?? 0)}
               />
             </Flex>
-            <PairDetails id={coinId} vsCurrency="usd" />
           </Paper>
+          <PairDetails id={coinId} vsCurrency="usd" />
           <GoToTopButton color="dark.5" />
         </Grid.Col>
       </Grid>

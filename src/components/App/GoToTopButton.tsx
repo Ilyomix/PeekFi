@@ -40,7 +40,7 @@ const GoToTopButton: React.FC<GoToTopButtonProps> = ({ color }) => {
             size="xl"
             radius="xl"
             variant="filled"
-            color={color || 'teal'}
+            color={color || 'dark.7'}
             style={{
               ...styles
             }}

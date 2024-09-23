@@ -20,7 +20,7 @@
 
 /* For dark mode */
 :root[data-mantine-color-scheme="dark"] {
-  --mantine-color-body: var(--mantine-color-dark-9) !important;
+  --mantine-color-body: #0e0b1c !important;
 }
 
 #root {

@@ -2,6 +2,36 @@
     background-color: var(--mantine-color-dark-7);
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     font-feature-settings: 'tnum' 1, 'cv02';
+
+    @media screen and (max-width: 768px) {
+        border-radius: 0px;
+        margin-top: 0;
+        width: 100vw;
+        transform: translateX(-2.5rem);
+    }
+
+    @media screen and (min-width: 768px) {
+        border-radius: 16px;
+        margin-top: 32px;
+    }
+}
+
+.pair-detail-card {
+    background-color: var(--mantine-color-darkaccent-7);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    font-feature-settings: 'tnum' 1, 'cv02';
+    border: 1px solid rgba(255, 255, 255, 0);
+    @media screen and (max-width: 768px) {
+        border-radius: 0px;
+        margin-top: 0;
+        width: calc(100vw);
+        transform: translateX(-2.5rem);
+    }
+
+    @media screen and (min-width: 768px) {
+        border-radius: 16px;
+        margin-top: 0px;
+    }
 }
 
 

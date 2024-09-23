@@ -53,7 +53,7 @@ const Pair: React.FC = () => {
       <PageTransition duration={0.2}>
         <Center style={{ width: '100%', height: 'calc(100vh - 88px)' }}>
           <Flex direction="column" align="center" justify="center">
-            <Image src={disconnect} alt="Error" maw={400} mah={300} mb="md" />
+            <Image src={disconnect} alt="Error" maw={400} mah={400} mb="md" />
             <Text
               size="lg"
               fw={500}

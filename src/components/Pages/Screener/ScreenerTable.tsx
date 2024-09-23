@@ -152,7 +152,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
 
   // Table Headers with sorting indicators
   const headers = [
-    { label: '#', sortKey: 'market_cap_rank', ta: 'left' },
+    { label: '#', sortKey: 'market_cap_rank', ta: 'center' },
     { label: 'Name', sortKey: 'name', ta: 'left' },
     { label: 'Price', sortKey: 'current_price', ta: 'right' },
     {
@@ -217,7 +217,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
       shadow="lg"
       mx={{ base: -32, sm: 0 }}
       style={{ overflowX: 'auto', position: 'relative' }}
-      radius={0}
+      radius={15}
     >
       <LoadingOverlay
         visible={loading}
@@ -246,7 +246,6 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
       >
         <Table
           highlightOnHover
-          withRowBorders
           verticalSpacing="sm"
           horizontalSpacing="sm"
           className={classes.tableContainer}
@@ -261,9 +260,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
                   style={{
                     position: 'sticky',
                     top: 0,
-                    backgroundColor:
-                      'light-dark(var(--mantine-color-white), var(--mantine-color-dark-8))',
-                    zIndex: 10
+                    zIndex: 0
                   }}
                 >
                   <Flex
@@ -293,7 +290,7 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
                 onClick={() => handleClick(ticker.id)}
                 style={{ cursor: 'pointer', textAlign: 'left' }}
               >
-                <Table.Td>
+                <Table.Td align="center">
                   {ticker.market_cap_rank?.toLocaleString() || 'N/A'}
                 </Table.Td>
                 <Table.Td>

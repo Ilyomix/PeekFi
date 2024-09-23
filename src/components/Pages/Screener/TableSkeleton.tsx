@@ -65,7 +65,9 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({
         >
           <Table.Thead>
             <Table.Tr>
-              <Table.Th className={classes.tableCell}>#</Table.Th>
+              <Table.Th className={classes.tableCell} ta="center">
+                #
+              </Table.Th>
               <Table.Th className={classes.tableCell} ta="left">
                 Name
               </Table.Th>

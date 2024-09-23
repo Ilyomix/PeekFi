@@ -247,7 +247,7 @@ const Chart: React.FC<ChartProps> = React.memo(
           md: '350',
           xl: '400'
         }}
-        mb={64}
+        mb={42}
         direction="column"
       >
         <LoadingOverlay
