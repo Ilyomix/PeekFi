@@ -18,7 +18,8 @@ PeekFi is a cutting-edge cryptocurrency tracking application designed to provide
 - 🌗 **Dark Mode Support**: Toggle between light and dark themes to suit your preference and environment.
 - 🚀 **Fast and Responsive**: Built with React and optimized for performance, ensuring a smooth and responsive user experience.
 
-![image](https://github.com/user-attachments/assets/05815c37-c1a3-476f-92fe-ce99edc94c52)
+![image](https://github.com/user-attachments/assets/8c758f31-e676-47b5-809d-8b55c01620ea)
+
 
 ## Table of Contents
 
@@ -83,7 +84,7 @@ PeekFi is structured to follow best practices in React development. Below is a b
     Create a `.env` file in the root directory and add your API keys and other configuration variables:
 
     ```env
-    REACT_APP_API_KEY=your_api_key_here
+    SOME_API_KEY=your_api_key_here
     ```
 
 ## Running the Application
