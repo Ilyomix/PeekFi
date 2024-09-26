@@ -19,6 +19,7 @@ PeekFi is a cutting-edge cryptocurrency tracking application designed to provide
 - 🚀 **Fast and Responsive**: Built with React and optimized for performance, ensuring a smooth and responsive user experience.
 
 ![image](https://github.com/user-attachments/assets/8c758f31-e676-47b5-809d-8b55c01620ea)
+![image](https://github.com/user-attachments/assets/f76ce29d-558b-4f04-a7ae-3ebd33c684b9)
 
 
 ## Table of Contents
