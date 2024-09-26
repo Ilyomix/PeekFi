@@ -130,7 +130,7 @@ const FinancialMap: React.FC = () => {
                   onChange={(page) => setTablePage(page)}
                   total={totalPages}
                   autoContrast
-                  color="light-dark(var(--mantine-color-dark-8), var(--mantine-color-dark-4))"
+                  color="light-dark(var(--mantine-color-dark-8), var(--mantine-color-white))"
                   variant="light"
                   siblings={2}
                   display="flex"

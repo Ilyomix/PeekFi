@@ -65,6 +65,11 @@ body {
   justify-content: center;
 }
 
+.mantine-Pagination-control:where([data-active]) {
+  color: light-dark(white, black) !important;
+  font-weight: 700;
+}
+
 .mantine-Spotlight-actionLabel {
   display: none;
 }
