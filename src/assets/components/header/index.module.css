@@ -22,7 +22,7 @@
 
 .inner {
   height: 56px;
-  background-color: light-dark(rgba(255, 255, 255, 0.8), rgba(19, 16, 37, 0.6));
+  background-color: light-dark(rgba(255, 255, 255, 0.8), var(--mantine-color-darkaccent-4));
   padding: 0.5rem 2rem;
   display: flex;
   justify-content: space-between;

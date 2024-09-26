@@ -119,6 +119,12 @@ const CryptoSearch: React.FC = () => {
       maxHeight={600}
       styles={{
         actionsList: { overflowX: 'hidden', overflowY: 'auto' },
+        search: {
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+          backgroundColor:
+            'light-dark(var(--mantine-color-gray-1), var(--mantine-color-darkaccent-2))'
+        }
       }}
       lockScroll
       style={{ border: 'none' }}
@@ -132,10 +138,9 @@ const CryptoSearch: React.FC = () => {
         ),
         placeholder: 'Search...',
         rightSection: isLoading ? (
-          <Loader type="dots" size="sm" color="teal.6" />
+          <Loader type="dots" size="sm" color="dark.4" />
         ) : null
       }}
-      variant="dark"
       nothingFound={isLoading ? 'Searching ...' : 'No matches found'}
       onQueryChange={(q) => {
         setQuery(q);

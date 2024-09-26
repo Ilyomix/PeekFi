@@ -1,7 +1,8 @@
 .ticker-wrapper {
     background-color: var(--mantine-color-dark-7);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0), 0 4px 6px -4px rgb(0 0 0 / 0);
     font-feature-settings: 'tnum' 1, 'cv02';
+    border: 1px solid light-dark(rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.01));
 
     @media screen and (max-width: 768px) {
         border-radius: 0px;
@@ -17,10 +18,9 @@
 }
 
 .pair-detail-card {
-    background-color: var(--mantine-color-darkaccent-7);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-darkaccent-7));
     font-feature-settings: 'tnum' 1, 'cv02';
-    border: 1px solid rgba(255, 255, 255, 0);
+    border: 1px solid light-dark(rgba(0, 0, 0, 0.1), rgba(47, 39, 88, 1));
     @media screen and (max-width: 768px) {
         border-radius: 0px;
         margin-top: 0;

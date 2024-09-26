@@ -214,10 +214,9 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
   }, [data]);
   return (
     <Paper
-      shadow="lg"
       mx={{ base: -32, sm: 0 }}
       style={{ overflowX: 'auto', position: 'relative' }}
-      radius={15}
+      radius={0}
     >
       <LoadingOverlay
         visible={loading}
@@ -246,6 +245,8 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
       >
         <Table
           highlightOnHover
+          withColumnBorders={false}
+          borderColor="light-dark(var(--mantine-color-gray-2), var(--mantine-color-darkaccent-1))"
           verticalSpacing="sm"
           horizontalSpacing="sm"
           className={classes.tableContainer}
@@ -257,11 +258,6 @@ const TableView: React.FC<TableViewProps> = ({ data, vsCurrency, loading }) => {
                   key={label}
                   onClick={sortKey ? () => handleSort(sortKey) : undefined}
                   className={classes.tableCell}
-                  style={{
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 0
-                  }}
                 >
                   <Flex
                     align="center"

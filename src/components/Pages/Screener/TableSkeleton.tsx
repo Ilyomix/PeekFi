@@ -56,9 +56,8 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({
     <div style={{ zIndex: '-1' }}>
       <ScrollArea mx={{ base: -32, sm: 0 }}>
         <Table
-          highlightOnHover
-          highlightOnHoverColor="rgba(255, 255, 255, 0.1)"
-          withRowBorders
+          withColumnBorders={false}
+          borderColor="light-dark(var(--mantine-color-gray-2), var(--mantine-color-darkaccent-1))"
           verticalSpacing="sm"
           horizontalSpacing="sm"
           className={classes.tableContainer}

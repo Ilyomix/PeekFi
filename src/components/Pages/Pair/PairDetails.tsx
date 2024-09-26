@@ -91,7 +91,7 @@ const CoinCategories: React.FC<CoinCategoriesProps> = ({ coinData }) => {
   ];
 
   const lastCategoriesLabel = lastCategories.length && (
-    <Popover position="bottom" withArrow shadow="md" key={-1}>
+    <Popover position="bottom" withArrow key={-1}>
       <Popover.Target>
         <Pill style={{ cursor: 'pointer' }}>
           +{lastCategories.length} more categorie
@@ -134,14 +134,13 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
       <Grid
         gutter="xl"
         w="100%"
-        pt={42}
+        pt={32}
         style={{ zIndex: 3, position: 'relative' }}
         align="stretch"
       >
         <Grid.Col span={{ base: 12, md: 6, xl: 6 }}>
           <Paper
             h="100%"
-            shadow="md"
             radius="lg"
             p="xl"
             className={classes['pair-detail-card']}
@@ -157,7 +156,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   style={{ letterSpacing: '-0.03em' }}
                   fz={{ base: 24, md: 26 }}
                   mb={14}
-                  c="white"
+                  c="light-dark(black, white)"
                 >
                   Market Data
                 </Title>
@@ -169,7 +168,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Circulating Supply
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {formatNumber(
                         coinData?.market_data?.circulating_supply ?? 0,
                         0
@@ -201,7 +200,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Total Supply
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.market_data.total_supply
                         ? formatNumber(coinData.market_data.total_supply, 0)
                         : '∞'}
@@ -214,7 +213,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Max Supply
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.market_data.max_supply
                         ? formatNumber(coinData.market_data.max_supply, 0)
                         : '∞'}
@@ -227,7 +226,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Market Cap
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.market_data.market_cap[
                         vsCurrency
                       ]?.toLocaleString(undefined, {
@@ -243,7 +242,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     All-Time High
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.market_data.ath[vsCurrency]?.toLocaleString(
                         undefined,
                         {
@@ -292,7 +291,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     All-Time Low
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.market_data.atl[vsCurrency]?.toLocaleString(
                         undefined,
                         {
@@ -341,7 +340,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Market Cap Rank
                   </Text>
                   <Skeleton visible={loading} height={20} w={100}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.market_cap_rank
                         ? `#${coinData?.market_cap_rank}`
                         : '-'}
@@ -354,7 +353,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Total Volume
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.market_data.total_volume[
                         vsCurrency
                       ]?.toLocaleString(undefined, {
@@ -375,7 +374,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         <Grid.Col span={{ base: 12, md: 6, xl: 6 }}>
           <Paper
             h="100%"
-            shadow="md"
             radius="lg"
             p="xl"
             className={classes['pair-detail-card']}
@@ -391,7 +389,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   style={{ letterSpacing: '-0.03em' }}
                   fz={{ base: 24, md: 26 }}
                   mb={14}
-                  c="white"
+                  c="light-dark(black, white)"
                 >
                   Informations
                 </Title>
@@ -429,14 +427,19 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                               title={regionNames.of(coinData?.country_origin)}
                             />
                           </div>
-                          <Text size="md" fw={500} c="white" ml={4}>
+                          <Text
+                            size="md"
+                            fw={500}
+                            c="light-dark(black, white)"
+                            ml={4}
+                          >
                             {coinData?.country_origin
                               ? regionNames.of(coinData?.country_origin)
                               : '-'}
                           </Text>
                         </>
                       ) : (
-                        <Text size="md" fw={500} c="white">
+                        <Text size="md" fw={500} c="light-dark(black, white)">
                           -
                         </Text>
                       )}
@@ -449,7 +452,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Genesis Date
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.genesis_date
                         ? new Date(coinData.genesis_date).toLocaleDateString()
                         : '-'}
@@ -462,7 +465,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Hashing Algorithm
                   </Text>
                   <Skeleton visible={loading} height={20} miw={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.hashing_algorithm || '-'}
                     </Text>
                   </Skeleton>
@@ -473,7 +476,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Block Time (minutes)
                   </Text>
                   <Skeleton visible={loading} height={20} miw={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {coinData?.block_time_in_minutes
                         ? `${coinData.block_time_in_minutes} minute${
                             coinData.block_time_in_minutes > 1 ? 's' : ''
@@ -504,7 +507,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         <Grid.Col span={{ base: 12 }}>
           <Paper
             h="100%"
-            shadow="md"
             radius="lg"
             p="xl"
             className={classes['pair-detail-card']}
@@ -520,7 +522,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   style={{ letterSpacing: '-0.03em' }}
                   fz={{ base: 24, md: 26 }}
                   mb={14}
-                  c="white"
+                  c="light-dark(black, white)"
                 >
                   Price Changes
                 </Title>
@@ -585,7 +587,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         <Grid.Col span={{ base: 12, md: 6, xl: 6 }}>
           <Paper
             h="100%"
-            shadow="md"
             radius="lg"
             p="xl"
             className={classes['pair-detail-card']}
@@ -601,7 +602,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   style={{ letterSpacing: '-0.03em' }}
                   fz={{ base: 24, md: 26 }}
                   mb={14}
-                  c="white"
+                  c="light-dark(black, white)"
                 >
                   Developer Data
                 </Title>
@@ -614,7 +615,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Stars
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {formatNumber(coinData?.developer_data.stars ?? 0, 0) ||
                         '-'}
                     </Text>
@@ -625,7 +626,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Forks
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {formatNumber(coinData?.developer_data.forks ?? 0, 0) ||
                         '-'}
                     </Text>
@@ -636,7 +637,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Open Issues
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {formatNumber(
                         coinData?.developer_data.total_issues ?? 0,
                         0
@@ -649,7 +650,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Contributors
                   </Text>
                   <Skeleton visible={loading} height={20} w={200}>
-                    <Text size="md" fw={500} c="white">
+                    <Text size="md" fw={500} c="light-dark(black, white)">
                       {formatNumber(
                         coinData?.developer_data.pull_request_contributors ?? 0,
                         0
@@ -691,7 +692,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         <Grid.Col span={{ base: 12, md: 6, xl: 6 }}>
           <Paper
             h="100%"
-            shadow="md"
             radius="lg"
             p="xl"
             className={classes['pair-detail-card']}
@@ -707,7 +707,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   style={{ letterSpacing: '-0.03em' }}
                   fz={{ base: 24, md: 26 }}
                   mb={14}
-                  c="white"
+                  c="light-dark(black, white)"
                 >
                   Community Data
                 </Title>
@@ -722,8 +722,11 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     </Text>
                     <Skeleton visible={loading} height={20} w={200}>
                       <Group gap={4}>
-                        <IconBrandX size={16} color="#FAFAFA" />
-                        <Text size="md" fw={500} c="white">
+                        <IconBrandX
+                          size={16}
+                          color="light-dark(black, white)"
+                        />
+                        <Text size="md" fw={500} c="light-dark(black, white)">
                           {formatNumber(
                             coinData?.community_data?.twitter_followers ?? 0,
                             0
@@ -743,7 +746,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     <Skeleton visible={loading} height={20}>
                       <Group gap={4}>
                         <IconBrandTelegram size={16} color="#0088CC" />
-                        <Text size="md" fw={500} c="white">
+                        <Text size="md" fw={500} c="light-dark(black, white)">
                           {formatNumber(
                             coinData?.community_data
                               ?.telegram_channel_user_count ?? 0,
@@ -766,7 +769,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
           <>
             <Grid.Col span={{ base: 12 }}>
               <Paper
-                shadow="md"
                 radius="lg"
                 p="xl"
                 className={classes['pair-detail-card']}
@@ -782,7 +784,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                       style={{ letterSpacing: '-0.03em' }}
                       fz={{ base: 24, md: 26 }}
                       mb={14}
-                      c="white"
+                      c="light-dark(black, white)"
                     >
                       Status Updates
                     </Title>
@@ -801,7 +803,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                             </Text>
                             <TypographyStylesProvider
                               fz="sm"
-                              c="white"
+                              c="light-dark(black, white)"
                               mt={7}
                               style={{ textAlign: 'left', display: 'block' }}
                             >
@@ -827,7 +829,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         <Grid.Col span={{ base: 12 }}>
           <Paper
             h="100%"
-            shadow="md"
             radius="lg"
             p="xl"
             className={classes['pair-detail-card']}
@@ -843,7 +844,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   style={{ letterSpacing: '-0.03em' }}
                   fz={{ base: 24, md: 26 }}
                   mb={14}
-                  c="white"
+                  c="light-dark(black, white)"
                 >
                   About
                 </Title>
@@ -852,7 +853,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
               <Skeleton visible={loading}>
                 <TypographyStylesProvider
                   fz="sm"
-                  c="white"
+                  c="light-dark(black, white)"
                   style={{ textAlign: 'left', display: 'block' }}
                 >
                   <div
@@ -878,7 +879,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         <Grid.Col span={{ base: 12, md: 6, xl: 6 }}>
           <Paper
             h="100%"
-            shadow="md"
             radius="lg"
             p="xl"
             className={classes['pair-detail-card']}
@@ -894,7 +894,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   style={{ letterSpacing: '-0.03em' }}
                   fz={{ base: 24, md: 26 }}
                   mb={14}
-                  c="white"
+                  c="light-dark(black, white)"
                 >
                   Sentiment Votes
                 </Title>
@@ -906,9 +906,14 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Votes Up Percentage
                   </Text>
                   <Skeleton visible={loading} height={20} w={100}>
-                    <Flex align="center" fw={500} c="white">
+                    <Flex align="center" fw={500} c="light-dark(black, white)">
                       <IconThumbUpFilled size={16} color="#16c784" />
-                      <Text size="md" fw={500} c="white" ml={6}>
+                      <Text
+                        size="md"
+                        fw={500}
+                        c="light-dark(black, white)"
+                        ml={6}
+                      >
                         {coinData?.sentiment_votes_up_percentage !== null
                           ? `${coinData?.sentiment_votes_up_percentage.toFixed(
                               2
@@ -924,9 +929,14 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                     Votes Down Percentage
                   </Text>
                   <Skeleton visible={loading} height={20} w={100}>
-                    <Flex align="center" fw={500} c="white">
+                    <Flex align="center" fw={500} c="light-dark(black, white)">
                       <IconThumbDownFilled size={16} color="#ea3943" />
-                      <Text size="md" fw={500} c="white" ml={6}>
+                      <Text
+                        size="md"
+                        fw={500}
+                        c="light-dark(black, white)"
+                        ml={6}
+                      >
                         {coinData?.sentiment_votes_down_percentage !== null
                           ? `${coinData?.sentiment_votes_down_percentage.toFixed(
                               2
@@ -946,7 +956,6 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
         {/* Social Links */}
         <Grid.Col span={{ base: 12, md: 6, xl: 6 }}>
           <Paper
-            shadow="md"
             radius="lg"
             p="xl"
             className={classes['pair-detail-card']}
@@ -964,7 +973,7 @@ const PairDetails: React.FC<PairDetailsProps> = React.memo(
                   style={{ letterSpacing: '-0.03em' }}
                   fz={{ base: 24, md: 26 }}
                   mb={14}
-                  c="white"
+                  c="light-dark(black, white)"
                 >
                   Links
                 </Title>

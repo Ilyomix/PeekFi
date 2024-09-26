@@ -14,9 +14,6 @@
     border: 0px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-gray-8));
 }
 
-.tableCell:not(:last-child):not(.mantine-Table-thead) {
-  border-bottom: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
-}
 
 .percentageText {
   font-weight: 400;

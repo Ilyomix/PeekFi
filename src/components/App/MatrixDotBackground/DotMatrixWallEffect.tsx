@@ -40,7 +40,7 @@ export const DotMatrixWallEffect: React.FC<DotMatrixWallEffectProps> =
       return (
         <div
           className={cn(
-            'h-full absolute bg-black opacity-90 w-full',
+            'h-full absolute bg-[#131025] opacity-90 w-full',
             containerClassName
           )}
         >
@@ -55,7 +55,7 @@ export const DotMatrixWallEffect: React.FC<DotMatrixWallEffectProps> =
             />
           </div>
           {showGradient && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black to-[170%]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black to-[120%]" />
           )}
         </div>
       );

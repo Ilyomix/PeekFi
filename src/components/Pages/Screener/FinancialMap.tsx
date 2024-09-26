@@ -130,7 +130,7 @@ const FinancialMap: React.FC = () => {
                   onChange={(page) => setTablePage(page)}
                   total={totalPages}
                   autoContrast
-                  color="light-dark(var(--mantine-color-dark-8), var(--mantine-color-teal-8))"
+                  color="light-dark(var(--mantine-color-dark-8), var(--mantine-color-dark-4))"
                   variant="light"
                   siblings={2}
                   display="flex"
@@ -143,6 +143,12 @@ const FinancialMap: React.FC = () => {
                   previousIcon={IconArrowLeft}
                   firstIcon={IconArrowBarToLeft}
                   lastIcon={IconArrowBarToRight}
+                  styles={{
+                    control: {
+                      border:
+                        '1px solid light-dark(var(--mantine-color-dark-1), var(--mantine-color-dark-9))'
+                    }
+                  }}
                 />
               </Flex>
             ) : (
